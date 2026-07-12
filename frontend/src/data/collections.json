@@ -1,0 +1,35 @@
+[
+  {
+    "id": "collection-video-terbaru",
+    "slug": "produk-dari-video-terbaru",
+    "name": "Produk dari Video Terbaru",
+    "description": "Contoh kumpulan produk yang dapat dihubungkan ke satu video atau postingan.",
+    "eyebrow": "Dari konten terbaru",
+    "productIds": ["prod-lampu-meja", "prod-tripod-hp", "prod-organizer-meja"],
+    "order": 1,
+    "status": "published",
+    "demo": true
+  },
+  {
+    "id": "collection-meja-rapi",
+    "slug": "setup-meja-rapi",
+    "name": "Setup Meja Lebih Rapi",
+    "description": "Contoh koleksi berdasarkan kebutuhan, bukan sekadar kategori teknis.",
+    "eyebrow": "Koleksi pilihan",
+    "productIds": ["prod-lampu-meja", "prod-organizer-meja", "prod-organizer-kabel", "prod-power-strip"],
+    "order": 2,
+    "status": "published",
+    "demo": true
+  },
+  {
+    "id": "collection-rumah-praktis",
+    "slug": "barang-praktis-di-rumah",
+    "name": "Barang Praktis di Rumah",
+    "description": "Contoh koleksi produk ringkas yang mudah dijelajahi dari satu halaman.",
+    "eyebrow": "Untuk kebutuhan harian",
+    "productIds": ["prod-vacuum-mini", "prod-rak-serbaguna", "prod-blender-portable"],
+    "order": 3,
+    "status": "published",
+    "demo": true
+  }
+]

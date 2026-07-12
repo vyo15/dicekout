@@ -1,0 +1,12 @@
+{
+  "name": "dicekout-id",
+  "version": "0.1.0",
+  "private": true,
+  "description": "DicekOut static affiliate recommendation catalog.",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev -- --host 0.0.0.0",
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "check": "npm --prefix frontend run check"
+  }
+}

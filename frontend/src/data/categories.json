@@ -1,0 +1,38 @@
+[
+  {
+    "id": "cat-elektronik",
+    "slug": "elektronik",
+    "name": "Elektronik",
+    "description": "Perangkat ringkas untuk membantu aktivitas harian.",
+    "icon": "devices",
+    "accent": "blue",
+    "order": 1
+  },
+  {
+    "id": "cat-meja-kerja",
+    "slug": "meja-kerja",
+    "name": "Meja Kerja",
+    "description": "Pilihan untuk meja belajar dan ruang kerja yang lebih rapi.",
+    "icon": "desk",
+    "accent": "orange",
+    "order": 2
+  },
+  {
+    "id": "cat-rumah",
+    "slug": "peralatan-rumah",
+    "name": "Peralatan Rumah",
+    "description": "Barang praktis untuk kebutuhan rumah sehari-hari.",
+    "icon": "home",
+    "accent": "mint",
+    "order": 3
+  },
+  {
+    "id": "cat-lifestyle",
+    "slug": "lifestyle",
+    "name": "Lifestyle",
+    "description": "Pilihan pendamping rutinitas dan aktivitas di luar rumah.",
+    "icon": "sparkles",
+    "accent": "purple",
+    "order": 4
+  }
+]

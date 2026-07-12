@@ -1,0 +1,23 @@
+{
+  "name": "DicekOut",
+  "short_name": "DicekOut",
+  "description": "Katalog rekomendasi produk dari konten pilihan.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#edfaff",
+  "theme_color": "#61d5ee",
+  "icons": [
+    {
+      "src": "brand/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "brand/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 520" role="img">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#c8f3ef"/><stop offset="1" stop-color="#ecfffb"/></linearGradient>
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#31526a" flood-opacity=".18"/></filter>
+  </defs>
+  <rect width="600" height="520" rx="48" fill="url(#bg)"/>
+  <circle cx="510" cy="82" r="58" fill="#fff" opacity=".32"/>
+  <circle cx="92" cy="442" r="80" fill="#fff" opacity=".22"/>
+  <g filter="url(#shadow)">
+  <ellipse cx="306" cy="292" rx="126" ry="118" fill="#58bfd0"/>
+  <ellipse cx="306" cy="292" rx="88" ry="82" fill="#e4fbff"/>
+  <circle cx="306" cy="292" r="44" fill="#2b789d"/>
+  <rect x="250" y="144" width="112" height="58" rx="26" fill="#ff9d36"/>
+  <path d="M188 332L92 408" stroke="#2b789d" stroke-width="38" stroke-linecap="round"/>
+  <rect x="52" y="390" width="112" height="46" rx="22" fill="#1b5e88" transform="rotate(-18 52 390)"/>
+  <circle cx="410" cy="360" r="28" fill="#ffd65a"/>
+</g>
+</svg>

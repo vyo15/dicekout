@@ -1,0 +1,11 @@
+{
+  "brandName": "DicekOut",
+  "domain": "dicekout.id",
+  "tagline": "Cek rekomendasi produknya di sini.",
+  "title": "DicekOut | Rekomendasi Produk dari Konten Pilihan",
+  "description": "Temukan produk yang dibahas di konten DicekOut, baca alasan rekomendasinya, lalu cek penawaran terbaru langsung di marketplace.",
+  "defaultOgImage": "og-cover.png",
+  "catalogMode": "demo",
+  "allowIndexing": false,
+  "updatedAt": "2026-07-12"
+}
