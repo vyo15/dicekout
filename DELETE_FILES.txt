@@ -1,0 +1,1 @@
+tools/catalog-manager/src/icons.jsx

@@ -157,3 +157,12 @@
 - [ ] Main content fills the remaining page width.
 - [ ] Header search is disabled while editing a product.
 - [ ] Tablet and mobile layouts stack without horizontal overflow.
+
+
+## Catalog Manager clean visual
+
+- [ ] Sidebar, header, kartu, tabel, dan editor tampil putih bersih serta konsisten.
+- [ ] Tidak ada gradient pada tombol atau sidebar.
+- [ ] Aksen kuning tampil sebagai solid fill pada CTA utama.
+- [ ] Ikon Produk, Produk baru, Draft lokal, dan Perlu ditinjau sesuai fungsinya.
+- [ ] Active state tetap jelas dengan keyboard dan pointer.

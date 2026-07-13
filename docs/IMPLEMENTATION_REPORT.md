@@ -198,3 +198,11 @@ The local manager reuses the same DicekOut logo and favicon files from `frontend
 - The header reuses the public DicekOut logo and displays the `DicekOut.ID` brand label.
 - The sidebar begins below the header, remains local-only, and the main workspace fills the available viewport.
 - The header search is available only on the product list so it cannot discard an unsaved editor form.
+
+
+## Catalog Manager clean white navigation
+
+- Sidebar dan area kerja memakai surface putih yang konsisten.
+- Aksen kuning hanya digunakan sebagai solid fill pada CTA utama, tanpa gradient.
+- Ikon navigasi menggunakan `react-icons/fi` sesuai fungsi menu.
+- Menu aktif memakai surface charcoal solid agar kontras dan tetap minimalis.

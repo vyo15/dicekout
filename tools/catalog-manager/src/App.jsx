@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { createUniqueProductIdentity } from "./productIdentity.js";
+import { FiArrowLeft, FiBox, FiCheckCircle, FiEdit3, FiFileText, FiPlus, FiSearch } from "react-icons/fi";
 
 const lines = (value) => String(value || "").split("\n").map((item) => item.trim()).filter(Boolean);
 const today = () => new Date().toISOString().slice(0, 10);
@@ -161,7 +162,7 @@ export default function App() {
         <span><strong>DicekOut.ID</strong><small>Catalog Manager</small></span>
       </button>
       <label className="manager-header__search">
-        <span aria-hidden="true">⌕</span>
+        <FiSearch aria-hidden="true" />
         <input
           aria-label="Cari produk dari header"
           placeholder={view === "products" ? "Cari produk DicekOut..." : "Pencarian tersedia di daftar produk"}
@@ -177,19 +178,19 @@ export default function App() {
     </header>
 
     <aside className="sidebar">
-      <button className="button button--accent button--full sidebar-add" onClick={newProduct}>＋ Tambah produk</button>
+      <button className="button button--accent button--full sidebar-add" onClick={newProduct}><FiPlus aria-hidden="true" /> <span>Tambah produk</span></button>
       <nav className="sidebar-nav" aria-label="Navigasi Catalog Manager">
-        <button className={view === "products" && listMode === "source" ? "active" : ""} onClick={() => showProducts("source")}><span>▦</span><b>Produk</b><small>{catalog.products.length}</small></button>
-        <button className={view === "editor" && mode === "new" ? "active" : ""} onClick={newProduct}><span>＋</span><b>Produk baru</b></button>
-        <button className={view === "products" && listMode === "draft" ? "active" : ""} onClick={() => showProducts("draft")}><span>▣</span><b>Draft lokal</b><small>{drafts.length}</small></button>
-        <button onClick={() => { setView("products"); setListMode("source"); setStatusFilter("draft"); }}><span>✓</span><b>Perlu ditinjau</b></button>
+        <button className={view === "products" && listMode === "source" && statusFilter !== "draft" ? "active" : ""} onClick={() => { setStatusFilter("all"); showProducts("source"); }}><FiBox aria-hidden="true" /><b>Produk</b><small>{catalog.products.length}</small></button>
+        <button className={view === "editor" && mode === "new" ? "active" : ""} onClick={newProduct}><FiEdit3 aria-hidden="true" /><b>Produk baru</b></button>
+        <button className={view === "products" && listMode === "draft" ? "active" : ""} onClick={() => showProducts("draft")}><FiFileText aria-hidden="true" /><b>Draft lokal</b><small>{drafts.length}</small></button>
+        <button className={view === "products" && listMode === "source" && statusFilter === "draft" ? "active" : ""} onClick={() => { setView("products"); setListMode("source"); setStatusFilter("draft"); }}><FiCheckCircle aria-hidden="true" /><b>Perlu ditinjau</b><small>{catalog.products.filter((item) => item.status !== "published").length}</small></button>
       </nav>
       <div className="sidebar-local"><strong>Hanya lokal</strong><p>Panel tidak melakukan commit, push, atau deploy otomatis.</p></div>
     </aside>
 
     <main className="manager-main">
       {view === "products" ? <>
-        <header className="topbar list-topbar"><div><span className="eyebrow">Katalog / {listMode === "draft" ? "Draft lokal" : "Produk"}</span><h1>{listMode === "draft" ? "Draft lokal" : "Kelola produk"}</h1><p>{listMode === "draft" ? "Lanjutkan draft yang hanya tersimpan di perangkat ini." : "Cari, filter, dan edit produk tanpa memenuhi sidebar."}</p></div><div className="topbar__actions"><button className="button button--accent" onClick={newProduct}>＋ Tambah produk</button></div></header>
+        <header className="topbar list-topbar"><div><span className="eyebrow">Katalog / {listMode === "draft" ? "Draft lokal" : "Produk"}</span><h1>{listMode === "draft" ? "Draft lokal" : "Kelola produk"}</h1><p>{listMode === "draft" ? "Lanjutkan draft yang hanya tersimpan di perangkat ini." : "Cari, filter, dan edit produk tanpa memenuhi sidebar."}</p></div><div className="topbar__actions"><button className="button button--accent" onClick={newProduct}><FiPlus aria-hidden="true" /> <span>Tambah produk</span></button></div></header>
         {notice && <div className="notice" role="status"><span>i</span><p>{notice}</p></div>}
         <section className="catalog-metrics">
           <div><small>Total produk</small><strong>{catalog.products.length}</strong></div>
@@ -199,18 +200,18 @@ export default function App() {
         </section>
         <section className="catalog-panel">
           <div className="catalog-toolbar">
-            <label className="catalog-search"><span>⌕</span><input aria-label="Cari produk" placeholder="Cari nama, slug, status, atau kategori…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
+            <label className="catalog-search"><FiSearch aria-hidden="true" /><input aria-label="Cari produk" placeholder="Cari nama, slug, status, atau kategori…" value={query} onChange={(event) => setQuery(event.target.value)} /></label>
             {listMode === "source" && <><select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}><option value="all">Semua status</option><option value="published">Published</option><option value="draft">Draft</option></select><select value={categoryFilter} onChange={(event) => setCategoryFilter(event.target.value)}><option value="all">Semua kategori</option>{catalog.categories.map((item) => <option key={item.id} value={item.slug}>{item.name}</option>)}</select></>}
           </div>
           <div className="catalog-table-wrap">
             <table className="catalog-table"><thead><tr><th>Produk</th><th>Kategori</th><th>Status</th><th>Diperbarui</th><th>Aksi</th></tr></thead><tbody>
-              {filteredProducts.length ? filteredProducts.map((item) => <tr key={item.id || item.slug}><td><div className="catalog-product"><div className={`catalog-thumb palette-${item.visual?.paletteId || "neutral"}`}>{item.image ? <img src={productImageUrl(item)} alt="" /> : <span>Gambar</span>}</div><div><strong>{item.name || "Tanpa nama"}</strong><small>{item.slug || "Belum memiliki slug"}</small></div></div></td><td>{categoryName(item.categorySlug)}</td><td><span className={`catalog-status catalog-status--${item.status || "draft"}`}>{listMode === "draft" ? "Draft lokal" : item.status}</span></td><td>{item.updatedAt || "—"}</td><td><button className="table-action" onClick={() => choose(item, listMode === "draft" ? "draft" : "source")}>Edit</button></td></tr>) : <tr><td colSpan="5"><div className="catalog-empty"><strong>Belum ada produk yang cocok.</strong><p>Ubah pencarian atau filter, lalu coba kembali.</p></div></td></tr>}
+              {filteredProducts.length ? filteredProducts.map((item) => <tr key={item.id || item.slug}><td><div className="catalog-product"><div className={`catalog-thumb palette-${item.visual?.paletteId || "neutral"}`}>{item.image ? <img src={productImageUrl(item)} alt="" /> : <span>Gambar</span>}</div><div><strong>{item.name || "Tanpa nama"}</strong><small>{item.slug || "Belum memiliki slug"}</small></div></div></td><td>{categoryName(item.categorySlug)}</td><td><span className={`catalog-status catalog-status--${item.status || "draft"}`}>{listMode === "draft" ? "Draft lokal" : item.status}</span></td><td>{item.updatedAt || "—"}</td><td><button className="table-action" onClick={() => choose(item, listMode === "draft" ? "draft" : "source")}><FiEdit3 aria-hidden="true" /><span>Edit</span></button></td></tr>) : <tr><td colSpan="5"><div className="catalog-empty"><strong>Belum ada produk yang cocok.</strong><p>Ubah pencarian atau filter, lalu coba kembali.</p></div></td></tr>}
             </tbody></table>
           </div>
           <div className="catalog-footer"><span>Menampilkan {filteredProducts.length} item</span><span>{listMode === "draft" ? "Draft hanya tersedia di perangkat ini" : "Data source DicekOut"}</span></div>
         </section>
       </> : <>
-        <button className="editor-back" onClick={() => showProducts(mode === "draft" ? "draft" : "source")}>← Kembali ke daftar produk</button>
+        <button className="editor-back" onClick={() => showProducts(mode === "draft" ? "draft" : "source")}><FiArrowLeft aria-hidden="true" /><span>Kembali ke daftar produk</span></button>
 
       <header className="topbar"><div><span className="eyebrow">Katalog / {mode === "new" ? "Produk baru" : "Edit produk"}</span><h1>{mode === "new" ? "Tambah produk baru" : product.name || "Edit produk"}</h1><p>Isi informasi produk, review preview, lalu terapkan ke source ketika sudah siap.</p></div><div className="topbar__actions"><button className="button" onClick={newProduct} disabled={busy}>Batal</button><button className="button" onClick={saveDraft} disabled={busy}>Simpan draft</button><button className="button button--dark" onClick={validate} disabled={busy}>Validasi</button><button className="button button--accent" onClick={apply} disabled={busy}>Terapkan ke source</button></div></header>
       {notice && <div className="notice" role="status"><span>i</span><p>{notice}</p></div>}

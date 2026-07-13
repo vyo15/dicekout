@@ -67,3 +67,27 @@ test("catalog manager uses a full-page header with DicekOut.ID branding", async 
   assert.match(styles, /grid-area:header/);
   assert.match(styles, /width:100%/);
 });
+
+
+test("catalog manager uses React Icons and clean solid color navigation", async () => {
+  const [app, styles, managerPackage] = await Promise.all([
+    readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/styles.css", import.meta.url), "utf8"),
+    readFile(new URL("../package.json", import.meta.url), "utf8")
+  ]);
+
+  assert.match(app, /from "react-icons\/fi"/);
+  assert.match(app, /FiBox/);
+  assert.match(app, /FiFileText/);
+  assert.match(app, /FiCheckCircle/);
+  assert.equal(app.includes("<span>▦</span>"), false);
+  assert.equal(app.includes("<span>▣</span>"), false);
+  assert.equal(app.includes("<span>✓</span>"), false);
+
+  assert.equal(styles.includes("linear-gradient("), false);
+  assert.match(styles, /--manager-sidebar:var\(--surface\)/);
+  assert.match(styles, /\.sidebar-nav button\.active\s*\{[\s\S]*background:\s*var\(--manager-sidebar-active\)/);
+
+  const parsedPackage = JSON.parse(managerPackage);
+  assert.equal(parsedPackage.dependencies["react-icons"], "^5.5.0");
+});
