@@ -46,11 +46,19 @@ export const getPrimaryAffiliateLink = (product) => {
   return activeLinks.find((link) => link.isPrimary) || activeLinks[0] || null;
 };
 
-export const searchProducts = ({ query = "", category = "all", sort = "recommended" } = {}) => {
+export const searchProducts = ({
+  query = "",
+  category = "all",
+  sort = "recommended",
+  featured = false,
+  newest = false,
+} = {}) => {
   const normalizedQuery = normalizeSearchText(query);
   let result = products.filter((product) => {
     const matchesCategory = category === "all" || product.categorySlug === category;
-    if (!matchesCategory) return false;
+    const matchesFeatured = !featured || product.featured;
+    const matchesNewest = !newest || product.newest;
+    if (!matchesCategory || !matchesFeatured || !matchesNewest) return false;
     if (!normalizedQuery) return true;
 
     const searchable = normalizeSearchText([

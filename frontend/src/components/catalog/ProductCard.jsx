@@ -4,17 +4,18 @@ import { getCategory, getPrimaryAffiliateLink } from "../../utils/catalog";
 import { withBasePath } from "../../config/site";
 import AffiliateLinkButton from "./AffiliateLinkButton";
 
-const ProductCard = ({ product, priority = false }) => {
+const ProductCard = ({ product, priority = false, variant = "default" }) => {
   const category = getCategory(product.categorySlug);
   const primaryLink = getPrimaryAffiliateLink(product);
   const detailPath = `/produk/${product.slug}`;
+  const catalogVariant = variant === "catalog";
 
   const handleImageError = (event) => {
     event.currentTarget.src = withBasePath("images/products/fallback.svg");
   };
 
   return (
-    <article className="product-card">
+    <article className={`product-card${catalogVariant ? " product-card--catalog" : ""}`}>
       <Link className="product-card__image-link" to={detailPath} aria-label={`Lihat detail ${product.name}`}>
         <div className="product-card__image-wrap">
           <img
@@ -27,6 +28,7 @@ const ProductCard = ({ product, priority = false }) => {
           <div className="product-card__badges">
             {product.demo ? <span className="badge badge--demo">Contoh produk</span> : null}
             {product.featured ? <span className="badge badge--featured">Pilihan</span> : null}
+            {catalogVariant && product.newest ? <span className="badge badge--newest">Terbaru</span> : null}
           </div>
         </div>
       </Link>
@@ -44,7 +46,7 @@ const ProductCard = ({ product, priority = false }) => {
         ) : null}
       </div>
 
-      <div className="product-card__actions">
+      <div className={`product-card__actions${primaryLink ? " product-card__actions--multiple" : ""}`}>
         <Link className="button button--secondary button--compact" to={detailPath}>
           Lihat detail <FiArrowUpRight aria-hidden="true" />
         </Link>
