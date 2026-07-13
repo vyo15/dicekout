@@ -7,13 +7,18 @@ import {
   FiInfo,
   FiTag,
   FiUserCheck,
+  FiUserX,
+  FiCalendar,
+  FiPlayCircle,
 } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
+import ShareButton from "../components/common/ShareButton";
 import ProductGrid from "../components/catalog/ProductGrid";
 import AffiliateLinkButton from "../components/catalog/AffiliateLinkButton";
 import NotFoundPage from "./NotFoundPage";
 import { SITE, toAbsoluteUrl, withBasePath } from "../config/site";
+import { getSafeExternalUrl } from "../utils/urls";
 import {
   getCategory,
   getCollection,
@@ -31,6 +36,14 @@ const ProductDetailPage = () => {
   const activeLinks = (product.affiliateLinks || []).filter((link) => link.status !== "inactive");
   const productCollections = (product.collectionSlugs || []).map(getCollection).filter(Boolean);
   const path = `produk/${product.slug}`;
+  const shareUrl = toAbsoluteUrl(path);
+  const reviewedLabel = product.reviewedAt
+    ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${product.reviewedAt}T00:00:00Z`))
+    : null;
+  const contentReferences = (product.contentReferences || []).map((reference) => ({
+    ...reference,
+    safeUrl: getSafeExternalUrl(reference.url),
+  })).filter((reference) => reference.safeUrl);
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -52,6 +65,7 @@ const ProductDetailPage = () => {
         title={`${product.name} | DicekOut`}
         description={product.summary}
         path={path}
+        image={product.ogImage || SITE.defaultOgImage}
         noindex={product.demo || !SITE.allowIndexing}
         jsonLd={breadcrumbJsonLd}
       />
@@ -84,6 +98,13 @@ const ProductDetailPage = () => {
               </Link>
               <h1>{product.name}</h1>
               <p className="product-detail__lead">{product.summary}</p>
+
+              <div className="product-detail__actions">
+                <ShareButton title={product.name} text={product.summary} url={shareUrl} />
+                {reviewedLabel ? (
+                  <span className="reviewed-date"><FiCalendar aria-hidden="true" /> Ditinjau {reviewedLabel}</span>
+                ) : null}
+              </div>
 
               <div className="recommendation-box">
                 <span><FiInfo aria-hidden="true" /> Mengapa direkomendasikan</span>
@@ -143,6 +164,16 @@ const ProductDetailPage = () => {
               {product.suitableFor.map((item) => <li key={item}>{item}</li>)}
             </ul>
           </article>
+
+          {(product.notSuitableFor || []).length ? (
+            <article className="info-card info-card--neutral">
+              <span className="info-card__icon"><FiUserX aria-hidden="true" /></span>
+              <h2>Tidak cocok untuk</h2>
+              <ul>
+                {product.notSuitableFor.map((item) => <li key={item}>{item}</li>)}
+              </ul>
+            </article>
+          ) : null}
         </div>
       </section>
 
@@ -158,6 +189,19 @@ const ProductDetailPage = () => {
                 <div>
                   {productCollections.map((collection) => (
                     <Link key={collection.id} to={`/koleksi/${collection.slug}`}>{collection.name}</Link>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
+            {contentReferences.length ? (
+              <div className="content-references">
+                <strong><FiPlayCircle aria-hidden="true" /> Konten terkait</strong>
+                <div>
+                  {contentReferences.map((reference) => (
+                    <a key={`${reference.platform}-${reference.safeUrl}`} href={reference.safeUrl} target="_blank" rel="noopener">
+                      {reference.label}
+                    </a>
                   ))}
                 </div>
               </div>

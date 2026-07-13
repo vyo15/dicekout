@@ -1,18 +1,7 @@
 :root {
-  /* Typography tokens: use these for every current and future page. */
-  --font-family-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
-  --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  --font-weight-extrabold: 800;
-  --line-height-body: 1.6;
-  --line-height-heading: 1.12;
-  --letter-spacing-heading: -0.04em;
-
   font-family: var(--font-family-sans);
-  color: #10233f;
-  background: #edfaff;
+  color: var(--color-text);
+  background: var(--color-page);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -87,6 +76,6 @@ canvas {
 }
 
 ::selection {
-  color: #08243a;
-  background: #ffe19a;
+  color: var(--color-text);
+  background: color-mix(in srgb, var(--color-primary) 18%, transparent);
 }

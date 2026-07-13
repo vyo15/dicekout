@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import App from "./App.jsx";
 import AppErrorBoundary from "./components/feedback/AppErrorBoundary.jsx";
 import { BASE_PATH } from "./config/site.js";
+import "./styles/tokens.css";
 import "./index.css";
 import "./styles/site.css";
 

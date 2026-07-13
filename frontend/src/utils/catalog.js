@@ -67,6 +67,8 @@ export const searchProducts = ({
       product.description,
       product.recommendationReason,
       ...(product.keywords || []),
+      ...(product.aliases || []),
+      ...(product.contentReferences || []).flatMap((reference) => [reference.label, reference.platform]),
       getCategory(product.categorySlug)?.name,
     ].filter(Boolean).join(" "));
 

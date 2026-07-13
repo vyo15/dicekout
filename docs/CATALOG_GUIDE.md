@@ -86,3 +86,47 @@ Sebelum mengaktifkan:
 - affiliate URL sudah diuji;
 - disclosure dan privacy sudah ditinjau;
 - domain dan canonical sudah benar.
+
+## Workflow produk live (draft → publish)
+
+DicekOut tetap memakai JSON pada MVP. Setiap produk baru harus dimulai sebagai `draft` dan `demo: false`, lalu hanya dipublikasikan setelah checklist berikut selesai:
+
+1. Nama, slug, ringkasan, deskripsi, kategori, dan gambar sesuai dengan produk tujuan.
+2. `imageAlt`, `imageSource`, `imageLicense`, `imageWidth`, dan `imageHeight` sudah diisi.
+3. `recommendationReason`, `pros`, `considerations`, `suitableFor`, dan `notSuitableFor` berisi informasi nyata.
+4. `reviewedAt` menunjukkan tanggal terakhir produk, konten, dan link diperiksa.
+5. `affiliateLinks` memakai ID marketplace yang terdaftar dan mempertahankan seluruh parameter referral/campaign.
+6. `contentReferences` hanya berisi konten publik yang benar-benar terkait.
+7. Tidak ada harga, stok, diskon, rating, review, atau klaim pengalaman yang tidak diverifikasi.
+8. Jalankan `npm run check` sebelum mengubah status menjadi `published`.
+
+### Field tambahan produk
+
+```json
+{
+  "aliases": ["nama yang biasa dipakai audiens"],
+  "notSuitableFor": ["siapa yang sebaiknya memilih alternatif"],
+  "reviewedAt": "2026-07-13",
+  "imageSource": "Sumber gambar",
+  "imageLicense": "Dasar izin penggunaan",
+  "imageWidth": 1200,
+  "imageHeight": 1200,
+  "ogImage": "images/og/nama-produk.webp",
+  "contentReferences": [
+    {
+      "platform": "instagram",
+      "label": "Judul konten",
+      "url": "https://...",
+      "publishedAt": "2026-07-13"
+    }
+  ]
+}
+```
+
+`marketplaceProductId` bersifat opsional dan hanya untuk referensi internal data. Jangan tampilkan ID teknis tersebut ke pengunjung.
+
+## Marketplace registry
+
+ID marketplace yang didukung tersimpan di `frontend/src/config/marketplaces.js`. Gunakan ID tersebut pada `affiliateLinks[].marketplace`, misalnya `shopee`, `tokopedia`, `lazada`, `tiktok-shop`, `blibli`, `amazon`, atau `other`.
+
+Gunakan `other` hanya setelah domain tujuan diperiksa manual. Validator tidak mengubah URL, query string, sub-ID, UTM, atau parameter attribution.

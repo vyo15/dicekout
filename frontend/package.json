@@ -8,8 +8,9 @@
     "validate:catalog": "node scripts/validate-catalog.mjs",
     "build": "npm run validate:catalog && vite build && node scripts/generate-static-routes.mjs",
     "lint": "eslint .",
-    "check": "npm run lint && npm run build",
-    "preview": "vite preview"
+    "check": "npm run lint && npm run test && npm run build",
+    "preview": "vite preview",
+    "test": "node --test test/*.test.js"
   },
   "dependencies": {
     "react": "^19.1.1",

@@ -1,6 +1,7 @@
 const STORAGE_KEY = "dicekout.theme";
 const DARK = "dark";
 const LIGHT = "light";
+const THEME_COLORS = { light: "#f4f4f4", dark: "#090a0c" };
 
 export const getInitialTheme = () => {
   if (typeof window === "undefined") return LIGHT;
@@ -16,7 +17,7 @@ export const applyTheme = (theme) => {
   document.body.dataset.theme = value;
   document.querySelector('meta[name="theme-color"]')?.setAttribute(
     "content",
-    value === DARK ? "#071d31" : "#61d5ee",
+    THEME_COLORS[value],
   );
   window.localStorage.setItem(STORAGE_KEY, value);
 };

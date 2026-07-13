@@ -9,13 +9,22 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
   const primaryLink = getPrimaryAffiliateLink(product);
   const detailPath = `/produk/${product.slug}`;
   const catalogVariant = variant === "catalog";
+  const homeScrollVariant = variant === "home-scroll";
+  const homeCompactVariant = variant === "home-compact";
+  const variantClass = catalogVariant
+    ? " product-card--catalog"
+    : homeCompactVariant
+      ? " product-card--home-compact"
+      : homeScrollVariant
+        ? " product-card--home-scroll"
+        : "";
 
   const handleImageError = (event) => {
     event.currentTarget.src = withBasePath("images/products/fallback.svg");
   };
 
   return (
-    <article className={`product-card${catalogVariant ? " product-card--catalog" : ""}`}>
+    <article className={`product-card${variantClass}`}>
       <Link className="product-card__image-link" to={detailPath} aria-label={`Lihat detail ${product.name}`}>
         <div className="product-card__image-wrap">
           <img
@@ -27,7 +36,6 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
           />
           <div className="product-card__badges">
             {product.demo ? <span className="badge badge--demo">Contoh produk</span> : null}
-            {product.featured ? <span className="badge badge--featured">Pilihan</span> : null}
             {catalogVariant && product.newest ? <span className="badge badge--newest">Terbaru</span> : null}
           </div>
         </div>

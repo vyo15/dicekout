@@ -14,7 +14,7 @@ import { SITE, toAbsoluteUrl } from "../config/site";
 import { categories, collections, products } from "../utils/catalog";
 
 const featuredProducts = products.filter((product) => product.featured).slice(0, 4);
-const latestProducts = products.filter((product) => product.newest).slice(0, 3);
+const latestProducts = products.filter((product) => product.newest).slice(0, 4);
 
 const HomePage = () => {
   const websiteJsonLd = {
@@ -54,10 +54,12 @@ const HomePage = () => {
               </div>
               <Link to="/produk">Lihat semua produk <FiArrowRight aria-hidden="true" /></Link>
             </div>
-            <div className="hero-category-grid">
-              {categories.map((category) => (
-                <CategoryCard key={category.id} category={category} />
-              ))}
+            <div className="hero-category-scroll">
+              <div className="hero-category-grid" aria-label="Kategori produk">
+                {categories.map((category) => (
+                  <CategoryCard key={category.id} category={category} variant="compact" />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -72,7 +74,12 @@ const HomePage = () => {
             linkTo="/koleksi/produk-dari-video-terbaru"
             linkLabel="Buka koleksi"
           />
-          <ProductGrid products={latestProducts} priorityCount={3} />
+          <ProductGrid
+            products={latestProducts}
+            priorityCount={4}
+            mobileCompact
+            ariaLabel="Produk dari konten terbaru"
+          />
         </div>
       </section>
 
@@ -84,7 +91,11 @@ const HomePage = () => {
             description="Setiap produk memiliki alasan rekomendasi, perhatian, dan tautan marketplace yang transparan."
             linkTo="/produk"
           />
-          <ProductGrid products={featuredProducts} />
+          <ProductGrid
+            products={featuredProducts}
+            mobileCompact
+            ariaLabel="Pilihan DicekOut"
+          />
         </div>
       </section>
 

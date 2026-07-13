@@ -114,3 +114,34 @@ Hasil asset base, canonical, direct product route, dan `404.html` berhasil dibua
 - Tidak ada analytics atau tracker.
 - Tidak ada backend, database, login, upload media, atau dashboard admin.
 - Screenshot browser headless tidak dapat diselesaikan pada environment container; validasi visual dilakukan melalui review struktur/CSS responsif dan build output. Pengujian manual browser tetap perlu dilakukan setelah source dibuka di komputer pengguna.
+
+## Sistem tema terpusat
+
+Tema DicekOut sekarang menggunakan `frontend/src/styles/tokens.css` sebagai satu sumber design token. Komponen memakai token semantik untuk page, surface, text, border, action, status, radius, shadow, dan motion. Light mode memakai permukaan putih/abu netral; dark mode memakai charcoal modern. Alias token lama tetap dipertahankan agar kompatibilitas komponen tidak terputus.
+
+Aturan maintainability:
+
+- jangan menambahkan warna surface/text baru langsung di komponen bila token semantik sudah tersedia;
+- primitive palette hanya untuk ilustrasi/dekorasi;
+- state interaktif wajib memakai `--color-primary`, `--color-focus`, dan token status;
+- token theme override hanya didefinisikan di `tokens.css`;
+- `index.css` untuk reset/global typography, `site.css` untuk layout dan komponen.
+
+
+## Monochrome light theme
+
+Light mode now uses a black, white, and neutral-gray system. Accent colors are intentionally suppressed in light mode while dark mode keeps its existing charcoal treatment. Semantic tokens in `frontend/src/styles/tokens.css` remain the source of truth; component CSS should consume those tokens rather than introduce new hard-coded accent colors.
+
+
+## Restrained yellow action accent
+
+The monochrome visual system remains the default. A single yellow accent token is reserved for high-intent actions only: search submission, marketplace outbound CTA, and the mobile search action. Product cards no longer render the `featured` badge, preventing decorative labels from competing with product content. Product data and `featured` values remain unchanged for ordering and future use.
+
+## Catalog governance hardening
+
+- Marketplace hostname kini divalidasi melalui registry terpusat tanpa memodifikasi URL affiliate.
+- Validator memeriksa file gambar, relasi data, duplikasi URL, metadata gambar, tanggal review, referensi konten, dan production readiness gate.
+- Pencarian mendukung alias serta label/platform konten terkait.
+- Detail produk mendukung informasi “tidak cocok untuk”, tanggal peninjauan, konten terkait, dan tombol share dengan fallback clipboard.
+- Sitemap produksi mendukung `lastmod` dari tanggal review/update yang tersedia.
+- Unit test dasar melindungi URL safety dan preservation of affiliate attribution.

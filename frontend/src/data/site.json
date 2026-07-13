@@ -7,5 +7,10 @@
   "defaultOgImage": "og-cover.png",
   "catalogMode": "demo",
   "allowIndexing": false,
-  "updatedAt": "2026-07-12"
+  "updatedAt": "2026-07-12",
+  "contactEmail": "",
+  "operatorName": "",
+  "policyEffectiveAt": "2026-07-13",
+  "policyUpdatedAt": "2026-07-13",
+  "searchConsoleVerification": ""
 }

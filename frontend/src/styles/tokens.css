@@ -1,0 +1,122 @@
+:root {
+  color-scheme: light;
+
+  /* Typography */
+  --font-family-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --line-height-body: 1.6;
+  --line-height-heading: 1.12;
+  --letter-spacing-heading: -0.04em;
+
+  /* Monochrome light-theme surfaces */
+  --color-page: #f4f4f4;
+  --color-surface: #ffffff;
+  --color-surface-raised: #ffffff;
+  --color-surface-soft: #f7f7f7;
+  --color-surface-accent: #f1f1f1;
+  --color-surface-overlay: rgba(255, 255, 255, 0.94);
+
+  /* Monochrome text and borders */
+  --color-text: #111111;
+  --color-text-soft: #4f4f4f;
+  --color-muted: #7a7a7a;
+  --color-border: #e6e6e6;
+  --color-border-strong: #cfcfcf;
+
+  /* Actions stay monochrome in light mode */
+  --color-primary: #111111;
+  --color-primary-dark: #000000;
+  --color-primary-soft: #eeeeee;
+  --color-on-primary: #ffffff;
+  /* Restrained premium accent: reserved for high-intent actions only */
+  --color-accent: #f2c318;
+  --color-accent-hover: #ddb00a;
+  --color-accent-soft: #fff7d6;
+  --color-on-accent: #17130a;
+  --color-brand-gold: var(--color-accent);
+  --color-focus: #111111;
+  --color-danger: #8f1d2c;
+  --color-success: #2f2f2f;
+  --color-warning: #575757;
+
+  /* Legacy palette aliases are intentionally neutral in light mode */
+  --color-cyan: #d9d9d9;
+  --color-cyan-dark: #8f8f8f;
+  --color-orange: #bdbdbd;
+  --color-orange-dark: #666666;
+  --color-yellow: #e7e7e7;
+  --color-mint: #d3d3d3;
+  --color-purple: #c9c9c9;
+
+  /* Elevation */
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.05);
+  --shadow-card: 0 16px 38px rgba(0, 0, 0, 0.08);
+  --shadow-hero: 0 26px 70px rgba(0, 0, 0, 0.1);
+  --shadow-nav: 0 -10px 30px rgba(0, 0, 0, 0.08);
+
+  /* Shape, spacing, motion, layout */
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+  --radius-xl: 34px;
+  --radius-pill: 999px;
+  --duration-fast: 160ms;
+  --duration-normal: 220ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --container: 1180px;
+  --header-height: 78px;
+
+  /* Backward-compatible aliases */
+  --color-bg: var(--color-page);
+  --color-surface-aqua: var(--color-surface-accent);
+}
+
+html[data-theme="dark"] {
+  color-scheme: dark;
+  --color-page: #090a0c;
+  --color-surface: #111316;
+  --color-surface-raised: #171a1f;
+  --color-surface-soft: #1d2026;
+  --color-surface-accent: #151d27;
+  --color-surface-overlay: rgba(17, 19, 22, 0.92);
+
+  --color-text: #f5f7fa;
+  --color-text-soft: #c0c6cf;
+  --color-muted: #929ba7;
+  --color-border: #2b3038;
+  --color-border-strong: #3b424d;
+
+  --color-primary: #63a4ff;
+  --color-primary-dark: #3d82ea;
+  --color-primary-soft: #172b46;
+  --color-on-primary: #07111f;
+  --color-accent: #f2c318;
+  --color-accent-hover: #ffd63f;
+  --color-accent-soft: #2c2712;
+  --color-on-accent: #141006;
+  --color-brand-gold: var(--color-accent);
+  --color-focus: #f2c318;
+  --color-danger: #ff8892;
+  --color-success: #62d0a9;
+  --color-warning: #ffc96a;
+
+  --color-cyan: #5ad1e8;
+  --color-cyan-dark: #2aa5c2;
+  --color-orange: #ffad59;
+  --color-orange-dark: #ec8828;
+  --color-yellow: #ffda73;
+  --color-mint: #69d1ba;
+  --color-purple: #b29af6;
+
+  --shadow-soft: 0 8px 24px rgba(0, 0, 0, 0.22);
+  --shadow-card: 0 16px 40px rgba(0, 0, 0, 0.32);
+  --shadow-hero: 0 28px 80px rgba(0, 0, 0, 0.4);
+  --shadow-nav: 0 -12px 32px rgba(0, 0, 0, 0.4);
+
+  --color-bg: var(--color-page);
+  --color-surface-aqua: var(--color-surface-accent);
+}

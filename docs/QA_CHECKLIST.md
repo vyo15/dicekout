@@ -46,3 +46,49 @@
 - [ ] Domain dan canonical benar
 - [ ] Open Graph image dapat diakses publik
 - [ ] Disclosure dan privacy sudah ditinjau
+
+## Tema light dan dark
+
+- [ ] Toggle tema bekerja dari header dan menu mobile.
+- [ ] Pilihan tema tetap tersimpan setelah reload.
+- [ ] Kunjungan pertama mengikuti system theme.
+- [ ] Tidak ada flash putih mencolok saat membuka dark mode.
+- [ ] Header, hero, kartu, filter, bottom sheet, footer, dan bottom navigation konsisten.
+- [ ] Focus ring terlihat jelas di kedua tema.
+- [ ] Teks utama, muted text, border, CTA, dan state aktif memiliki kontras yang cukup.
+- [ ] Logo tetap terbaca tanpa kotak putih mencolok.
+- [ ] `meta[name="theme-color"]` mengikuti tema aktif.
+
+
+## Monochrome light mode
+
+- [ ] Homepage uses only black, white, and neutral grays in light mode.
+- [ ] Product, category, collection, filter, and detail states do not reintroduce colored accents in light mode.
+- [ ] Primary CTAs are black with white text and preserve accessible focus states.
+- [ ] Dark mode remains unchanged and readable after switching themes.
+
+
+## Restrained accent QA
+
+- [ ] Light theme remains predominantly black, white, and neutral gray.
+- [ ] Yellow appears only on search submit, marketplace CTA, and mobile search action.
+- [ ] Product cards do not show a featured/Pilihan badge.
+- [ ] Demo and newest status labels remain readable and factual.
+- [ ] Yellow action text meets contrast requirements in light and dark themes.
+
+## Production catalog gate
+
+- [ ] `catalogMode` tetap `demo` sampai seluruh placeholder diganti.
+- [ ] Produk live tidak memakai ilustrasi SVG demo.
+- [ ] Setiap produk live memiliki minimal satu affiliate link aktif.
+- [ ] Host affiliate URL sesuai marketplace registry.
+- [ ] Tidak ada affiliate URL identik pada produk berbeda.
+- [ ] Referral code, sub-ID, campaign, UTM, dan query parameter tetap utuh.
+- [ ] `reviewedAt`, sumber gambar, izin gambar, dan dimensi gambar terisi.
+- [ ] Kelebihan, perhatian, cocok, dan tidak cocok ditulis berdasarkan informasi nyata.
+- [ ] Konten sosial terkait membuka URL HTTPS yang benar.
+- [ ] Tombol Bagikan bekerja; fallback menyalin URL ketika Web Share API tidak tersedia.
+- [ ] Disclosure dan privacy memiliki pengelola, kontak, tanggal berlaku, dan tanggal pembaruan sebelum mode live.
+- [ ] OG image produk tersedia sebelum link produk dibagikan secara luas.
+- [ ] Sitemap memuat `lastmod` hanya dari tanggal yang valid.
+- [ ] `npm run test`, `npm run lint`, validasi katalog, dan build berhasil.

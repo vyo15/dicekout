@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: npm ci --prefix frontend
 
-      - name: Run source checks
+      - name: Run lint, tests, catalog validation, and build
         env:
           VITE_BASE_PATH: /
           VITE_SITE_URL: https://dicekout.id

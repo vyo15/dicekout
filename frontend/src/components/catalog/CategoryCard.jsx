@@ -16,12 +16,17 @@ const iconByName = {
   sparkles: FiStar,
 };
 
-const CategoryCard = ({ category }) => {
+const CategoryCard = ({ category, variant = "default" }) => {
   const Icon = iconByName[category.icon] || FiPackage;
   const count = getProductsByCategory(category.slug).length;
 
+  const variantClass = variant === "compact" ? " category-card--compact" : "";
+
   return (
-    <Link className={`category-card category-card--${category.accent}`} to={`/kategori/${category.slug}`}>
+    <Link
+      className={`category-card category-card--${category.accent}${variantClass}`}
+      to={`/kategori/${category.slug}`}
+    >
       <span className="category-card__icon" aria-hidden="true"><Icon /></span>
       <span className="category-card__content">
         <strong>{category.name}</strong>

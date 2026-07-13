@@ -56,8 +56,8 @@ const applyMeta = (html, meta) => {
 };
 
 const routes = [
-  { path: "", title: site.title, description: site.description },
-  { path: "produk", title: "Semua Produk Rekomendasi | DicekOut", description: "Jelajahi seluruh produk rekomendasi DicekOut berdasarkan nama, kategori, dan koleksi konten." },
+  { path: "", title: site.title, description: site.description, lastmod: site.updatedAt },
+  { path: "produk", title: "Semua Produk Rekomendasi | DicekOut", description: "Jelajahi seluruh produk rekomendasi DicekOut berdasarkan nama, kategori, dan koleksi konten.", lastmod: site.updatedAt },
   { path: "tentang", title: "Tentang DicekOut | Cara Kami Memilih Produk", description: "Pelajari tujuan DicekOut dan prinsip yang digunakan dalam menyusun rekomendasi produk." },
   { path: "disclosure", title: "Disclosure Affiliate | DicekOut", description: "Penjelasan transparan tentang cara kerja tautan affiliate di DicekOut." },
   { path: "privacy", title: "Kebijakan Privasi | DicekOut", description: "Informasi tentang data yang digunakan oleh versi statis DicekOut dan tautan menuju marketplace eksternal." },
@@ -65,18 +65,22 @@ const routes = [
     path: `kategori/${category.slug}`,
     title: `${category.name} | Rekomendasi DicekOut`,
     description: `${category.description} Jelajahi produk pilihan dalam kategori ${category.name}.`,
+    lastmod: site.updatedAt,
   })),
   ...collections.filter((item) => item.status === "published").map((collection) => ({
     path: `koleksi/${collection.slug}`,
     title: `${collection.name} | Koleksi DicekOut`,
     description: collection.description,
     noindex: Boolean(collection.demo),
+    lastmod: collection.updatedAt || site.updatedAt,
   })),
   ...products.filter((item) => item.status === "published").map((product) => ({
     path: `produk/${product.slug}`,
     title: `${product.name} | DicekOut`,
     description: product.summary,
+    image: product.ogImage || site.defaultOgImage,
     noindex: Boolean(product.demo),
+    lastmod: product.reviewedAt || product.updatedAt || site.updatedAt,
   })),
 ];
 
@@ -100,7 +104,10 @@ const notFoundHtml = applyMeta(indexTemplate, {
 await writeFile(path.join(distDir, "404.html"), notFoundHtml);
 
 const sitemapRoutes = site.allowIndexing
-  ? routes.filter((route) => !route.noindex).map((route) => `  <url><loc>${escapeHtml(absolute(route.path))}</loc></url>`).join("\n")
+  ? routes.filter((route) => !route.noindex).map((route) => {
+    const lastmod = route.lastmod ? `<lastmod>${escapeHtml(route.lastmod)}</lastmod>` : "";
+    return `  <url><loc>${escapeHtml(absolute(route.path))}</loc>${lastmod}</url>`;
+  }).join("\n")
   : "";
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${sitemapRoutes}\n</urlset>\n`;
 await writeFile(path.join(distDir, "sitemap.xml"), sitemap);

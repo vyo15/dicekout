@@ -1,6 +1,11 @@
 import { FiDatabase, FiExternalLink, FiMoon, FiShield } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
+import { SITE } from "../config/site";
+
+const formatDate = (value) => value
+  ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${value}T00:00:00Z`))
+  : null;
 
 const PrivacyPage = () => (
   <>
@@ -60,6 +65,13 @@ const PrivacyPage = () => (
             Kebijakan perlu diperbarui apabila DicekOut menambahkan formulir kontak, analytics, backend, login, database,
             atau layanan pihak ketiga yang memproses data pengunjung.
           </p>
+
+          <h2>Kontak dan tanggal berlaku</h2>
+          <p>
+            {SITE.contactEmail ? <>Pertanyaan terkait privasi dapat dikirim ke <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.</> : "Kontak privasi akan dicantumkan sebelum website beralih ke mode live."}
+          </p>
+          {SITE.policyEffectiveAt ? <p className="legal-footnote">Berlaku sejak: {formatDate(SITE.policyEffectiveAt)}.</p> : null}
+          {SITE.policyUpdatedAt ? <p className="legal-footnote">Terakhir diperbarui: {formatDate(SITE.policyUpdatedAt)}.</p> : null}
         </article>
       </div>
     </section>
