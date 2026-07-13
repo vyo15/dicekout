@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import { FiFilter, FiRefreshCw, FiSearch, FiX } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
@@ -11,6 +11,9 @@ import { categories, products, searchProducts } from "../utils/catalog";
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const searchInputRef = useRef(null);
   const queryParam = searchParams.get("q") || "";
   const categoryParam = searchParams.get("kategori") || "all";
   const sortParam = searchParams.get("urut") || "recommended";
@@ -20,6 +23,29 @@ const ProductsPage = () => {
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => setQuery(queryParam), [queryParam]);
+
+  useEffect(() => {
+    if (!location.state?.focusCatalogSearch) return undefined;
+
+    const focusFrame = window.requestAnimationFrame(() => {
+      const searchInput = searchInputRef.current;
+      if (!searchInput) return;
+
+      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+      searchInput.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: "center",
+      });
+      searchInput.focus({ preventScroll: true });
+
+      navigate(`${location.pathname}${location.search}`, {
+        replace: true,
+        state: null,
+      });
+    });
+
+    return () => window.cancelAnimationFrame(focusFrame);
+  }, [location.pathname, location.search, location.state, navigate]);
 
   const result = useMemo(() => searchProducts({
     query: queryParam,
@@ -143,6 +169,7 @@ const ProductsPage = () => {
                 <FiSearch aria-hidden="true" />
                 <input
                   id="catalog-query"
+                  ref={searchInputRef}
                   type="search"
                   value={query}
                   onChange={(event) => setQuery(event.target.value)}

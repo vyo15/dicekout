@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FiMenu, FiMoon, FiSearch, FiSun, FiX } from "react-icons/fi";
 import BrandLogo from "../common/BrandLogo";
 import DemoNotice from "../common/DemoNotice";
+import MobileBottomNavigation from "./MobileBottomNavigation";
+import MobileMoreMenu from "./MobileMoreMenu";
 import { SITE } from "../../config/site";
 import { applyTheme, getInitialTheme, toggleThemeValue } from "../../utils/theme";
 
@@ -17,7 +19,9 @@ const navigation = [
 const SiteLayout = () => {
   const [theme, setTheme] = useState(getInitialTheme);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     applyTheme(theme);
@@ -25,19 +29,72 @@ const SiteLayout = () => {
 
   useEffect(() => {
     setMenuOpen(false);
+    setMoreMenuOpen(false);
   }, [location.pathname, location.search]);
 
   useEffect(() => {
-    document.body.classList.toggle("menu-open", menuOpen);
-    const onKeyDown = (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+    const tabletNavigation = window.matchMedia("(min-width: 641px) and (max-width: 920px)");
+
+    const syncTabletMenu = () => {
+      const shouldLock = menuOpen && tabletNavigation.matches;
+      document.body.classList.toggle("menu-open", shouldLock);
+      if (menuOpen && !tabletNavigation.matches) setMenuOpen(false);
     };
+
+    syncTabletMenu();
+    tabletNavigation.addEventListener("change", syncTabletMenu);
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape" && menuOpen) setMenuOpen(false);
+    };
+
     window.addEventListener("keydown", onKeyDown);
+
     return () => {
       document.body.classList.remove("menu-open");
+      tabletNavigation.removeEventListener("change", syncTabletMenu);
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [menuOpen]);
+
+  useEffect(() => {
+    const mobileNavigation = window.matchMedia("(max-width: 640px)");
+
+    const closeMoreMenuOutsideMobile = () => {
+      if (!mobileNavigation.matches) setMoreMenuOpen(false);
+    };
+
+    closeMoreMenuOutsideMobile();
+    mobileNavigation.addEventListener("change", closeMoreMenuOutsideMobile);
+
+    return () => mobileNavigation.removeEventListener("change", closeMoreMenuOutsideMobile);
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme((value) => toggleThemeValue(value));
+  }, []);
+
+  const closeMoreMenu = useCallback(() => setMoreMenuOpen(false), []);
+
+  const openMoreMenu = useCallback(() => {
+    setMenuOpen(false);
+    setMoreMenuOpen(true);
+  }, []);
+
+  const openCatalogSearch = useCallback(() => {
+    setMenuOpen(false);
+    setMoreMenuOpen(false);
+
+    const onProductsPage = location.pathname === "/produk";
+    const destination = onProductsPage
+      ? `${location.pathname}${location.search}`
+      : "/produk";
+
+    navigate(destination, {
+      replace: onProductsPage,
+      state: { focusCatalogSearch: true },
+    });
+  }, [location.pathname, location.search, navigate]);
 
   return (
     <div className="site-shell">
@@ -58,13 +115,17 @@ const SiteLayout = () => {
             <button
               className="icon-button"
               type="button"
-              onClick={() => setTheme((value) => toggleThemeValue(value))}
+              onClick={toggleTheme}
               aria-label={theme === "dark" ? "Aktifkan tema terang" : "Aktifkan tema gelap"}
               title={theme === "dark" ? "Tema terang" : "Tema gelap"}
             >
               {theme === "dark" ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}
             </button>
-            <NavLink className="header-search-button" to="/produk">
+            <NavLink
+              className="header-search-button"
+              to="/produk"
+              state={{ focusCatalogSearch: true }}
+            >
               <FiSearch aria-hidden="true" />
               <span>Cari Produk</span>
             </NavLink>
@@ -82,7 +143,7 @@ const SiteLayout = () => {
         </div>
 
         <div className={`mobile-menu${menuOpen ? " mobile-menu--open" : ""}`} id="mobile-navigation">
-          <nav className="mobile-menu__nav container" aria-label="Navigasi mobile">
+          <nav className="mobile-menu__nav container" aria-label="Navigasi tablet">
             {navigation.map((item) => (
               <NavLink key={item.to} to={item.to} end={item.end}>
                 {item.label}
@@ -127,6 +188,18 @@ const SiteLayout = () => {
           <p>Harga, stok, dan promo mengikuti informasi terbaru di marketplace.</p>
         </div>
       </footer>
+
+      <MobileBottomNavigation
+        onSearch={openCatalogSearch}
+        onMore={openMoreMenu}
+        moreOpen={moreMenuOpen}
+      />
+      <MobileMoreMenu
+        open={moreMenuOpen}
+        onClose={closeMoreMenu}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
     </div>
   );
 };
