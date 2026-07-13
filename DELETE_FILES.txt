@@ -1,0 +1,2 @@
+Hapus file legacy berikut setelah patch diterapkan karena sudah tidak direferensikan:
+frontend/public/favicon.svg

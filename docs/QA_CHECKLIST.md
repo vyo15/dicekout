@@ -92,3 +92,14 @@
 - [ ] OG image produk tersedia sebelum link produk dibagikan secara luas.
 - [ ] Sitemap memuat `lastmod` hanya dari tanggal yang valid.
 - [ ] `npm run test`, `npm run lint`, validasi katalog, dan build berhasil.
+
+## Theme token dan feedback state
+
+- [ ] `npm run validate:theme` berhasil tanpa warna hard-coded di CSS komponen.
+- [ ] Light mode tetap monokrom dengan aksen kuning hanya pada aksi yang disetujui.
+- [ ] Dark mode memakai surface charcoal/netral dan tidak kembali ke palet biru/cyan lama.
+- [ ] Loading route menampilkan logo DicekOut, spinner, dan tidak menghasilkan flash putih pada dark mode.
+- [ ] Fatal error menampilkan logo, ikon peringatan, tombol `Muat ulang`, dan tautan kembali ke beranda.
+- [ ] Tombol `Muat ulang` benar-benar memanggil reload dan tidak mengubah route/affiliate URL.
+- [ ] Favicon, Apple touch icon, PWA icon, dan manifest memakai asset/warna brand terbaru.
+- [ ] Direct route GitHub Pages tetap dapat kembali ke base path repository.

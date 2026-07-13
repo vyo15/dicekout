@@ -4,8 +4,8 @@
   "description": "Katalog rekomendasi produk dari konten pilihan.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#edfaff",
-  "theme_color": "#61d5ee",
+  "background_color": "#f4f4f4",
+  "theme_color": "#111111",
   "icons": [
     {
       "src": "brand/icon-192.png",

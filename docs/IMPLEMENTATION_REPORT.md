@@ -145,3 +145,14 @@ The monochrome visual system remains the default. A single yellow accent token i
 - Detail produk mendukung informasi “tidak cocok untuk”, tanggal peninjauan, konten terkait, dan tombol share dengan fallback clipboard.
 - Sitemap produksi mendukung `lastmod` dari tanggal review/update yang tersedia.
 - Unit test dasar melindungi URL safety dan preservation of affiliate attribution.
+
+## Theme-token consistency and branded feedback states
+
+- Seluruh warna pada CSS komponen dipindahkan ke design token atau `color-mix()` berbasis token.
+- `tokens.css` tetap menjadi satu-satunya sumber nilai warna CSS; file komponen tidak boleh menulis hex/RGB/HSL langsung.
+- Palet dark mode dinetralkan agar mengikuti arah charcoal, hitam, putih, dan aksen kuning terbatas.
+- Loading dan fatal error memakai asset logo yang sama dengan header/footer melalui `BrandMark`.
+- Tombol `Muat ulang` tetap menjalankan reload browser dan error state menyediakan fallback kembali ke beranda yang menghormati base path GitHub Pages.
+- Manifest, early theme bootstrap, dan runtime theme color diselaraskan.
+- Favicon SVG legacy yang sudah tidak direferensikan dihapus; favicon PNG brand tetap menjadi sumber aktif.
+- `validate-theme-tokens.mjs` kini mencegah warna hard-coded kembali masuk ke CSS komponen, token undefined, asset logo hilang, dan ketidaksinkronan browser theme colors.

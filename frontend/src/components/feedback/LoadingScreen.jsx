@@ -1,6 +1,8 @@
+import BrandMark from "../common/BrandMark";
+
 const LoadingScreen = () => (
   <div className="loading-screen" role="status" aria-live="polite">
-    <span className="loading-screen__mark" aria-hidden="true">D</span>
+    <BrandMark className="loading-screen__logo" />
     <span className="loading-screen__spinner" aria-hidden="true" />
     <p>Menyiapkan DicekOut...</p>
   </div>

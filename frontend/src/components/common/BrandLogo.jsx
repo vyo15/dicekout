@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { withBasePath } from "../../config/site";
+import BrandMark from "./BrandMark";
 
 const BrandLogo = ({ compact = false }) => (
   <Link
@@ -7,12 +7,7 @@ const BrandLogo = ({ compact = false }) => (
     to="/"
     aria-label="DicekOut.id, kembali ke beranda"
   >
-    <img
-      className="brand-logo__image"
-      src={withBasePath("brand/dicekout-logo.png")}
-      alt=""
-      aria-hidden="true"
-    />
+    <BrandMark className="brand-logo__image" />
     <span className="brand-logo__wordmark" aria-hidden="true">DICEKOUT.ID</span>
   </Link>
 );

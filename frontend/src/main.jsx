@@ -7,6 +7,7 @@ import { BASE_PATH } from "./config/site.js";
 import "./styles/tokens.css";
 import "./index.css";
 import "./styles/site.css";
+import "./styles/feedback.css";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
