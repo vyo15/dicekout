@@ -103,3 +103,57 @@
 - [ ] Tombol `Muat ulang` benar-benar memanggil reload dan tidak mengubah route/affiliate URL.
 - [ ] Favicon, Apple touch icon, PWA icon, dan manifest memakai asset/warna brand terbaru.
 - [ ] Direct route GitHub Pages tetap dapat kembali ke base path repository.
+
+## Local Catalog Manager
+- [ ] Hanya bind ke `127.0.0.1:4317`.
+- [ ] Origin asing dan request write tanpa session ditolak.
+- [ ] Draft lokal tidak muncul di `git status`.
+- [ ] Upload selain PNG/WebP/JPEG atau lebih dari 8 MB ditolak.
+- [ ] Apply membuat backup dan tidak melakukan commit/push.
+- [ ] ID/slug duplikat, palette invalid, relasi koleksi, dan URL affiliate invalid ditolak.
+- [ ] Setelah apply, `npm run check` dan preview mobile/desktop berhasil.
+
+## Catalog Manager UX
+
+- [ ] Nama produk baru otomatis menghasilkan ID stabil dan slug yang unik.
+- [ ] ID dan slug existing tetap terkunci saat mengedit produk source.
+- [ ] Nama duplikat memperoleh suffix tanpa menimpa produk existing.
+- [ ] Perpindahan produk meminta konfirmasi ketika ada perubahan belum disimpan.
+- [ ] Tab Informasi utama, Rekomendasi, Link & konten, dan Publikasi dapat dinavigasi dengan keyboard.
+- [ ] Thumbnail PNG/WebP transparan tampil pada preview dan palette yang dipilih.
+- [ ] Produk SVG demo existing tetap dapat dipreview secara lokal.
+- [ ] Search sidebar menemukan nama, slug, dan status produk.
+- [ ] Apply tetap membuat backup serta tidak melakukan commit atau push otomatis.
+
+
+## Setup lintas komputer dan tipografi Catalog Manager
+
+- [ ] Dari clone baru, `npm install` memasang dependency frontend dan Catalog Manager.
+- [ ] `npm run setup` dapat dijalankan ulang dengan hasil yang sama.
+- [ ] Setup berhenti dan memberi exit code gagal bila salah satu instalasi dependency gagal.
+- [ ] `npm run check` berhasil setelah setup.
+- [ ] `npm run catalog:manager:test` berhasil setelah setup.
+- [ ] Catalog Manager berjalan di `http://127.0.0.1:666`.
+- [ ] Heading, label, hint, tombol, sidebar, dan preview tetap terbaca pada zoom 100%, 125%, dan 150%.
+- [ ] Tidak ada font eksternal atau font file baru yang dibutuhkan.
+
+## Catalog Manager navigation and branding
+
+- [ ] Sidebar contains navigation only and does not grow with the number of products.
+- [ ] Product library search matches name, slug, status, and category.
+- [ ] Status and category filters work together.
+- [ ] Editing a source product opens the existing editor without changing its ID or slug.
+- [ ] Draft-local navigation only lists local drafts.
+- [ ] Sidebar logo matches the public DicekOut website logo.
+- [ ] Browser favicon matches `frontend/public/brand/favicon-64.png`.
+- [ ] Unknown files under `/brand-assets/` return 404.
+
+### Catalog Manager full-page layout
+
+- [ ] Header spans the full browser width without outer page margins.
+- [ ] Header displays the same DicekOut logo used by the public website.
+- [ ] Brand label reads `DicekOut.ID`.
+- [ ] Sidebar begins below the header and fills the remaining viewport height.
+- [ ] Main content fills the remaining page width.
+- [ ] Header search is disabled while editing a product.
+- [ ] Tablet and mobile layouts stack without horizontal overflow.

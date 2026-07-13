@@ -9,16 +9,16 @@ import {
   FiUserCheck,
   FiUserX,
   FiCalendar,
-  FiPlayCircle,
 } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import ShareButton from "../components/common/ShareButton";
 import ProductGrid from "../components/catalog/ProductGrid";
 import AffiliateLinkButton from "../components/catalog/AffiliateLinkButton";
+import SocialPostLinks from "../components/catalog/SocialPostLinks";
 import NotFoundPage from "./NotFoundPage";
 import { SITE, toAbsoluteUrl, withBasePath } from "../config/site";
-import { getSafeExternalUrl } from "../utils/urls";
+import { getProductVisualClassNames } from "../config/productPalettes";
 import {
   getCategory,
   getCollection,
@@ -40,10 +40,6 @@ const ProductDetailPage = () => {
   const reviewedLabel = product.reviewedAt
     ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${product.reviewedAt}T00:00:00Z`))
     : null;
-  const contentReferences = (product.contentReferences || []).map((reference) => ({
-    ...reference,
-    safeUrl: getSafeExternalUrl(reference.url),
-  })).filter((reference) => reference.safeUrl);
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -81,7 +77,7 @@ const ProductDetailPage = () => {
 
           <div className="product-detail">
             <div className="product-detail__media">
-              <div className="product-detail__image-wrap">
+              <div className={`product-detail__image-wrap ${getProductVisualClassNames(product)}`}>
                 <img
                   src={withBasePath(product.image)}
                   alt={product.imageAlt}
@@ -110,6 +106,12 @@ const ProductDetailPage = () => {
                 <span><FiInfo aria-hidden="true" /> Mengapa direkomendasikan</span>
                 <p>{product.recommendationReason}</p>
               </div>
+
+              <SocialPostLinks
+                productName={product.name}
+                productImage={product.image}
+                references={product.contentReferences}
+              />
 
               <div className="marketplace-panel">
                 <div>
@@ -189,19 +191,6 @@ const ProductDetailPage = () => {
                 <div>
                   {productCollections.map((collection) => (
                     <Link key={collection.id} to={`/koleksi/${collection.slug}`}>{collection.name}</Link>
-                  ))}
-                </div>
-              </div>
-            ) : null}
-
-            {contentReferences.length ? (
-              <div className="content-references">
-                <strong><FiPlayCircle aria-hidden="true" /> Konten terkait</strong>
-                <div>
-                  {contentReferences.map((reference) => (
-                    <a key={`${reference.platform}-${reference.safeUrl}`} href={reference.safeUrl} target="_blank" rel="noopener">
-                      {reference.label}
-                    </a>
                   ))}
                 </div>
               </div>

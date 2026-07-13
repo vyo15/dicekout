@@ -156,3 +156,45 @@ The monochrome visual system remains the default. A single yellow accent token i
 - Manifest, early theme bootstrap, dan runtime theme color diselaraskan.
 - Favicon SVG legacy yang sudah tidak direferensikan dihapus; favicon PNG brand tetap menjadi sumber aktif.
 - `validate-theme-tokens.mjs` kini mencegah warna hard-coded kembali masuk ke CSS komponen, token undefined, asset logo hilang, dan ketidaksinkronan browser theme colors.
+
+## Compact social content selector
+
+- Field existing `contentReferences` sekarang dirender pada area utama detail produk, setelah alasan rekomendasi dan sebelum CTA marketplace.
+- Trigger dibuat satu baris horizontal dengan thumbnail produk, indikator play, dan logo SVG TikTok, Instagram, YouTube, serta Facebook.
+- Pemilihan platform memakai `BottomSheet` existing: modal terpusat pada desktop dan bottom sheet pada mobile.
+- Video tetap berada di platform asal; DicekOut tidak meng-embed, mengunduh, atau menyimpan file video.
+- Link referensi tetap melalui `getSafeExternalUrl`, dibuka dengan `target="_blank"` dan `rel="noopener"`.
+- Produk tanpa referensi konten tidak merender trigger atau placeholder.
+- Tidak ada perubahan pada affiliate URL, attribution parameter, route, slug, SEO, dependency, atau schema produk.
+- Warna brand platform ditambahkan sebagai design token terpusat agar lolos governance tema dan tidak menyebarkan literal warna ke CSS komponen.
+
+
+## Local Catalog Manager foundation
+
+Source terbaru menambahkan panel lokal pada `tools/catalog-manager/`. Panel menggunakan server Node/Vite yang hanya bind ke `127.0.0.1:4317`, session token sementara untuk operasi tulis, draft/backup/temp di `.catalog-manager/`, atomic JSON write, upload PNG/WebP/JPEG, shared catalog validation, visual palette produk, serta apply ke source tanpa commit atau push otomatis. Folder tool tidak menjadi bagian deployment karena workflow Pages hanya mengunggah `frontend/dist`.
+
+## Catalog Manager UX refresh
+
+Local Catalog Manager sekarang memakai editor tiga kolom yang lebih terstruktur: navigasi produk, thumbnail/status/detail di sisi kiri editor, form bertab di tengah, dan live preview di kanan. ID stabil dan slug produk baru dibuat otomatis dari nama serta dikunci agar tidak berubah tanpa sengaja. Editor juga memberikan peringatan sebelum berpindah produk ketika ada perubahan yang belum disimpan, pencarian produk source, indikator status, ringkasan kelengkapan, dan validasi yang lebih mudah dibaca.
+
+
+## Catalog Manager typography and one-command setup
+
+- Catalog Manager menggunakan stack font sistem modern dengan prioritas `Segoe UI Variable Text` agar tampilan Windows lebih lembut tanpa bergantung pada font eksternal.
+- Hierarki heading, label, tombol, hint, dan preview diperhalus; ukuran teks kecil dinaikkan agar lebih mudah dibaca.
+- Root `npm install` sekarang menjalankan `scripts/setup.mjs` melalui `postinstall`.
+- Setup memasang dependency `frontend/` dan `tools/catalog-manager/` secara berurutan serta berhenti dengan error yang jelas jika salah satu instalasi gagal.
+- Registry Catalog Manager tetap dikunci ke registry npm publik.
+
+## Catalog Manager product library navigation
+
+Catalog Manager now keeps the sidebar focused on primary navigation instead of rendering the entire product catalog inside it. The product library is presented in a searchable and filterable table with status, category, update date, and explicit edit actions. The editor keeps the existing guarded draft, validation, backup, and manual Git workflow.
+
+The local manager reuses the same DicekOut logo and favicon files from `frontend/public/brand/` through a localhost-only allowlisted asset route. No duplicate logo source is introduced into the manager.
+
+## Catalog Manager full-page frame
+
+- Catalog Manager now uses a full-width application header above the sidebar and main content.
+- The header reuses the public DicekOut logo and displays the `DicekOut.ID` brand label.
+- The sidebar begins below the header, remains local-only, and the main workspace fills the available viewport.
+- The header search is available only on the product list so it cannot discard an unsaved editor form.

@@ -3,6 +3,7 @@ import { FiArrowUpRight, FiCheckCircle } from "react-icons/fi";
 import { getCategory, getPrimaryAffiliateLink } from "../../utils/catalog";
 import { withBasePath } from "../../config/site";
 import AffiliateLinkButton from "./AffiliateLinkButton";
+import { getProductVisualClassNames } from "../../config/productPalettes";
 
 const ProductCard = ({ product, priority = false, variant = "default" }) => {
   const category = getCategory(product.categorySlug);
@@ -26,7 +27,7 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
   return (
     <article className={`product-card${variantClass}`}>
       <Link className="product-card__image-link" to={detailPath} aria-label={`Lihat detail ${product.name}`}>
-        <div className="product-card__image-wrap">
+        <div className={`product-card__image-wrap ${getProductVisualClassNames(product)}`}>
           <img
             src={withBasePath(product.image)}
             alt={product.imageAlt}

@@ -8,6 +8,11 @@
     "build": "npm --prefix frontend run build",
     "lint": "npm --prefix frontend run lint",
     "check": "npm --prefix frontend run check",
-    "test": "npm --prefix frontend run test"
+    "test": "npm --prefix frontend run test",
+    "setup": "node scripts/setup.mjs",
+    "postinstall": "node scripts/setup.mjs",
+    "catalog:manager": "npm --prefix tools/catalog-manager run dev",
+    "catalog:manager:install": "npm ci --prefix tools/catalog-manager --registry=https://registry.npmjs.org",
+    "catalog:manager:test": "npm --prefix tools/catalog-manager test"
   }
 }

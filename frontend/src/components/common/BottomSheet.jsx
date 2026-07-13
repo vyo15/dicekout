@@ -5,7 +5,7 @@ const getFocusableElements = (container) => Array.from(container.querySelectorAl
   'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
 )).filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
 
-const BottomSheet = ({ open, onClose, title, children }) => {
+const BottomSheet = ({ open, onClose, title, children, variant = "sheet" }) => {
   const panelRef = useRef(null);
   const closeButtonRef = useRef(null);
   const titleId = useId();
@@ -66,8 +66,12 @@ const BottomSheet = ({ open, onClose, title, children }) => {
 
   if (!open) return null;
 
+  const isResponsiveModal = variant === "responsive-modal";
+  const layerClassName = `bottom-sheet-layer${isResponsiveModal ? " bottom-sheet-layer--responsive-modal" : ""}`;
+  const panelClassName = `bottom-sheet${isResponsiveModal ? " bottom-sheet--responsive-modal" : ""}`;
+
   return (
-    <div className="bottom-sheet-layer">
+    <div className={layerClassName}>
       <button
         className="bottom-sheet__backdrop"
         type="button"
@@ -76,7 +80,7 @@ const BottomSheet = ({ open, onClose, title, children }) => {
         aria-hidden="true"
       />
       <section
-        className="bottom-sheet"
+        className={panelClassName}
         ref={panelRef}
         role="dialog"
         aria-modal="true"

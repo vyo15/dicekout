@@ -31,6 +31,7 @@ Field utama:
 | `status` | `draft` atau `published`. |
 | `demo` | Harus `false` untuk produk nyata. |
 | `affiliateLinks` | Tautan marketplace produk. |
+| `contentReferences` | Link opsional ke postingan asli di media sosial. |
 
 ## Affiliate link
 
@@ -38,7 +39,7 @@ Contoh struktur link:
 
 ```json
 {
-  "marketplace": "Shopee",
+  "marketplace": "shopee",
   "label": "Cek di Shopee",
   "url": "https://contoh-marketplace.test/produk?affiliate_id=JANGAN_DIUBAH",
   "isPrimary": true,
@@ -124,6 +125,46 @@ DicekOut tetap memakai JSON pada MVP. Setiap produk baru harus dimulai sebagai `
 ```
 
 `marketplaceProductId` bersifat opsional dan hanya untuk referensi internal data. Jangan tampilkan ID teknis tersebut ke pengunjung.
+
+### Link postingan media sosial
+
+`contentReferences` tidak menyimpan atau meng-embed video. Link hanya dipakai untuk membuka postingan publik pada platform asal melalui popup compact di halaman detail produk.
+
+Platform dengan logo SVG brand yang tersedia:
+
+- `tiktok`
+- `instagram`
+- `youtube`
+- `facebook`
+
+Nilai platform lain tetap dapat digunakan dan akan memakai ikon link generik. Gunakan satu item untuk setiap postingan nyata yang benar-benar membahas produk tersebut. Jangan memakai URL homepage platform, link contoh, postingan privat, atau postingan yang tidak terkait hanya untuk memunculkan tombol.
+
+Contoh beberapa platform untuk satu produk:
+
+```json
+"contentReferences": [
+  {
+    "platform": "tiktok",
+    "label": "Video singkat penggunaan produk",
+    "url": "https://www.tiktok.com/@akun/video/ID_POSTINGAN",
+    "publishedAt": "2026-07-13"
+  },
+  {
+    "platform": "facebook",
+    "label": "Postingan Facebook produk",
+    "url": "https://www.facebook.com/akun/posts/ID_POSTINGAN",
+    "publishedAt": "2026-07-13"
+  }
+]
+```
+
+Perilaku UI:
+
+- field kosong: trigger video tidak dirender dan tidak menyisakan ruang kosong;
+- field berisi URL aman: tampil satu baris compact dengan thumbnail produk dan logo platform;
+- saat diklik: desktop memakai modal tengah, mobile memakai bottom sheet;
+- link dibuka langsung di tab baru dengan `rel="noopener"`;
+- URL dengan protokol berbahaya atau credential tertanam ditolak oleh helper URL dan validator katalog.
 
 ## Marketplace registry
 

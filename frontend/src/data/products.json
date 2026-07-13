@@ -50,7 +50,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-organizer-meja",
@@ -103,7 +109,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-tripod-hp",
@@ -155,7 +167,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-botol-minum",
@@ -204,7 +222,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-power-strip",
@@ -255,7 +279,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-vacuum-mini",
@@ -307,7 +337,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-organizer-kabel",
@@ -358,7 +394,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-blender-portable",
@@ -410,7 +452,13 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   },
   {
     "id": "prod-rak-serbaguna",
@@ -462,6 +510,12 @@
     "imageWidth": 1200,
     "imageHeight": 1200,
     "marketplaceProductId": "",
-    "affiliateDisclosureVariant": "standard"
+    "affiliateDisclosureVariant": "standard",
+    "visual": {
+      "paletteId": "neutral",
+      "imageFit": "contain",
+      "imageScale": "medium",
+      "imagePosition": "center"
+    }
   }
 ]

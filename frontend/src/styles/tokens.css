@@ -43,6 +43,19 @@
   --color-accent-soft: #fff7d6;
   --color-on-accent: #17130a;
   --color-brand-gold: var(--color-accent);
+
+  /* Official social brand colors, reserved for platform identity marks */
+  --color-social-tiktok-bg: #111111;
+  --color-social-tiktok-cyan: #25f4ee;
+  --color-social-tiktok-pink: #fe2c55;
+  --color-social-instagram-yellow: #ffd600;
+  --color-social-instagram-orange: #ff7a00;
+  --color-social-instagram-pink: #ff0169;
+  --color-social-instagram-purple: #7638fa;
+  --color-social-instagram-blue: #4c68d7;
+  --color-social-youtube: #ff0000;
+  --color-social-facebook: #1877f2;
+
   --color-focus: #111111;
   --color-focus-offset: #ffffff;
   --color-danger: #8f1d2c;
@@ -137,4 +150,23 @@ html[data-theme="dark"] {
 
   --color-bg: var(--color-page);
   --color-surface-aqua: var(--color-surface-accent);
+}
+
+:root {
+  --product-palette-neutral: #efefef;
+  --product-palette-sand: #efe5d8;
+  --product-palette-sage: #e3e9df;
+  --product-palette-sky: #dfebf3;
+  --product-palette-blush: #f1e2e1;
+  --product-palette-lavender: #eae5f2;
+  --product-palette-charcoal: #2a2c30;
+}
+html[data-theme="dark"] {
+  --product-palette-neutral: #1b1d21;
+  --product-palette-sand: #2a241e;
+  --product-palette-sage: #1e251d;
+  --product-palette-sky: #18232b;
+  --product-palette-blush: #2b1f20;
+  --product-palette-lavender: #221f2a;
+  --product-palette-charcoal: #111316;
 }

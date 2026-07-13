@@ -9,3 +9,11 @@ coverage/
 .DS_Store
 Thumbs.db
 *.log
+
+# Local Catalog Manager state (never commit)
+.catalog-manager/
+tools/catalog-manager/node_modules/
+tools/catalog-manager/dist/
+tools/catalog-manager/.env.local
+catalog-exports/
+*.draft.local.json

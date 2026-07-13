@@ -1,0 +1,17 @@
+{
+  "name": "dicekout-catalog-manager",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server/index.mjs",
+    "test": "node --test test/*.test.mjs",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "^5.0.0",
+    "vite": "^7.1.2",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  }
+}

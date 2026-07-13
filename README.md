@@ -26,11 +26,30 @@ frontend/
     └── utils/               selector katalog dan validasi URL runtime
 ```
 
-## Menjalankan project
+## Instalasi pertama
+
+Dari folder utama project, jalankan satu perintah:
 
 ```bash
-npm ci --prefix frontend
+npm install
+```
+
+Perintah tersebut otomatis memasang dependency website dan Local Catalog Manager. Setelah selesai:
+
+```bash
 npm run dev
+```
+
+Panel lokal dapat dijalankan dengan:
+
+```bash
+npm run catalog:manager
+```
+
+Untuk instalasi ulang yang terkontrol:
+
+```bash
+npm run setup
 ```
 
 Build dan seluruh pemeriksaan:
