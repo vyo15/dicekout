@@ -6,8 +6,10 @@ import ProductGrid from "../components/catalog/ProductGrid";
 import EmptyState from "../components/feedback/EmptyState";
 import { useProductPreferences } from "../hooks/useProductPreferences";
 import { clearSavedProducts } from "../utils/productPreferences";
+import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
 
 const SavedProductsPage = () => {
+  useCatalogScrollRestoration();
   const { savedProducts } = useProductPreferences();
 
   return (

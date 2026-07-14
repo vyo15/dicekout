@@ -5,8 +5,10 @@ import Breadcrumbs from "../components/common/Breadcrumbs";
 import ProductGrid from "../components/catalog/ProductGrid";
 import NotFoundPage from "./NotFoundPage";
 import { getCategory, getProductsByCategory } from "../utils/catalog";
+import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
 
 const CategoryPage = () => {
+  useCatalogScrollRestoration();
   const { slug } = useParams();
   const category = getCategory(slug);
   if (!category) return <NotFoundPage />;

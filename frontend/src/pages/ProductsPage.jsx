@@ -9,8 +9,10 @@ import ProductGrid from "../components/catalog/ProductGrid";
 import EmptyState from "../components/feedback/EmptyState";
 import SearchAutocomplete from "../components/common/SearchAutocomplete";
 import { categories, collections, products, searchProducts } from "../utils/catalog";
+import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
 
 const ProductsPage = () => {
+  useCatalogScrollRestoration();
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();

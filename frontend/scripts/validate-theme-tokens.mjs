@@ -45,7 +45,7 @@ for (const token of usages) {
 const manifest = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
 const indexHtml = fs.readFileSync(indexFile, "utf8");
 const themeSource = fs.readFileSync(themeFile, "utf8");
-const expected = { light: "#f4f4f4", dark: "#090a0c", manifest: "#111111" };
+const expected = { light: "#f5f5f4", dark: "#090a0b", manifest: "#111111" };
 
 if (!themeSource.includes(`light: "${expected.light}"`) || !themeSource.includes(`dark: "${expected.dark}"`)) {
   errors.push("BROWSER_THEME_COLORS di theme.js tidak sinkron dengan warna browser yang disetujui.");

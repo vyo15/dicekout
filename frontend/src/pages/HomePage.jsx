@@ -1,24 +1,22 @@
 import { Link } from "react-router-dom";
-import {
-  FiArrowRight,
-  FiCheckCircle,
-} from "react-icons/fi";
+import { FiArrowRight, FiCheck } from "react-icons/fi";
 import SearchBar from "../components/common/SearchBar";
 import SectionHeader from "../components/common/SectionHeader";
 import Seo from "../components/common/Seo";
 import CategoryCard from "../components/catalog/CategoryCard";
-import CollectionCard from "../components/catalog/CollectionCard";
 import ProductGrid from "../components/catalog/ProductGrid";
 import { SITE, toAbsoluteUrl } from "../config/site";
-import { categories, collections, products, suggestedSearchTerms } from "../utils/catalog";
-import { useProductPreferences } from "../hooks/useProductPreferences";
-import { clearRecentProducts } from "../utils/productPreferences";
+import { categories, products } from "../utils/catalog";
+import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
 
-const featuredProducts = products.filter((product) => product.featured).slice(0, 4);
-const latestProducts = products.filter((product) => product.newest).slice(0, 4);
+const latestProducts = products.filter((product) => product.newest).slice(0, 8);
+const homepageProducts = latestProducts.length ? latestProducts : products.slice(0, 8);
+const homepageProductTitle = latestProducts.length
+  ? "Produk dari konten terbaru"
+  : "Jelajahi produk DicekOut";
 
 const HomePage = () => {
-  const { recentProducts } = useProductPreferences();
+  useCatalogScrollRestoration();
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -40,27 +38,26 @@ const HomePage = () => {
         <div className="hero-section__glow hero-section__glow--one" aria-hidden="true" />
         <div className="hero-section__glow hero-section__glow--two" aria-hidden="true" />
         <div className="hero-search container">
-          <h1>Cari produknya. <span>DicekOut.</span></h1>
-          <p className="hero-tagline">Rekomendasi produk pilihan dari konten yang kamu lihat.</p>
-          <strong className="hero-brandline">DICEKOUT.ID</strong>
+          <h1>
+            Pilih yang kamu mau
+            <span><strong>DICEKOUT.ID</strong> dulu</span>
+          </h1>
+          <p className="hero-tagline">Rekomendasi produk pilihan terbaik untuk kamu</p>
 
           <div className="hero-search__form">
-            <SearchBar placeholder="Cari nama produk atau kegunaannya..." />
-            <div className="search-quick-terms" aria-label="Contoh pencarian">
-              <span>Coba cari:</span>
-              {suggestedSearchTerms.map((term) => (
-                <Link key={term} to={`/produk?q=${encodeURIComponent(term)}`}>{term}</Link>
-              ))}
-            </div>
+            <SearchBar placeholder="Cari nama produk atau kata dari video..." />
           </div>
+
+          <ul className="hero-benefits" aria-label="Keunggulan rekomendasi DicekOut">
+            <li><FiCheck aria-hidden="true" /> <span>Produk terpilih</span></li>
+            <li><FiCheck aria-hidden="true" /> <span>Sudah kami riset</span></li>
+            <li><FiCheck aria-hidden="true" /> <span>Tentukan pilihanmu</span></li>
+          </ul>
 
           <div className="hero-categories" aria-labelledby="hero-category-title">
             <div className="hero-categories__heading">
-              <div>
-                <span className="eyebrow">Jelajahi lebih cepat</span>
-                <h2 id="hero-category-title">Kategori produk affiliate</h2>
-              </div>
-              <Link to="/produk">Lihat semua produk <FiArrowRight aria-hidden="true" /></Link>
+              <h2 id="hero-category-title">Jelajahi kategori</h2>
+              <Link to="/kategori">Lihat semua kategori <FiArrowRight aria-hidden="true" /></Link>
             </div>
             <div className="hero-category-scroll">
               <div className="hero-category-grid" aria-label="Kategori produk">
@@ -73,112 +70,21 @@ const HomePage = () => {
         </div>
       </section>
 
-
-      {recentProducts.length ? (
-        <section className="section section--surface">
-          <div className="container">
-            <div className="inline-heading recent-products-heading">
-              <div>
-                <span className="eyebrow">Terakhir dilihat</span>
-                <h2>Lanjutkan melihat produk</h2>
-              </div>
-              <button className="text-button" type="button" onClick={clearRecentProducts}>Hapus riwayat</button>
-            </div>
+      <section className="section section--surface home-latest-section">
+        <div className="container">
+          <SectionHeader
+            title={homepageProductTitle}
+            linkTo="/produk"
+            linkLabel="Lihat semua produk"
+          />
+          <div className="home-latest-products">
             <ProductGrid
-              products={recentProducts.slice(0, 4)}
+              products={homepageProducts}
+              priorityCount={4}
               mobileCompact
-              ariaLabel="Produk terakhir dilihat"
+              ariaLabel={homepageProductTitle}
             />
           </div>
-        </section>
-      ) : null}
-
-      <section className="section section--soft">
-        <div className="container">
-          <SectionHeader
-            eyebrow="Baru dibahas"
-            title="Produk dari konten terbaru"
-            description="Pengunjung dapat langsung menemukan produk yang baru saja mereka lihat di konten Anda."
-            linkTo="/koleksi/produk-dari-video-terbaru"
-            linkLabel="Buka koleksi"
-          />
-          <ProductGrid
-            products={latestProducts}
-            priorityCount={4}
-            mobileCompact
-            ariaLabel="Produk dari konten terbaru"
-          />
-        </div>
-      </section>
-
-      <section className="section section--surface">
-        <div className="container">
-          <SectionHeader
-            eyebrow="Pilihan DicekOut"
-            title="Rekomendasi yang mudah dipahami"
-            description="Setiap produk memiliki alasan rekomendasi, perhatian, dan tautan marketplace yang transparan."
-            linkTo="/produk"
-          />
-          <ProductGrid
-            products={featuredProducts}
-            mobileCompact
-            ariaLabel="Pilihan DicekOut"
-          />
-        </div>
-      </section>
-
-      <section className="section section--aqua">
-        <div className="container">
-          <SectionHeader
-            eyebrow="Lebih dari kategori"
-            title="Koleksi berdasarkan kebutuhan"
-            description="Satu produk dapat muncul di koleksi video, setup meja, atau kebutuhan rumah tanpa diduplikasi."
-          />
-          <div className="collection-grid">
-            {collections.map((collection) => <CollectionCard key={collection.id} collection={collection} />)}
-          </div>
-        </div>
-      </section>
-
-      <section className="trust-section section section--surface">
-        <div className="container trust-section__grid">
-          <div className="trust-section__copy">
-            <span className="eyebrow">Rekomendasi yang lebih jujur</span>
-            <h2>Tidak sekadar menaruh link.</h2>
-            <p>
-              DicekOut dirancang untuk memberi konteks sebelum pengunjung menuju marketplace.
-              Tidak ada checkout internal, countdown palsu, atau klaim stok yang tidak terverifikasi.
-            </p>
-            <Link className="button button--primary" to="/tentang">
-              Cara kami memilih produk <FiArrowRight aria-hidden="true" />
-            </Link>
-          </div>
-
-          <div className="trust-list">
-            <article>
-              <FiCheckCircle aria-hidden="true" />
-              <div><h3>Alasan rekomendasi</h3><p>Jelaskan mengapa produk layak dipertimbangkan.</p></div>
-            </article>
-            <article>
-              <FiCheckCircle aria-hidden="true" />
-              <div><h3>Hal yang perlu diperhatikan</h3><p>Kekurangan dan batasan tidak disembunyikan.</p></div>
-            </article>
-            <article>
-              <FiCheckCircle aria-hidden="true" />
-              <div><h3>Link affiliate transparan</h3><p>Disclosure ditampilkan dekat dengan tombol marketplace.</p></div>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section className="disclosure-banner">
-        <div className="container disclosure-banner__inner">
-          <div>
-            <span className="eyebrow">Transparansi</span>
-            <h2>Beberapa link dapat menghasilkan komisi untuk DicekOut.</h2>
-            <p>Komisi tidak menambah harga yang dibayar pengunjung di marketplace.</p>
-          </div>
-          <Link className="button button--light" to="/disclosure">Baca disclosure</Link>
         </div>
       </section>
     </>

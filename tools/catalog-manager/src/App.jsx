@@ -21,6 +21,8 @@ import {
   FiUploadCloud,
   FiX,
   FiMonitor,
+  FiMoon,
+  FiSun,
 } from "react-icons/fi";
 import { createUniqueProductIdentity } from "./productIdentity.js";
 
@@ -159,6 +161,7 @@ export default function App() {
   const [tempMedia, setTempMedia] = useState(null);
   const [previewUrl, setPreviewUrl] = useState("");
   const [previewMode, setPreviewMode] = useState("mobile");
+  const [previewTheme, setPreviewTheme] = useState("light");
   const [notice, setNotice] = useState("");
   const [issues, setIssues] = useState(null);
   const [busy, setBusy] = useState(false);
@@ -218,6 +221,7 @@ export default function App() {
     setImageFailed(false);
     setActiveTab("general");
     setPreviewMode("mobile");
+    setPreviewTheme("light");
   };
   const choose = async (item, sourceMode) => {
     if (!confirmDiscard()) return;
@@ -494,8 +498,22 @@ export default function App() {
   const sourceImage = product.image ? `/catalog-media/${product.image.replace(/^images\/products\//, "")}` : "";
   const previewImage = previewUrl || sourceImage;
   const errorCount = issues?.errors?.length || 0;
-  const completion = [product.name, product.summary, product.description, product.recommendationReason, product.image, product.categorySlug].filter(Boolean).length;
   const activeAffiliateLinks = product.affiliateLinks.filter((link) => link.status !== "inactive");
+  const readinessChecks = [
+    ["Nama produk", Boolean(product.name?.trim())],
+    ["Slug publik", Boolean(product.slug?.trim())],
+    ["Ringkasan", Boolean(product.summary?.trim())],
+    ["Deskripsi", Boolean(product.description?.trim())],
+    ["Gambar dan alt text", Boolean(product.image?.trim() && product.imageAlt?.trim())],
+    ["Kategori", Boolean(product.categorySlug?.trim())],
+    ["Alasan rekomendasi", Boolean(product.recommendationReason?.trim())],
+    ["Kelebihan", product.pros.length > 0],
+    ["Perhatian", product.considerations.length > 0],
+    ["Cocok untuk", product.suitableFor.length > 0],
+    ["Link marketplace aktif", activeAffiliateLinks.length > 0 || product.demo],
+    ["Tanggal ditinjau", Boolean(product.reviewedAt) || product.status !== "published" || product.demo],
+  ];
+  const completion = readinessChecks.filter(([, ready]) => ready).length;
   const canConfirmSourceDelete = deleteDialog?.kind === "source"
     && deleteDialog.impact
     && deleteDialog.typedName === deleteDialog.impact.product.name
@@ -601,13 +619,13 @@ export default function App() {
 
             {activeTab === "publish" && <>
               <Section title="Pengaturan publikasi" description="Produk published wajib memenuhi seluruh validasi live sebelum dapat diterapkan."><div className="form-grid"><Field label="Status"><select value={product.status} onChange={(event) => update("status", event.target.value)}><option value="draft">Draft</option><option value="published">Published</option></select></Field><Field label="Tanggal ditinjau"><input type="date" value={product.reviewedAt} onChange={(event) => update("reviewedAt", event.target.value)} /></Field><Field label="Urutan"><input type="number" value={product.sortOrder} onChange={(event) => update("sortOrder", Number(event.target.value))} /></Field><div className="toggle-group"><label><input type="checkbox" checked={product.demo} onChange={(event) => update("demo", event.target.checked)} /><span>Produk contoh/demo</span></label><label><input type="checkbox" checked={product.featured} onChange={(event) => update("featured", event.target.checked)} /><span>Produk unggulan</span></label><label><input type="checkbox" checked={product.newest} onChange={(event) => update("newest", event.target.checked)} /><span>Tandai sebagai terbaru</span></label></div></div></Section>
-              <Section title="Pemeriksaan akhir"><div className="review-summary"><div><strong>{completion}/6</strong><span>Data utama terisi</span></div><div><strong>{activeAffiliateLinks.length}</strong><span>Link aktif</span></div><div><strong>{product.contentReferences.length}</strong><span>Konten terkait</span></div><div><strong>{errorCount}</strong><span>Error validasi</span></div></div><button className="button button--dark" onClick={validate} disabled={busy}>Jalankan validasi lengkap</button></Section>
+              <Section title="Pemeriksaan akhir" description="Checklist ini membantu mencegah produk setengah jadi diterapkan ke katalog."><div className="review-summary"><div><strong>{completion}/{readinessChecks.length}</strong><span>Kesiapan produk</span></div><div><strong>{activeAffiliateLinks.length}</strong><span>Link aktif</span></div><div><strong>{product.contentReferences.length}</strong><span>Konten terkait</span></div><div><strong>{errorCount}</strong><span>Error validasi</span></div></div><div className="readiness-checklist">{readinessChecks.map(([label, ready]) => <div key={label} className={ready ? "ready" : "missing"}><FiCheckCircle aria-hidden="true" /><span>{label}</span><strong>{ready ? "Siap" : "Belum"}</strong></div>)}</div><button className="button button--dark" onClick={validate} disabled={busy}>Jalankan validasi lengkap</button></Section>
             </>}
           </section>
 
           <aside className="preview-pane">
-            <div className="preview-pane__heading"><div><span className="eyebrow">Live preview</span><h2>Halaman produk</h2></div><div className="preview-device-switch" aria-label="Ukuran preview"><button className={previewMode === "mobile" ? "active" : ""} onClick={() => setPreviewMode("mobile")} aria-label="Preview mobile"><FiSmartphone aria-hidden="true" /></button><button className={previewMode === "tablet" ? "active" : ""} onClick={() => setPreviewMode("tablet")} aria-label="Preview tablet"><FiTablet aria-hidden="true" /></button><button className={previewMode === "desktop" ? "active" : ""} onClick={() => setPreviewMode("desktop")} aria-label="Preview desktop"><FiMonitor aria-hidden="true" /></button></div></div>
-            <div className={`detail-preview detail-preview--${previewMode}`}>
+            <div className="preview-pane__heading"><div><span className="eyebrow">Live preview</span><h2>Halaman produk</h2></div><div className="preview-controls"><div className="preview-device-switch" aria-label="Ukuran preview"><button className={previewMode === "mobile" ? "active" : ""} onClick={() => setPreviewMode("mobile")} aria-label="Preview mobile"><FiSmartphone aria-hidden="true" /></button><button className={previewMode === "tablet" ? "active" : ""} onClick={() => setPreviewMode("tablet")} aria-label="Preview tablet"><FiTablet aria-hidden="true" /></button><button className={previewMode === "desktop" ? "active" : ""} onClick={() => setPreviewMode("desktop")} aria-label="Preview desktop"><FiMonitor aria-hidden="true" /></button></div><button className="preview-theme-toggle" type="button" onClick={() => setPreviewTheme((value) => value === "dark" ? "light" : "dark")} aria-label={previewTheme === "dark" ? "Preview tema terang" : "Preview tema gelap"}>{previewTheme === "dark" ? <FiSun aria-hidden="true" /> : <FiMoon aria-hidden="true" />}</button></div></div>
+            <div className={`detail-preview detail-preview--${previewMode} detail-preview--theme-${previewTheme}`}>
               <div className={previewClass}>{previewImage && !imageFailed ? <img src={previewImage} alt="" onError={() => setImageFailed(true)} /> : <span>Gambar produk</span>}</div>
               <div className="detail-preview__body"><small>{categoryName(product.categorySlug)}</small><h3>{product.name || "Nama produk"}</h3><p>{product.summary || "Ringkasan produk akan tampil di sini."}</p>{product.demo && <span className="demo-badge">Produk demo</span>}<div className="preview-reason"><strong>Kenapa direkomendasikan?</strong><p>{product.recommendationReason || "Alasan rekomendasi akan tampil di sini."}</p></div>{activeAffiliateLinks.length > 0 && <div className="preview-cta-list">{activeAffiliateLinks.map((link, index) => <span key={`${link.marketplace}-${index}`} className={link.isPrimary ? "primary" : ""}><FiLink aria-hidden="true" />{link.label || options.marketplaces.find((item) => item.id === link.marketplace)?.defaultCta || "Cek marketplace"}</span>)}</div>}<small className="preview-disclosure">Tautan marketplace dapat berupa link affiliate. Harga dan ketersediaan mengikuti marketplace.</small>{product.pros.length > 0 && <div className="preview-list"><strong>Kelebihan</strong><ul>{product.pros.map((item) => <li key={item}>{item}</li>)}</ul></div>}{product.considerations.length > 0 && <div className="preview-list"><strong>Perlu diperhatikan</strong><ul>{product.considerations.map((item) => <li key={item}>{item}</li>)}</ul></div>}{product.contentReferences.length > 0 && <div className="preview-content-links"><strong>Lihat konten terkait</strong>{product.contentReferences.map((item, index) => <span key={`${item.platform}-${index}`}>{item.label || item.platform}</span>)}</div>}</div>
             </div>

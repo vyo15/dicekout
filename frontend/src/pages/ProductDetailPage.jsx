@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import {
   FiAlertCircle,
   FiArrowLeft,
@@ -14,10 +14,11 @@ import {
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import ShareButton from "../components/common/ShareButton";
-import ProductGrid from "../components/catalog/ProductGrid";
 import AffiliateLinkButton from "../components/catalog/AffiliateLinkButton";
 import SocialPostLinks from "../components/catalog/SocialPostLinks";
 import SaveProductButton from "../components/catalog/SaveProductButton";
+import StickyMarketplaceBar from "../components/catalog/StickyMarketplaceBar";
+import RelatedProductSection from "../components/catalog/RelatedProductSection";
 import NotFoundPage from "./NotFoundPage";
 import { SITE, toAbsoluteUrl, withBasePath } from "../config/site";
 import { getProductVisualClassNames } from "../config/productPalettes";
@@ -31,6 +32,8 @@ import {
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const product = getProduct(slug);
 
   useEffect(() => {
@@ -45,6 +48,8 @@ const ProductDetailPage = () => {
   const productCollections = (product.collectionSlugs || []).map(getCollection).filter(Boolean);
   const path = `produk/${product.slug}`;
   const shareUrl = toAbsoluteUrl(path);
+  const returnTo = location.state?.catalogReturnTo || "/produk";
+  const returnLabel = returnTo === "/" ? "Kembali ke beranda" : "Kembali ke daftar sebelumnya";
   const reviewedLabel = product.reviewedAt
     ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${product.reviewedAt}T00:00:00Z`))
     : null;
@@ -110,6 +115,24 @@ const ProductDetailPage = () => {
                   <span className="reviewed-date"><FiCalendar aria-hidden="true" /> Ditinjau {reviewedLabel}</span>
                 ) : null}
               </div>
+
+
+              <section className="product-decision-summary" aria-labelledby="decision-summary-title">
+                <div className="product-decision-summary__heading">
+                  <span className="eyebrow">Ringkasan keputusan</span>
+                  <h2 id="decision-summary-title">Apakah produk ini sesuai kebutuhanmu?</h2>
+                </div>
+                <div className="product-decision-summary__grid">
+                  <article>
+                    <span><FiUserCheck aria-hidden="true" /> Cocok untuk</span>
+                    <ul>{product.suitableFor.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
+                  </article>
+                  <article>
+                    <span><FiAlertCircle aria-hidden="true" /> Perlu diperhatikan</span>
+                    <ul>{product.considerations.slice(0, 3).map((item) => <li key={item}>{item}</li>)}</ul>
+                  </article>
+                </div>
+              </section>
 
               <div className="recommendation-box">
                 <span><FiInfo aria-hidden="true" /> Mengapa direkomendasikan</span>
@@ -217,26 +240,15 @@ const ProductDetailPage = () => {
         </div>
       </section>
 
-      {relatedProducts.length ? (
-        <section className="section section--aqua">
-          <div className="container">
-            <div className="inline-heading">
-              <div>
-                <span className="eyebrow">Produk serupa</span>
-                <h2>Rekomendasi lain di kategori {category?.name}</h2>
-              </div>
-              <Link className="text-link" to={`/kategori/${product.categorySlug}`}>
-                Lihat kategori
-              </Link>
-            </div>
-            <ProductGrid products={relatedProducts} />
-          </div>
-        </section>
-      ) : null}
+      <RelatedProductSection product={product} products={relatedProducts} />
 
       <div className="product-back container">
-        <Link className="text-link" to="/produk"><FiArrowLeft aria-hidden="true" /> Kembali ke semua produk</Link>
+        <button className="text-link product-back__button" type="button" onClick={() => navigate(returnTo)}>
+          <FiArrowLeft aria-hidden="true" /> {returnLabel}
+        </button>
       </div>
+
+      <StickyMarketplaceBar product={product} links={activeLinks} />
     </>
   );
 };

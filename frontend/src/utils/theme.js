@@ -1,7 +1,7 @@
 const STORAGE_KEY = "dicekout.theme";
 const DARK = "dark";
 const LIGHT = "light";
-export const BROWSER_THEME_COLORS = Object.freeze({ light: "#f4f4f4", dark: "#090a0c" });
+export const BROWSER_THEME_COLORS = Object.freeze({ light: "#f5f5f4", dark: "#090a0b" });
 
 export const getInitialTheme = () => {
   if (typeof window === "undefined") return LIGHT;
