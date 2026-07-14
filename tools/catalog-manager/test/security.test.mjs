@@ -1,7 +1,38 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import test from "node:test";
+
 import { assertLocalRequest, assertSession } from "../server/security.mjs";
 
-test("local host accepted",()=>assert.doesNotThrow(()=>assertLocalRequest({headers:{host:"127.0.0.1:4317",origin:"http://127.0.0.1:4317"}},4317)));
-test("foreign origin rejected",()=>assert.throws(()=>assertLocalRequest({headers:{host:"127.0.0.1:4317",origin:"https://example.com"}},4317)));
-test("session required for write",()=>assert.throws(()=>assertSession({headers:{}},"secret")));
+const localPort = 666;
+
+test("local host accepted", () => {
+  assert.doesNotThrow(() =>
+    assertLocalRequest(
+      {
+        headers: {
+          host: `127.0.0.1:${localPort}`,
+          origin: `http://127.0.0.1:${localPort}`
+        }
+      },
+      localPort
+    )
+  );
+});
+
+test("foreign origin rejected", () => {
+  assert.throws(() =>
+    assertLocalRequest(
+      {
+        headers: {
+          host: `127.0.0.1:${localPort}`,
+          origin: "https://example.com"
+        }
+      },
+      localPort
+    )
+  );
+});
+
+test("session required for write", () => {
+  assert.throws(() => assertSession({ headers: {} }, "secret"));
+});

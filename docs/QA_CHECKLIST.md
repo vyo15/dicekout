@@ -105,7 +105,7 @@
 - [ ] Direct route GitHub Pages tetap dapat kembali ke base path repository.
 
 ## Local Catalog Manager
-- [ ] Hanya bind ke `127.0.0.1:4317`.
+- [ ] Hanya bind ke `127.0.0.1:666`.
 - [ ] Origin asing dan request write tanpa session ditolak.
 - [ ] Draft lokal tidak muncul di `git status`.
 - [ ] Upload selain PNG/WebP/JPEG atau lebih dari 8 MB ditolak.
@@ -128,12 +128,11 @@
 
 ## Setup lintas komputer dan tipografi Catalog Manager
 
-- [ ] Dari clone baru, `npm install` memasang dependency frontend dan Catalog Manager.
-- [ ] `npm run setup` dapat dijalankan ulang dengan hasil yang sama.
-- [ ] Setup berhenti dan memberi exit code gagal bila salah satu instalasi dependency gagal.
-- [ ] `npm run check` berhasil setelah setup.
-- [ ] `npm run management:test` berhasil setelah setup.
-- [ ] Catalog Manager berjalan di `http://127.0.0.1:666`.
+- [ ] Dari clone baru, `npm ci` memasang dependency frontend dan Catalog Manager melalui npm workspaces.
+- [ ] Hanya ada satu lockfile dependency di root project.
+- [ ] Tidak ada `postinstall`, script setup, atau alias `catalog:manager*`/`management:*`.
+- [ ] `npm run check` memeriksa frontend serta test dan build Catalog Manager.
+- [ ] `npm run management` menjalankan Catalog Manager di `http://127.0.0.1:666`.
 - [ ] Heading, label, hint, tombol, sidebar, dan preview tetap terbaca pada zoom 100%, 125%, dan 150%.
 - [ ] Tidak ada font eksternal atau font file baru yang dibutuhkan.
 

@@ -4,18 +4,15 @@
   "private": true,
   "description": "DicekOut static affiliate recommendation catalog.",
   "scripts": {
-    "dev": "npm --prefix frontend run dev -- --host 0.0.0.0",
-    "build": "npm --prefix frontend run build",
-    "lint": "npm --prefix frontend run lint",
-    "check": "npm --prefix frontend run check",
-    "test": "npm --prefix frontend run test",
-    "setup": "node scripts/setup.mjs",
-    "postinstall": "node scripts/setup.mjs",
-    "management": "npm --prefix tools/catalog-manager run dev",
-    "management:install": "npm ci --prefix tools/catalog-manager --registry=https://registry.npmjs.org",
-    "management:test": "npm --prefix tools/catalog-manager test",
-    "catalog:manager": "npm run management",
-    "catalog:manager:install": "npm run management:install",
-    "catalog:manager:test": "npm run management:test"
-  }
+    "dev": "npm run dev --workspace dicekout-frontend -- --host 0.0.0.0",
+    "management": "npm run dev --workspace dicekout-catalog-manager",
+    "build": "npm run build --workspace dicekout-frontend",
+    "lint": "npm run lint --workspace dicekout-frontend",
+    "test": "npm run test --workspace dicekout-frontend && npm run test --workspace dicekout-catalog-manager",
+    "check": "npm run check --workspace dicekout-frontend && npm run test --workspace dicekout-catalog-manager && npm run build --workspace dicekout-catalog-manager"
+  },
+  "workspaces": [
+    "frontend",
+    "tools/catalog-manager"
+  ]
 }

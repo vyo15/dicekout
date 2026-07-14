@@ -1,14 +1,20 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import test from "node:test";
 
-const lockPath = new URL("../package-lock.json", import.meta.url);
+const rootLockPath = new URL("../../../package-lock.json", import.meta.url);
+const rootNpmrcPath = new URL("../../../.npmrc", import.meta.url);
 const serverPath = new URL("../server/index.mjs", import.meta.url);
 
-test("package lock only references the public npm registry", async () => {
-  const lock = await readFile(lockPath, "utf8");
+test("root dependency files only reference the public npm registry", async () => {
+  const [lock, npmrc] = await Promise.all([
+    readFile(rootLockPath, "utf8"),
+    readFile(rootNpmrcPath, "utf8")
+  ]);
+
   assert.equal(lock.includes("packages.applied-caas-gateway"), false);
-  assert.equal(lock.includes("https://registry.npmjs.org/"), true);
+  assert.match(npmrc, /^registry=https:\/\/registry\.npmjs\.org\/$/m);
+  assert.equal(/token|password|credential/i.test(npmrc), false);
 });
 
 test("catalog server imports the file reader used by media responses", async () => {
@@ -17,28 +23,57 @@ test("catalog server imports the file reader used by media responses", async () 
   assert.match(source, /await readFile\(file\)/);
 });
 
-
-test("root install prepares frontend and catalog manager dependencies", async () => {
+test("root npm workspaces install both apps without setup aliases", async () => {
   const rootPackagePath = new URL("../../../package.json", import.meta.url);
-  const setupPath = new URL("../../../scripts/setup.mjs", import.meta.url);
+  const qualityWorkflowPath = new URL("../../../.github/workflows/quality.yml", import.meta.url);
+  const deployWorkflowPath = new URL("../../../.github/workflows/deploy-pages.yml", import.meta.url);
   const rootPackage = JSON.parse(await readFile(rootPackagePath, "utf8"));
-  const setupSource = await readFile(setupPath, "utf8");
+  const gitignorePath = new URL("../../../.gitignore", import.meta.url);
+  const [qualityWorkflow, deployWorkflow, gitignore] = await Promise.all([
+    readFile(qualityWorkflowPath, "utf8"),
+    readFile(deployWorkflowPath, "utf8"),
+    readFile(gitignorePath, "utf8")
+  ]);
 
-  assert.equal(rootPackage.scripts.postinstall, "node scripts/setup.mjs");
-  assert.equal(rootPackage.scripts.setup, "node scripts/setup.mjs");
+  assert.deepEqual(rootPackage.workspaces, ["frontend", "tools/catalog-manager"]);
   assert.equal(
     rootPackage.scripts.management,
-    "npm --prefix tools/catalog-manager run dev"
+    "npm run dev --workspace dicekout-catalog-manager"
   );
-  assert.equal(rootPackage.scripts["management:test"], "npm --prefix tools/catalog-manager test");
-  assert.equal(rootPackage.scripts["catalog:manager"], "npm run management");
-  assert.match(setupSource, /\["ci", "--prefix", "frontend"\]/);
-  assert.match(setupSource, /"tools\/catalog-manager"/);
-  assert.match(setupSource, /--registry=https:\/\/registry\.npmjs\.org/);
-  assert.match(setupSource, /process\.env\.npm_execpath/);
-  assert.match(setupSource, /process\.env\.ComSpec \|\| "cmd\.exe"/);
-  assert.equal(setupSource.includes('const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm"'), false);
-  assert.match(setupSource, /npm run management/);
+  assert.equal(rootPackage.scripts.postinstall, undefined);
+  assert.equal(rootPackage.scripts.setup, undefined);
+  assert.deepEqual(
+    Object.keys(rootPackage.scripts).filter((name) =>
+      name.includes("management") || name.includes("catalog:manager")
+    ),
+    ["management"]
+  );
+  assert.match(rootPackage.scripts.check, /dicekout-catalog-manager/);
+  assert.match(rootPackage.scripts.check, /npm run build --workspace dicekout-catalog-manager/);
+
+  for (const workflow of [qualityWorkflow, deployWorkflow]) {
+    assert.match(workflow, /cache-dependency-path: package-lock\.json/);
+    assert.match(workflow, /run: npm ci/);
+    assert.equal(workflow.includes("npm ci --prefix frontend"), false);
+  }
+
+  assert.match(gitignore, /^node_modules\/$/m);
+  assert.match(gitignore, /^dist\/$/m);
+  assert.equal(gitignore.includes("frontend/node_modules/"), false);
+  assert.equal(gitignore.includes("tools/catalog-manager/node_modules/"), false);
+  assert.equal(gitignore.includes("frontend/dist/"), false);
+  assert.equal(gitignore.includes("tools/catalog-manager/dist/"), false);
+
+  const obsoleteFiles = [
+    new URL("../../../scripts/setup.mjs", import.meta.url),
+    new URL("../../../frontend/package-lock.json", import.meta.url),
+    new URL("../package-lock.json", import.meta.url),
+    new URL("../.npmrc", import.meta.url)
+  ];
+
+  for (const file of obsoleteFiles) {
+    await assert.rejects(access(file));
+  }
 });
 
 test("catalog manager documentation uses the configured local port", async () => {

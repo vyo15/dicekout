@@ -10,23 +10,16 @@ Buka Git Bash di folder utama project. Pastikan Catalog Manager dan dev server b
 npm install
 ```
 
-Root `postinstall` akan memasang dependency untuk:
+Root project memakai npm workspaces untuk memasang dependency:
 
 - website di `frontend/`;
 - Local Catalog Manager di `tools/catalog-manager/`.
 
-Setelah selesai, jalankan:
+Tidak ada script `postinstall`, setup tambahan, atau alias command panel. Setelah selesai, jalankan:
 
 ```bash
 npm run check
-npm run management:test
 npm run management
-```
-
-Untuk mengulang setup tanpa mengubah dependency root:
-
-```bash
-npm run setup
 ```
 
 ## Workflow harian
@@ -77,12 +70,13 @@ Jika instalasi sebelumnya berhenti dengan `ETIMEDOUT`, `EPERM`, atau package `vi
 ```bash
 cd /c/Users/vio15/Project/dicekout
 
+rm -rf node_modules
 rm -rf frontend/node_modules
 rm -rf tools/catalog-manager/node_modules
 npm cache verify
-npm run setup
-npm run management:test
+npm ci
+npm run check
 npm run management
 ```
 
-Lockfile Catalog Manager wajib menggunakan `https://registry.npmjs.org/`. Jangan commit lockfile yang berisi alamat registry internal, proxy temporer, token, atau kredensial.
+Project menggunakan satu `package-lock.json` di root dan registry publik yang dikonfigurasi melalui `.npmrc` root. Jangan menambahkan lockfile workspace terpisah atau mengisi `.npmrc` dengan proxy temporer, token, maupun kredensial.

@@ -82,7 +82,7 @@ Command yang dijalankan:
 
 ```bash
 VITE_BASE_PATH=/ VITE_SITE_URL=https://dicekout.id npm run check
-npm audit --prefix frontend
+npm audit
 ```
 
 Hasil:
@@ -171,7 +171,7 @@ The monochrome visual system remains the default. A single yellow accent token i
 
 ## Local Catalog Manager foundation
 
-Source terbaru menambahkan panel lokal pada `tools/catalog-manager/`. Panel menggunakan server Node/Vite yang hanya bind ke `127.0.0.1:4317`, session token sementara untuk operasi tulis, draft/backup/temp di `.catalog-manager/`, atomic JSON write, upload PNG/WebP/JPEG, shared catalog validation, visual palette produk, serta apply ke source tanpa commit atau push otomatis. Folder tool tidak menjadi bagian deployment karena workflow Pages hanya mengunggah `frontend/dist`.
+Source terbaru menambahkan panel lokal pada `tools/catalog-manager/`. Panel menggunakan server Node/Vite yang hanya bind ke `127.0.0.1:666`, session token sementara untuk operasi tulis, draft/backup/temp di `.catalog-manager/`, atomic JSON write, upload PNG/WebP/JPEG, shared catalog validation, visual palette produk, serta apply ke source tanpa commit atau push otomatis. Folder tool tidak menjadi bagian deployment karena workflow Pages hanya mengunggah `frontend/dist`.
 
 ## Catalog Manager UX refresh
 
@@ -182,9 +182,10 @@ Local Catalog Manager sekarang memakai editor tiga kolom yang lebih terstruktur:
 
 - Catalog Manager menggunakan stack font sistem modern dengan prioritas `Segoe UI Variable Text` agar tampilan Windows lebih lembut tanpa bergantung pada font eksternal.
 - Hierarki heading, label, tombol, hint, dan preview diperhalus; ukuran teks kecil dinaikkan agar lebih mudah dibaca.
-- Root `npm install` sekarang menjalankan `scripts/setup.mjs` melalui `postinstall`.
-- Setup memasang dependency `frontend/` dan `tools/catalog-manager/` secara berurutan serta berhenti dengan error yang jelas jika salah satu instalasi gagal.
-- Registry Catalog Manager tetap dikunci ke registry npm publik.
+- Root project menggunakan npm workspaces untuk memasang dependency `frontend/` dan `tools/catalog-manager/` melalui satu `npm install` atau `npm ci`.
+- Script setup, nested npm pada `postinstall`, alias command lama, dan lockfile workspace terpisah dihapus agar instalasi lintas platform lebih sederhana.
+- Catalog Manager hanya dijalankan melalui `npm run management`; `npm run check` juga menjalankan test dan build Catalog Manager.
+- Registry npm publik dikonfigurasi satu kali melalui `.npmrc` root tanpa token atau kredensial.
 
 ## Catalog Manager product library navigation
 

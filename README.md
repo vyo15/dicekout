@@ -34,22 +34,16 @@ Dari folder utama project, jalankan satu perintah:
 npm install
 ```
 
-Perintah tersebut otomatis memasang dependency website dan Local Catalog Manager. Setelah selesai:
+Project memakai npm workspaces, sehingga perintah tersebut memasang dependency website dan Local Catalog Manager sekaligus tanpa script setup tambahan. Setelah selesai:
 
 ```bash
 npm run dev
 ```
 
-Panel lokal dapat dijalankan dengan:
+Panel lokal hanya dijalankan dengan:
 
 ```bash
 npm run management
-```
-
-Untuk instalasi ulang yang terkontrol:
-
-```bash
-npm run setup
 ```
 
 Build dan seluruh pemeriksaan:
