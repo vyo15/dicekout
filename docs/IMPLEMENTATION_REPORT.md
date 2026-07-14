@@ -207,3 +207,96 @@ The local manager reuses the same DicekOut logo and favicon files from `frontend
 - Aksen kuning hanya digunakan sebagai solid fill pada CTA utama, tanpa gradient.
 - Ikon navigasi menggunakan `react-icons/fi` sesuai fungsi menu.
 - Menu aktif memakai surface charcoal solid agar kontras dan tetap minimalis.
+
+## Catalog Manager hard-delete, media optimization, and recovery hardening — 2026-07-14
+
+### Source yang divalidasi
+
+Patch ini dibuat dari `dicekout-clean(31).zip` dengan root project langsung pada root ZIP. Stack aktual tetap npm workspaces, React/Vite frontend, Node local Catalog Manager, dan katalog JSON. File utama yang diperiksa dan disentuh:
+
+```text
+package.json
+package-lock.json
+tools/catalog-manager/package.json
+tools/catalog-manager/src/App.jsx
+tools/catalog-manager/src/styles.css
+tools/catalog-manager/server/index.mjs
+tools/catalog-manager/server/catalogRepository.mjs
+tools/catalog-manager/server/atomicWrite.mjs
+tools/catalog-manager/server/security.mjs
+tools/catalog-manager/server/imageProcessor.mjs
+frontend/src/domain/catalog/validateCatalogData.js
+frontend/src/pages/NotFoundPage.jsx
+docs/CATALOG_MANAGER.md
+docs/CATALOG_GUIDE.md
+docs/QA_CHECKLIST.md
+```
+
+File `tools/catalog-manager/server/imageMetadata.mjs` dihapus setelah seluruh usage dipindahkan ke `imageProcessor.mjs`. Generated files, `node_modules`, `dist`, `.catalog-manager`, lock runtime, cache, dan secret tidak termasuk patch source.
+
+### Perubahan implementasi
+
+- Hard delete produk dengan dependency impact scan, typed confirmation, catalog fingerprint, mutation lock, cascade cleanup seluruh `collections[].productIds`, cleanup draft/temp terkait, image usage scan, final validation, backup, dan automatic rollback.
+- Tidak menambah status retired/archive, tombstone, redirect per produk, atau data produk terhapus di source.
+- Binary image upload menggantikan Base64 JSON.
+- Sharp hanya ditambahkan ke workspace Catalog Manager; tidak masuk bundle website publik. Root package menetapkan Node.js `20.19+` atau `22.12+` dan npm `10+` agar instalasi lintas-PC gagal lebih awal pada runtime yang tidak kompatibel.
+- JPG/JPEG, PNG, dan WebP statis diproses menjadi satu WebP adaptif, maksimal 1200 px, tanpa crop/upscale, dengan auto-orient, sRGB, metadata stripping, transparency preservation, content hash, dan deduplication.
+- Draft envelope menyimpan metadata temporary image; replacement/cancel/delete/startup cleanup tidak menghapus file yang masih dipakai draft lain.
+- Apply, delete, dan rollback memakai backup manifest v2, atomic multi-file replacement, media/draft/temp recovery, pre-rollback safety backup, dan error escalation bila recovery otomatis tidak lengkap.
+- Editor mendapat action menu, duplikasi aman, kontrol demo, affiliate link aktif/nonaktif dan primary, tanggal content reference, real optimized-image preview, conversion summary, responsive full-detail preview, backup history, rollback dialog, busy/dirty guard, serta accessible modal focus handling.
+- Validator memastikan `demo` boolean, tepat satu primary affiliate link ketika link tersedia, primary tidak inactive, dan memberi warning untuk media published non-demo yang belum WebP tanpa memutus kompatibilitas legacy.
+- Halaman 404 menjelaskan produk mungkin sudah dihapus dan tetap menyediakan pencarian serta kembali ke beranda.
+- Raw backup ID tidak ditampilkan kepada pengguna; UI menggunakan jenis operasi, produk, dan waktu.
+
+### Temuan baru yang diperbaiki dalam patch
+
+- Batas file 8 MB lama tidak konsisten dengan pembengkakan Base64 dan body JSON; workflow diganti menjadi binary dengan batas keamanan 25 MB/50 MP.
+- Rollback backend lama belum memiliki UI dan belum memulihkan media/draft/temp; backup diperluas dan recovery ditambahkan.
+- Apply/delete sebelumnya berisiko menyembunyikan kegagalan rollback; kegagalan recovery sekarang dilaporkan sebagai operasi tidak lengkap dan backup dipertahankan.
+- Dialog destructive belum memiliki focus trap, Escape handling, scroll lock, dan focus return; seluruhnya ditambahkan.
+- Raw backup ID sebelumnya berpotensi tampil sebagai detail teknis; sekarang disembunyikan dari UI normal.
+- Runtime `manager.lock` dari source upload tidak digunakan sebagai data project dan tetap berada di area ignored lokal.
+
+### Hasil pemeriksaan otomatis
+
+Command yang dijalankan pada source patch:
+
+```bash
+npm install
+npm run lint
+npm run test
+npm run check
+npm audit
+```
+
+Hasil:
+
+```text
+Frontend ESLint: berhasil
+Frontend test: 6/6 berhasil
+Catalog Manager test: 27/27 berhasil
+Theme token validation: berhasil
+Catalog validation: 9 produk, 4 kategori, 3 koleksi
+Frontend production build: berhasil
+Static route generation: 21 route
+Catalog Manager production build: berhasil
+npm audit: 0 vulnerability
+```
+
+### Runtime smoke test
+
+Catalog Manager dijalankan pada `127.0.0.1:666` dan diperiksa tanpa mengubah source katalog:
+
+- request API tanpa session ditolak;
+- request katalog dengan session berhasil dan membaca 9 produk, 4 kategori, 3 koleksi;
+- JPEG 2400 × 1600 berhasil dikirim sebagai binary;
+- output menjadi WebP 1200 × 800;
+- temporary preview dapat dibaca;
+- endpoint discard menghapus temporary image;
+- manager lock dibersihkan saat proses dihentikan.
+
+### Batasan pengujian
+
+- Delete dan rollback tidak dijalankan pada data katalog aktual; keduanya diuji melalui fixture repository terisolasi agar source pengguna tidak termutasi.
+- Review visual interaktif tetap perlu dilakukan di browser Windows pengguna pada zoom dan breakpoint yang tercantum di `docs/QA_CHECKLIST.md`.
+- Kategori, koleksi, media orphan browser, export/import lintas-PC, dan pagination besar tetap merupakan fase lanjutan terpisah sebagaimana plan; patch ini menyelesaikan workflow inti produk, delete, image, backup, rollback, dan editor yang telah disetujui.

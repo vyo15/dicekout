@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { FiFilter, FiRefreshCw, FiSearch, FiX } from "react-icons/fi";
+import { FiArrowRight, FiFilter, FiRefreshCw, FiX } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import CatalogFilters from "../components/catalog/CatalogFilters";
 import CatalogFilterDrawer from "../components/catalog/CatalogFilterDrawer";
 import ProductGrid from "../components/catalog/ProductGrid";
 import EmptyState from "../components/feedback/EmptyState";
-import { categories, products, searchProducts } from "../utils/catalog";
+import SearchAutocomplete from "../components/common/SearchAutocomplete";
+import { categories, collections, products, searchProducts } from "../utils/catalog";
 
 const ProductsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,6 +17,7 @@ const ProductsPage = () => {
   const searchInputRef = useRef(null);
   const queryParam = searchParams.get("q") || "";
   const categoryParam = searchParams.get("kategori") || "all";
+  const collectionParam = searchParams.get("koleksi") || "all";
   const sortParam = searchParams.get("urut") || "recommended";
   const featuredParam = searchParams.get("pilihan") === "1";
   const newestParam = searchParams.get("terbaru") === "1";
@@ -50,14 +52,23 @@ const ProductsPage = () => {
   const result = useMemo(() => searchProducts({
     query: queryParam,
     category: categoryParam,
+    collection: collectionParam,
     sort: sortParam,
     featured: featuredParam,
     newest: newestParam,
-  }), [categoryParam, featuredParam, newestParam, queryParam, sortParam]);
+  }), [categoryParam, collectionParam, featuredParam, newestParam, queryParam, sortParam]);
 
   const categoryCounts = useMemo(() => products.reduce((counts, product) => {
     counts.all += 1;
     counts[product.categorySlug] = (counts[product.categorySlug] || 0) + 1;
+    return counts;
+  }, { all: 0 }), []);
+
+  const collectionCounts = useMemo(() => products.reduce((counts, product) => {
+    counts.all += 1;
+    (product.collectionSlugs || []).forEach((slug) => {
+      counts[slug] = (counts[slug] || 0) + 1;
+    });
     return counts;
   }, { all: 0 }), []);
 
@@ -72,9 +83,8 @@ const ProductsPage = () => {
     setSearchParams(next);
   }, [searchParams, setSearchParams]);
 
-  const handleSearch = (event) => {
-    event.preventDefault();
-    updateParams({ q: query.trim() || null });
+  const handleSearch = (nextQuery) => {
+    updateParams({ q: nextQuery || null });
   };
 
   const resetFilters = useCallback(() => {
@@ -85,11 +95,13 @@ const ProductsPage = () => {
   const closeFilterDrawer = useCallback(() => setFilterOpen(false), []);
 
   const selectedCategory = categories.find((category) => category.slug === categoryParam) || null;
+  const selectedCollection = collections.find((collection) => collection.slug === collectionParam) || null;
   const featuredCount = products.filter((product) => product.featured).length;
   const newestCount = products.filter((product) => product.newest).length;
   const hasActiveFilters = Boolean(
     queryParam
     || categoryParam !== "all"
+    || collectionParam !== "all"
     || featuredParam
     || newestParam
     || sortParam !== "recommended",
@@ -98,6 +110,7 @@ const ProductsPage = () => {
   const activeFilters = [
     queryParam ? { key: "q", label: `Pencarian: ${queryParam}` } : null,
     selectedCategory ? { key: "kategori", label: selectedCategory.name } : null,
+    selectedCollection ? { key: "koleksi", label: selectedCollection.name } : null,
     featuredParam ? { key: "pilihan", label: "Pilihan DicekOut" } : null,
     newestParam ? { key: "terbaru", label: "Terbaru dibahas" } : null,
   ].filter(Boolean);
@@ -110,12 +123,16 @@ const ProductsPage = () => {
   const filterProps = {
     categories,
     categoryCounts,
+    collections,
+    collectionCounts,
     selectedCategory: categoryParam,
+    selectedCollection: collectionParam,
     featuredOnly: featuredParam,
     newestOnly: newestParam,
     featuredCount,
     newestCount,
     onCategoryChange: (value) => updateParams({ kategori: value === "all" ? null : value }),
+    onCollectionChange: (value) => updateParams({ koleksi: value === "all" ? null : value }),
     onFeaturedChange: (checked) => updateParams({ pilihan: checked ? "1" : null }),
     onNewestChange: (checked) => updateParams({ terbaru: checked ? "1" : null }),
     onReset: resetFilters,
@@ -164,19 +181,15 @@ const ProductsPage = () => {
 
           <div className="products-catalog-main">
             <div className="products-catalog-toolbar">
-              <form className="products-catalog-search" role="search" onSubmit={handleSearch}>
-                <label className="sr-only" htmlFor="catalog-query">Cari produk</label>
-                <FiSearch aria-hidden="true" />
-                <input
-                  id="catalog-query"
-                  ref={searchInputRef}
-                  type="search"
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Contoh: lampu meja atau tripod"
-                />
-                <button type="submit">Cari</button>
-              </form>
+              <SearchAutocomplete
+                value={query}
+                onValueChange={setQuery}
+                onSubmit={handleSearch}
+                inputRef={searchInputRef}
+                inputId="catalog-query"
+                placeholder="Contoh: lampu meja atau stand HP"
+                formClassName="products-catalog-search"
+              />
 
               <label className="products-catalog-sort">
                 <span>Urutkan</span>
@@ -232,15 +245,27 @@ const ProductsPage = () => {
             {result.length ? (
               <ProductGrid products={result} priorityCount={4} variant="catalog" />
             ) : (
-              <EmptyState
-                title="Belum ada produk yang cocok"
-                description="Periksa ejaan atau hapus beberapa filter. Data contoh saat ini masih terbatas."
-                action={(
-                  <button className="button button--primary" type="button" onClick={resetFilters}>
-                    Tampilkan semua produk
-                  </button>
-                )}
-              />
+              <div className="catalog-empty-results">
+                <EmptyState
+                  title="Belum ada produk yang cocok"
+                  description="Coba nama sehari-hari, fungsi barang, kategori lain, atau hapus beberapa filter."
+                  action={(
+                    <button className="button button--primary" type="button" onClick={resetFilters}>
+                      Tampilkan semua produk
+                    </button>
+                  )}
+                />
+                <div className="catalog-empty-suggestions">
+                  <h2>Jelajahi cara lain</h2>
+                  <div>
+                    {categories.slice(0, 3).map((category) => (
+                      <button key={category.id} type="button" onClick={() => updateParams({ kategori: category.slug, q: null })}>
+                        {category.name} <FiArrowRight aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>

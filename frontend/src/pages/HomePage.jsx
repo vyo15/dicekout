@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import {
   FiArrowRight,
   FiCheckCircle,
-  FiSearch,
 } from "react-icons/fi";
 import SearchBar from "../components/common/SearchBar";
 import SectionHeader from "../components/common/SectionHeader";
@@ -11,12 +10,15 @@ import CategoryCard from "../components/catalog/CategoryCard";
 import CollectionCard from "../components/catalog/CollectionCard";
 import ProductGrid from "../components/catalog/ProductGrid";
 import { SITE, toAbsoluteUrl } from "../config/site";
-import { categories, collections, products } from "../utils/catalog";
+import { categories, collections, products, suggestedSearchTerms } from "../utils/catalog";
+import { useProductPreferences } from "../hooks/useProductPreferences";
+import { clearRecentProducts } from "../utils/productPreferences";
 
 const featuredProducts = products.filter((product) => product.featured).slice(0, 4);
 const latestProducts = products.filter((product) => product.newest).slice(0, 4);
 
 const HomePage = () => {
+  const { recentProducts } = useProductPreferences();
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
@@ -43,7 +45,13 @@ const HomePage = () => {
           <strong className="hero-brandline">DICEKOUT.ID</strong>
 
           <div className="hero-search__form">
-            <SearchBar placeholder="Cari nama produk atau kata dari video..." />
+            <SearchBar placeholder="Cari nama produk atau kegunaannya..." />
+            <div className="search-quick-terms" aria-label="Contoh pencarian">
+              <span>Coba cari:</span>
+              {suggestedSearchTerms.map((term) => (
+                <Link key={term} to={`/produk?q=${encodeURIComponent(term)}`}>{term}</Link>
+              ))}
+            </div>
           </div>
 
           <div className="hero-categories" aria-labelledby="hero-category-title">
@@ -64,6 +72,26 @@ const HomePage = () => {
           </div>
         </div>
       </section>
+
+
+      {recentProducts.length ? (
+        <section className="section section--surface">
+          <div className="container">
+            <div className="inline-heading recent-products-heading">
+              <div>
+                <span className="eyebrow">Terakhir dilihat</span>
+                <h2>Lanjutkan melihat produk</h2>
+              </div>
+              <button className="text-button" type="button" onClick={clearRecentProducts}>Hapus riwayat</button>
+            </div>
+            <ProductGrid
+              products={recentProducts.slice(0, 4)}
+              mobileCompact
+              ariaLabel="Produk terakhir dilihat"
+            />
+          </div>
+        </section>
+      ) : null}
 
       <section className="section section--soft">
         <div className="container">

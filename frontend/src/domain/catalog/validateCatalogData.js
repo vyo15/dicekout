@@ -97,7 +97,9 @@ export const validateCatalogData = ({ site, categories, collections, products })
     if (!slugPattern.test(product.slug || "")) errors.push(`Slug produk tidak valid: ${product.slug}`);
     if (!categorySlugs.has(product.categorySlug)) errors.push(`${prefix} memakai kategori yang tidak ada: ${product.categorySlug}`);
     if (!["draft", "published"].includes(product.status)) errors.push(`${prefix}.status harus draft atau published.`);
+    if (typeof product.demo !== "boolean") errors.push(`${prefix}.demo harus boolean.`);
     if (!isSafeRelativeCatalogPath(product.image)) errors.push(`${prefix}.image harus path lokal relatif yang aman.`);
+    if (product.status === "published" && !product.demo && !/\.webp$/i.test(product.image || "")) warnings.push(`${prefix}.image belum WebP; optimalkan melalui Catalog Manager saat gambar diperbarui.`);
     validateDate(product.updatedAt, `${prefix}.updatedAt`, { required: true });
     const publishedLive = isLive && product.status === "published" && !product.demo;
     validateDate(product.reviewedAt, `${prefix}.reviewedAt`, { required: publishedLive });
@@ -124,6 +126,9 @@ export const validateCatalogData = ({ site, categories, collections, products })
       if (collection && !collection.productIds.includes(product.id)) errors.push(`Relasi tidak sinkron: ${product.id} mencantumkan ${collectionSlug}, tetapi koleksi tidak mencantumkan produk.`);
     }
     const marketplaceIds = new Set();
+    const primaryLinks = (product.affiliateLinks || []).filter((link) => Boolean(link?.isPrimary));
+    if ((product.affiliateLinks || []).length > 0 && primaryLinks.length !== 1) errors.push(`${prefix} harus memiliki tepat satu affiliate link utama.`);
+    if (primaryLinks.some((link) => link.status === "inactive")) errors.push(`${prefix} tidak boleh memakai link nonaktif sebagai link utama.`);
     for (const [index, link] of (product.affiliateLinks || []).entries()) {
       const linkPrefix = `${prefix}.affiliateLinks[${index}]`;
       requiredString(link.marketplace, `${linkPrefix}.marketplace`); requiredString(link.url, `${linkPrefix}.url`);

@@ -58,6 +58,9 @@ const applyMeta = (html, meta) => {
 const routes = [
   { path: "", title: site.title, description: site.description, lastmod: site.updatedAt },
   { path: "produk", title: "Semua Produk Rekomendasi | DicekOut", description: "Jelajahi seluruh produk rekomendasi DicekOut berdasarkan nama, kategori, dan koleksi konten.", lastmod: site.updatedAt },
+  { path: "kategori", title: "Kategori Produk | DicekOut", description: "Jelajahi rekomendasi produk DicekOut berdasarkan kategori.", lastmod: site.updatedAt },
+  { path: "koleksi", title: "Koleksi Rekomendasi | DicekOut", description: "Jelajahi koleksi rekomendasi DicekOut berdasarkan kebutuhan dan konteks penggunaan.", lastmod: site.updatedAt },
+  { path: "tersimpan", title: "Produk Tersimpan | DicekOut", description: "Produk DicekOut yang tersimpan pada perangkat ini.", noindex: true },
   { path: "tentang", title: "Tentang DicekOut | Cara Kami Memilih Produk", description: "Pelajari tujuan DicekOut dan prinsip yang digunakan dalam menyusun rekomendasi produk." },
   { path: "disclosure", title: "Disclosure Affiliate | DicekOut", description: "Penjelasan transparan tentang cara kerja tautan affiliate di DicekOut." },
   { path: "privacy", title: "Kebijakan Privasi | DicekOut", description: "Informasi tentang data yang digunakan oleh versi statis DicekOut dan tautan menuju marketplace eksternal." },

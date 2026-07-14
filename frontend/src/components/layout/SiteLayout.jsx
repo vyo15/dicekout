@@ -1,23 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
-import { FiMenu, FiMoon, FiSearch, FiSun, FiX } from "react-icons/fi";
+import { FiBookmark, FiMenu, FiMoon, FiSearch, FiSun, FiX } from "react-icons/fi";
 import BrandLogo from "../common/BrandLogo";
 import DemoNotice from "../common/DemoNotice";
 import MobileBottomNavigation from "./MobileBottomNavigation";
 import MobileMoreMenu from "./MobileMoreMenu";
 import { SITE } from "../../config/site";
 import { applyTheme, getInitialTheme, toggleThemeValue } from "../../utils/theme";
+import { useProductPreferences } from "../../hooks/useProductPreferences";
 
 const navigation = [
   { to: "/", label: "Beranda", end: true },
   { to: "/produk", label: "Semua Produk" },
-  { to: "/kategori/elektronik", label: "Kategori" },
-  { to: "/koleksi/produk-dari-video-terbaru", label: "Koleksi" },
+  { to: "/kategori", label: "Kategori" },
+  { to: "/koleksi", label: "Koleksi" },
   { to: "/tentang", label: "Tentang" },
 ];
 
 const SiteLayout = () => {
   const [theme, setTheme] = useState(getInitialTheme);
+  const { savedProducts } = useProductPreferences();
   const [menuOpen, setMenuOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
   const location = useLocation();
@@ -112,6 +114,15 @@ const SiteLayout = () => {
           </nav>
 
           <div className="site-header__actions">
+            <NavLink
+              className="icon-button saved-products-link"
+              to="/tersimpan"
+              aria-label={`Produk tersimpan${savedProducts.length ? `, ${savedProducts.length} produk` : ""}`}
+              title="Produk tersimpan"
+            >
+              <FiBookmark aria-hidden="true" />
+              {savedProducts.length ? <span>{savedProducts.length}</span> : null}
+            </NavLink>
             <button
               className="icon-button"
               type="button"
@@ -172,6 +183,9 @@ const SiteLayout = () => {
           <div className="site-footer__column">
             <h2>Jelajahi</h2>
             <NavLink to="/produk">Semua Produk</NavLink>
+            <NavLink to="/kategori">Kategori</NavLink>
+            <NavLink to="/koleksi">Koleksi</NavLink>
+            <NavLink to="/tersimpan">Produk Tersimpan</NavLink>
             <NavLink to="/koleksi/produk-dari-video-terbaru">Produk dari Konten</NavLink>
             <NavLink to="/tentang">Tentang DicekOut</NavLink>
           </div>

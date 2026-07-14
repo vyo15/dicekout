@@ -3,6 +3,7 @@ import { FiArrowUpRight, FiCheckCircle } from "react-icons/fi";
 import { getCategory, getPrimaryAffiliateLink } from "../../utils/catalog";
 import { withBasePath } from "../../config/site";
 import AffiliateLinkButton from "./AffiliateLinkButton";
+import SaveProductButton from "./SaveProductButton";
 import { getProductVisualClassNames } from "../../config/productPalettes";
 
 const ProductCard = ({ product, priority = false, variant = "default" }) => {
@@ -41,6 +42,7 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
           </div>
         </div>
       </Link>
+      <SaveProductButton product={product} compact />
 
       <div className="product-card__body">
         <Link className="product-card__category" to={`/kategori/${category?.slug || product.categorySlug}`}>

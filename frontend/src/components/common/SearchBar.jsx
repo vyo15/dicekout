@@ -1,6 +1,6 @@
 import { useId, useState } from "react";
-import { FiSearch } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import SearchAutocomplete from "./SearchAutocomplete";
 
 const SearchBar = ({
   initialValue = "",
@@ -12,9 +12,7 @@ const SearchBar = ({
   const navigate = useNavigate();
   const inputId = useId();
 
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const query = value.trim();
+  const handleSubmit = (query) => {
     if (onSubmit) {
       onSubmit(query);
       return;
@@ -23,19 +21,14 @@ const SearchBar = ({
   };
 
   return (
-    <form className={`search-bar${compact ? " search-bar--compact" : ""}`} role="search" onSubmit={handleSubmit}>
-      <label className="sr-only" htmlFor={inputId}>Cari produk</label>
-      <FiSearch aria-hidden="true" />
-      <input
-        id={inputId}
-        type="search"
-        value={value}
-        onChange={(event) => setValue(event.target.value)}
-        placeholder={placeholder}
-        autoComplete="off"
-      />
-      <button type="submit">Cari</button>
-    </form>
+    <SearchAutocomplete
+      value={value}
+      onValueChange={setValue}
+      onSubmit={handleSubmit}
+      inputId={inputId}
+      placeholder={placeholder}
+      formClassName={`search-bar${compact ? " search-bar--compact" : ""}`}
+    />
   );
 };
 

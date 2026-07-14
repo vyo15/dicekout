@@ -1,13 +1,17 @@
 const CatalogFilters = ({
   categories,
   categoryCounts,
+  collections,
+  collectionCounts,
   selectedCategory,
+  selectedCollection,
   featuredOnly,
   newestOnly,
   featuredCount,
   newestCount,
   idPrefix,
   onCategoryChange,
+  onCollectionChange,
   onFeaturedChange,
   onNewestChange,
   onReset,
@@ -49,6 +53,37 @@ const CatalogFilters = ({
             />
             <span>{category.name}</span>
             <small>{categoryCounts[category.slug] || 0}</small>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <fieldset className="catalog-filter-group">
+      <legend>Kebutuhan</legend>
+      <div className="catalog-filter-list">
+        <label className="catalog-filter-option">
+          <input
+            type="radio"
+            name={`${idPrefix}-collection`}
+            value="all"
+            checked={selectedCollection === "all"}
+            onChange={() => onCollectionChange("all")}
+          />
+          <strong>Semua kebutuhan</strong>
+          <small>{collectionCounts.all || 0}</small>
+        </label>
+
+        {collections.map((collection) => (
+          <label className="catalog-filter-option" key={collection.id}>
+            <input
+              type="radio"
+              name={`${idPrefix}-collection`}
+              value={collection.slug}
+              checked={selectedCollection === collection.slug}
+              onChange={() => onCollectionChange(collection.slug)}
+            />
+            <span>{collection.name}</span>
+            <small>{collectionCounts[collection.slug] || 0}</small>
           </label>
         ))}
       </div>

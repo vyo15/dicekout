@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
   FiAlertCircle,
@@ -16,9 +17,11 @@ import ShareButton from "../components/common/ShareButton";
 import ProductGrid from "../components/catalog/ProductGrid";
 import AffiliateLinkButton from "../components/catalog/AffiliateLinkButton";
 import SocialPostLinks from "../components/catalog/SocialPostLinks";
+import SaveProductButton from "../components/catalog/SaveProductButton";
 import NotFoundPage from "./NotFoundPage";
 import { SITE, toAbsoluteUrl, withBasePath } from "../config/site";
 import { getProductVisualClassNames } from "../config/productPalettes";
+import { addRecentlyViewedProduct } from "../utils/productPreferences";
 import {
   getCategory,
   getCollection,
@@ -29,6 +32,11 @@ import {
 const ProductDetailPage = () => {
   const { slug } = useParams();
   const product = getProduct(slug);
+
+  useEffect(() => {
+    if (product) addRecentlyViewedProduct(product.id);
+  }, [product]);
+
   if (!product) return <NotFoundPage />;
 
   const category = getCategory(product.categorySlug);
@@ -96,6 +104,7 @@ const ProductDetailPage = () => {
               <p className="product-detail__lead">{product.summary}</p>
 
               <div className="product-detail__actions">
+                <SaveProductButton product={product} />
                 <ShareButton title={product.name} text={product.summary} url={shareUrl} />
                 {reviewedLabel ? (
                   <span className="reviewed-date"><FiCalendar aria-hidden="true" /> Ditinjau {reviewedLabel}</span>

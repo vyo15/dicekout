@@ -171,3 +171,53 @@ Perilaku UI:
 ID marketplace yang didukung tersimpan di `frontend/src/config/marketplaces.js`. Gunakan ID tersebut pada `affiliateLinks[].marketplace`, misalnya `shopee`, `tokopedia`, `lazada`, `tiktok-shop`, `blibli`, `amazon`, atau `other`.
 
 Gunakan `other` hanya setelah domain tujuan diperiksa manual. Validator tidak mengubah URL, query string, sub-ID, UTM, atau parameter attribution.
+
+## Aturan gambar produk melalui Catalog Manager
+
+Untuk produk baru atau saat mengganti gambar, gunakan upload pada Catalog Manager. Sistem menerima JPG/JPEG, PNG, dan WebP statis, lalu menyimpan satu file WebP hasil optimasi. Original kualitas tinggi tidak masuk source.
+
+Standar hasil:
+
+- dimensi maksimum 1200 × 1200 px;
+- proporsi dipertahankan;
+- tidak ada crop otomatis;
+- gambar kecil tidak diperbesar;
+- transparansi dipertahankan;
+- EXIF, GPS, dan metadata lain dihapus;
+- nama file memakai slug dan content hash;
+- preview editor memakai file hasil konversi, bukan original.
+
+Jangan menyalin original besar ke `frontend/public/images/products/` secara manual. Gambar lama hanya boleh dihapus setelah usage scan memastikan tidak dipakai produk atau draft lain.
+
+## Workflow hard delete
+
+Produk yang dihapus melalui Catalog Manager akan dihapus permanen dari `products.json`. Server secara otomatis:
+
+1. memindai semua koleksi, bukan hanya `product.collectionSlugs`;
+2. menghapus product ID dari seluruh `collection.productIds`;
+3. menghapus draft dengan ID atau slug yang sama;
+4. membersihkan temporary media eksklusif;
+5. menghapus gambar source hanya bila tidak dipakai data lain;
+6. membuat backup lokal;
+7. memvalidasi katalog setelah perubahan;
+8. menjalankan rollback otomatis bila hasil akhir tidak valid.
+
+Tidak ada status retired/archive dan tidak ada file produk terhapus di source. Konsekuensinya, URL lama produk menjadi 404 setelah build/deploy. Halaman 404 harus tetap `noindex` dan menyediakan pencarian serta tautan kembali ke beranda.
+
+## Backup lokal
+
+Riwayat backup hanya untuk pemulihan operasional Catalog Manager. Backup berada di `.catalog-manager/backups/`, tidak boleh di-commit, tidak menjadi data publik, dan tidak boleh digunakan sebagai sumber katalog utama. Gunakan Git sebagai riwayat perubahan jangka panjang setelah perubahan selesai diperiksa.
+
+## Checklist sebelum apply produk
+
+- ID dan slug produk baru dibuat otomatis; ID/slug existing tidak diubah.
+- Gambar hasil optimasi tampil benar di preview mobile, tablet, dan desktop.
+- Alt text, sumber, izin, dan dimensi gambar benar.
+- Produk demo/live dipilih dengan sengaja.
+- Tepat satu affiliate link menjadi link utama ketika link tersedia.
+- Link utama aktif dan seluruh URL attribution masih identik dengan input.
+- Tanggal posting content reference benar.
+- Relasi koleksi sesuai.
+- Tidak ada klaim harga, stok, rating, diskon, promo, atau urgency palsu.
+- Validasi panel lolos.
+- Setelah apply, jalankan `npm run check` dan review Git diff.

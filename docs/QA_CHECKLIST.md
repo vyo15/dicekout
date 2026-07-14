@@ -108,8 +108,8 @@
 - [ ] Hanya bind ke `127.0.0.1:666`.
 - [ ] Origin asing dan request write tanpa session ditolak.
 - [ ] Draft lokal tidak muncul di `git status`.
-- [ ] Upload selain PNG/WebP/JPEG atau lebih dari 8 MB ditolak.
-- [ ] Apply membuat backup dan tidak melakukan commit/push.
+- [ ] JPG/JPEG, PNG, dan WebP statis sampai batas keamanan 25 MB diproses; file rusak, MIME palsu, animasi, format lain, atau resolusi di atas 50 MP ditolak.
+- [ ] Apply membuat backup lengkap, menulis source secara transaction-like, dan tidak melakukan commit/push.
 - [ ] ID/slug duplikat, palette invalid, relasi koleksi, dan URL affiliate invalid ditolak.
 - [ ] Setelah apply, `npm run check` dan preview mobile/desktop berhasil.
 
@@ -120,7 +120,7 @@
 - [ ] Nama duplikat memperoleh suffix tanpa menimpa produk existing.
 - [ ] Perpindahan produk meminta konfirmasi ketika ada perubahan belum disimpan.
 - [ ] Tab Informasi utama, Rekomendasi, Link & konten, dan Publikasi dapat dinavigasi dengan keyboard.
-- [ ] Thumbnail PNG/WebP transparan tampil pada preview dan palette yang dipilih.
+- [ ] Thumbnail hasil konversi WebP, termasuk transparansi, tampil pada preview dan palette yang dipilih.
 - [ ] Produk SVG demo existing tetap dapat dipreview secara lokal.
 - [ ] Search sidebar menemukan nama, slug, dan status produk.
 - [ ] Apply tetap membuat backup serta tidak melakukan commit atau push otomatis.
@@ -165,3 +165,60 @@
 - [ ] Aksen kuning tampil sebagai solid fill pada CTA utama.
 - [ ] Ikon Produk, Produk baru, Draft lokal, dan Perlu ditinjau sesuai fungsinya.
 - [ ] Active state tetap jelas dengan keyboard dan pointer.
+
+## Catalog Manager hard delete
+
+- [ ] Aksi hapus hanya berada di menu aksi, bukan tombol satu klik.
+- [ ] Dialog analisis menampilkan produk target, koleksi, draft, link, konten, dan status pemakaian gambar.
+- [ ] Tombol delete source tetap disabled sebelum nama produk diketik persis dan checkbox dikonfirmasi.
+- [ ] Penghapusan memakai product ID dari server, bukan index array, nama, slug, atau path dari browser.
+- [ ] Fingerprint yang stale membatalkan delete tanpa mengubah source.
+- [ ] Double-click atau dua tab tidak dapat menjalankan mutation bersamaan.
+- [ ] Produk target hilang tepat satu kali dari `products.json`.
+- [ ] Product ID hilang dari semua `collections[].productIds`, termasuk relasi yang sebelumnya tidak sinkron.
+- [ ] Kategori tidak ikut dihapus.
+- [ ] Draft dengan ID/slug target dibersihkan.
+- [ ] Temporary media target dibersihkan bila tidak dipakai draft lain.
+- [ ] Gambar eksklusif target dihapus dari `frontend/public/images/products/`.
+- [ ] Gambar bersama tetap tersedia dan produk lain tetap dapat memuatnya.
+- [ ] Logo, favicon, fallback, OG umum, dan brand asset tidak tersentuh.
+- [ ] Affiliate URL produk lain identik sebelum dan sesudah delete.
+- [ ] Backup dibuat sebelum source berubah.
+- [ ] Lima backup delete terbaru dipertahankan.
+- [ ] Kegagalan setelah sebagian operasi memicu rollback otomatis dan tidak menampilkan status sukses.
+- [ ] UI reload katalog dari server setelah delete berhasil.
+- [ ] URL produk yang sudah dihapus menampilkan 404 ramah dan tetap `noindex`.
+
+## Catalog Manager image optimization
+
+- [ ] Upload dikirim sebagai binary, bukan Base64 JSON.
+- [ ] JPEG besar dikonversi ke WebP dan dimensi tidak melebihi 1200 × 1200 px.
+- [ ] PNG transparan mempertahankan alpha.
+- [ ] Gambar kecil tidak di-upscale.
+- [ ] Portrait dan landscape tidak di-crop.
+- [ ] Orientasi EXIF diperbaiki.
+- [ ] EXIF/GPS/metadata tidak terbawa ke output.
+- [ ] Jika profil pertama masih besar, sistem mencoba profil adaptif tanpa membatalkan gambar valid.
+- [ ] Source hanya menyimpan satu output WebP; original, thumbnail, mobile, dan desktop variant tidak ikut tersimpan.
+- [ ] Nama output memakai slug dan content hash.
+- [ ] Upload file identik tidak membuat source image duplikat.
+- [ ] Preview menampilkan output WebP server yang sama dengan calon file source.
+- [ ] Ringkasan menunjukkan ukuran/dimensi asli, hasil, dan persentase penghematan.
+- [ ] Mengunggah gambar pengganti membersihkan temporary lama yang tidak direferensikan.
+- [ ] Membatalkan editor membersihkan temporary eksklusif.
+- [ ] Temporary yang direferensikan draft tidak dibersihkan TTL.
+- [ ] Temporary orphan lebih dari 24 jam dibersihkan saat manager dimulai.
+- [ ] Apply gagal tidak menghapus gambar source lama.
+- [ ] Ganti gambar berhasil menghapus gambar lama hanya jika tidak dipakai data lain.
+
+## Catalog Manager backup, rollback, dan accessibility
+
+- [ ] Riwayat backup tidak menampilkan ID teknis kepada pengguna.
+- [ ] Backup invalid ditandai dan tombol pulihkan disabled.
+- [ ] Rollback membuat backup kondisi saat ini sebelum restore.
+- [ ] Rollback mengembalikan JSON, media, draft, dan temporary terkait.
+- [ ] Rollback dapat dibalik melalui backup pengaman baru.
+- [ ] Jika rollback gagal, pemulihan kondisi sebelum rollback dicoba otomatis.
+- [ ] Dialog delete/rollback memiliki `role="dialog"`, label, description, focus awal, focus trap, Escape, backdrop close, dan mengembalikan fokus ke pemicu.
+- [ ] Busy state mencegah tombol destructive dijalankan berulang.
+- [ ] Data form tetap ada ketika upload, validasi, apply, delete, atau rollback gagal.

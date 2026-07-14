@@ -17,10 +17,12 @@ test("root dependency files only reference the public npm registry", async () =>
   assert.equal(/token|password|credential/i.test(npmrc), false);
 });
 
-test("catalog server imports the file reader used by media responses", async () => {
+test("catalog server imports the file utilities used by media and lock handling", async () => {
   const source = await readFile(serverPath, "utf8");
-  assert.match(source, /\{\s*readFile,\s*writeFile,\s*rm\s*\}/);
+  assert.match(source, /from "node:fs\/promises"/);
+  for (const name of ["readFile", "writeFile", "rm"]) assert.match(source, new RegExp(`\\b${name}\\b`));
   assert.match(source, /await readFile\(file\)/);
+  assert.match(source, /processProductImage/);
 });
 
 test("root npm workspaces install both apps without setup aliases", async () => {
@@ -36,6 +38,7 @@ test("root npm workspaces install both apps without setup aliases", async () => 
   ]);
 
   assert.deepEqual(rootPackage.workspaces, ["frontend", "tools/catalog-manager"]);
+  assert.deepEqual(rootPackage.engines, { node: "^20.19.0 || >=22.12.0", npm: ">=10.0.0" });
   assert.equal(
     rootPackage.scripts.management,
     "npm run dev --workspace dicekout-catalog-manager"
@@ -74,6 +77,19 @@ test("root npm workspaces install both apps without setup aliases", async () => 
   for (const file of obsoleteFiles) {
     await assert.rejects(access(file));
   }
+});
+
+
+test("catalog manager keeps Sharp local to the manager workspace", async () => {
+  const managerPackage = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+  const frontendPackage = JSON.parse(await readFile(new URL("../../../frontend/package.json", import.meta.url), "utf8"));
+  const processor = await readFile(new URL("../server/imageProcessor.mjs", import.meta.url), "utf8");
+
+  assert.equal(managerPackage.dependencies.sharp, "^0.35.3");
+  assert.equal(frontendPackage.dependencies?.sharp, undefined);
+  assert.match(processor, /from "sharp"/);
+  assert.match(processor, /\.webp\(/);
+  assert.equal(processor.includes("withMetadata("), false);
 });
 
 test("catalog manager documentation uses the configured local port", async () => {
