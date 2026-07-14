@@ -26,9 +26,19 @@ test("root install prepares frontend and catalog manager dependencies", async ()
 
   assert.equal(rootPackage.scripts.postinstall, "node scripts/setup.mjs");
   assert.equal(rootPackage.scripts.setup, "node scripts/setup.mjs");
+  assert.equal(
+    rootPackage.scripts.management,
+    "npm --prefix tools/catalog-manager run dev"
+  );
+  assert.equal(rootPackage.scripts["management:test"], "npm --prefix tools/catalog-manager test");
+  assert.equal(rootPackage.scripts["catalog:manager"], "npm run management");
   assert.match(setupSource, /\["ci", "--prefix", "frontend"\]/);
   assert.match(setupSource, /"tools\/catalog-manager"/);
   assert.match(setupSource, /--registry=https:\/\/registry\.npmjs\.org/);
+  assert.match(setupSource, /process\.env\.npm_execpath/);
+  assert.match(setupSource, /process\.env\.ComSpec \|\| "cmd\.exe"/);
+  assert.equal(setupSource.includes('const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm"'), false);
+  assert.match(setupSource, /npm run management/);
 });
 
 test("catalog manager documentation uses the configured local port", async () => {

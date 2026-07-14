@@ -1,8 +1,6 @@
 import { spawnSync } from "node:child_process";
 import process from "node:process";
 
-const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-
 const installs = [
   {
     label: "website DicekOut",
@@ -19,11 +17,33 @@ const installs = [
   }
 ];
 
+function resolveNpmInvocation(args) {
+  if (process.env.npm_execpath) {
+    return {
+      command: process.execPath,
+      args: [process.env.npm_execpath, ...args]
+    };
+  }
+
+  if (process.platform === "win32") {
+    return {
+      command: process.env.ComSpec || "cmd.exe",
+      args: ["/d", "/s", "/c", "npm", ...args]
+    };
+  }
+
+  return {
+    command: "npm",
+    args
+  };
+}
+
 console.log("\nMenyiapkan seluruh dependency DicekOut...\n");
 
 for (const install of installs) {
   console.log(`→ Menginstal ${install.label}`);
-  const result = spawnSync(npmCommand, install.args, {
+  const invocation = resolveNpmInvocation(install.args);
+  const result = spawnSync(invocation.command, invocation.args, {
     cwd: process.cwd(),
     stdio: "inherit",
     shell: false
@@ -43,4 +63,4 @@ for (const install of installs) {
 
 console.log("\nSetup DicekOut selesai.");
 console.log("Jalankan website: npm run dev");
-console.log("Jalankan panel:   npm run catalog:manager\n");
+console.log("Jalankan panel:   npm run management\n");

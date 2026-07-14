@@ -132,7 +132,7 @@
 - [ ] `npm run setup` dapat dijalankan ulang dengan hasil yang sama.
 - [ ] Setup berhenti dan memberi exit code gagal bila salah satu instalasi dependency gagal.
 - [ ] `npm run check` berhasil setelah setup.
-- [ ] `npm run catalog:manager:test` berhasil setelah setup.
+- [ ] `npm run management:test` berhasil setelah setup.
 - [ ] Catalog Manager berjalan di `http://127.0.0.1:666`.
 - [ ] Heading, label, hint, tombol, sidebar, dan preview tetap terbaca pada zoom 100%, 125%, dan 150%.
 - [ ] Tidak ada font eksternal atau font file baru yang dibutuhkan.

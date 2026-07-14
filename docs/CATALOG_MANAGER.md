@@ -19,8 +19,8 @@ Setelah selesai, jalankan:
 
 ```bash
 npm run check
-npm run catalog:manager:test
-npm run catalog:manager
+npm run management:test
+npm run management
 ```
 
 Untuk mengulang setup tanpa mengubah dependency root:
@@ -33,7 +33,7 @@ npm run setup
 
 ```bash
 git pull
-npm run catalog:manager
+npm run management
 ```
 
 Buka URL bertoken yang dicetak terminal. Di panel: tambah/edit produk → simpan draft lokal → upload gambar → pilih palette → validasi → terapkan ke source. Tombol tersebut tidak melakukan commit, push, atau deploy.
@@ -81,8 +81,8 @@ rm -rf frontend/node_modules
 rm -rf tools/catalog-manager/node_modules
 npm cache verify
 npm run setup
-npm run catalog:manager:test
-npm run catalog:manager
+npm run management:test
+npm run management
 ```
 
 Lockfile Catalog Manager wajib menggunakan `https://registry.npmjs.org/`. Jangan commit lockfile yang berisi alamat registry internal, proxy temporer, token, atau kredensial.

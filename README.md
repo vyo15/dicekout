@@ -43,7 +43,7 @@ npm run dev
 Panel lokal dapat dijalankan dengan:
 
 ```bash
-npm run catalog:manager
+npm run management
 ```
 
 Untuk instalasi ulang yang terkontrol:

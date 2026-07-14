@@ -11,8 +11,11 @@
     "test": "npm --prefix frontend run test",
     "setup": "node scripts/setup.mjs",
     "postinstall": "node scripts/setup.mjs",
-    "catalog:manager": "npm --prefix tools/catalog-manager run dev",
-    "catalog:manager:install": "npm ci --prefix tools/catalog-manager --registry=https://registry.npmjs.org",
-    "catalog:manager:test": "npm --prefix tools/catalog-manager test"
+    "management": "npm --prefix tools/catalog-manager run dev",
+    "management:install": "npm ci --prefix tools/catalog-manager --registry=https://registry.npmjs.org",
+    "management:test": "npm --prefix tools/catalog-manager test",
+    "catalog:manager": "npm run management",
+    "catalog:manager:install": "npm run management:install",
+    "catalog:manager:test": "npm run management:test"
   }
 }
