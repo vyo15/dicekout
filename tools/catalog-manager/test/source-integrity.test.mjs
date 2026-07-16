@@ -152,3 +152,72 @@ test("catalog manager uses React Icons and clean solid color navigation", async 
   const parsedPackage = JSON.parse(managerPackage);
   assert.equal(parsedPackage.dependencies["react-icons"], "^5.5.0");
 });
+
+test("catalog manager lint and shared utilities are wired into quality checks", async () => {
+  const [rootPackage, managerPackage, managerEslint, app, apiHook, productIdentity, catalogValidator, urlUtils] = await Promise.all([
+    readFile(new URL("../../../package.json", import.meta.url), "utf8").then(JSON.parse),
+    readFile(new URL("../package.json", import.meta.url), "utf8").then(JSON.parse),
+    readFile(new URL("../eslint.config.js", import.meta.url), "utf8"),
+    readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/hooks/useCatalogManagerApi.js", import.meta.url), "utf8"),
+    readFile(new URL("../src/productIdentity.js", import.meta.url), "utf8"),
+    readFile(new URL("../../../frontend/src/domain/catalog/validateCatalogData.js", import.meta.url), "utf8"),
+    readFile(new URL("../../../frontend/src/utils/urls.js", import.meta.url), "utf8"),
+  ]);
+
+  assert.equal(managerPackage.scripts.lint, "eslint .");
+  assert.match(rootPackage.scripts.lint, /dicekout-catalog-manager/);
+  assert.match(rootPackage.scripts.check, /npm run lint --workspace dicekout-catalog-manager/);
+  assert.match(managerEslint, /react-hooks/);
+  assert.match(app, /useCatalogManagerApi/);
+  assert.equal(app.includes("sessionStorage.setItem"), false);
+  assert.match(apiHook, /useEffect/);
+  assert.match(apiHook, /history\.replaceState/);
+  assert.match(productIdentity, /slugifyProductName/);
+  assert.match(catalogValidator, /security\/safeExternalUrl/);
+  assert.match(urlUtils, /domain\/security\/safeExternalUrl/);
+});
+
+
+test("catalog editor guards draft identity and navigation workflows", async () => {
+  const [app, managerPackage] = await Promise.all([
+    readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../package.json", import.meta.url), "utf8").then(JSON.parse),
+  ]);
+
+  assert.equal(app.includes("createUniqueProductIdentity(value, catalog?.products, drafts)"), false);
+  assert.match(app, /createUniqueProductIdentity\(value, \[\.\.\.\(catalog\?\.products \|\| \[\]\), \.\.\.drafts\]\)/);
+  assert.match(app, /onClick=\{\(\) => showProducts\("source", "draft"\)\}/);
+  assert.equal(app.includes('onClick={() => { setListMode("source"); setStatusFilter("draft"); setView("products"); }}'), false);
+  assert.match(app, /mergeDeleteImpact/);
+  assert.match(managerPackage.scripts.test, /--import tsx --test/);
+  for (const dependency of ["@testing-library/react", "@testing-library/user-event", "jsdom", "tsx"]) {
+    assert.ok(managerPackage.devDependencies[dependency]);
+  }
+});
+
+test("repository source hygiene excludes obsolete patch instructions and defines line endings", async () => {
+  const attributes = await readFile(new URL("../../../.gitattributes", import.meta.url), "utf8");
+  assert.match(attributes, /^\* text=auto$/m);
+  await assert.rejects(access(new URL("../../../PATCH_DELETE_FILES.txt", import.meta.url)));
+});
+
+test("catalog API and local media handlers keep server-side defense in depth", async () => {
+  const [server, repository, security] = await Promise.all([
+    readFile(new URL("../server/index.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../server/catalogRepository.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../server/security.mjs", import.meta.url), "utf8"),
+  ]);
+
+  const apiStart = server.indexOf("const api = async");
+  const firstGetRoute = server.indexOf('url.pathname === "/api/catalog"');
+  const sessionGuard = server.indexOf("assertSession(req, token)", apiStart);
+  assert.ok(apiStart >= 0 && sessionGuard > apiStart && sessionGuard < firstGetRoute);
+  assert.match(server, /serveAllowedFile/);
+  assert.match(server, /resolveContainedPath\(root, name\)/);
+  assert.match(repository, /verifyTempMedia/);
+  assert.match(repository, /assertSafeBasename\(tempMedia\.tempName/);
+  assert.match(repository, /assertSafeBasename\(tempMedia\.finalName/);
+  assert.match(repository, /removeTemp: removeTempIfUnreferenced/);
+  assert.match(security, /realpath\(current\)/);
+});

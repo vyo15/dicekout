@@ -1,22 +1,18 @@
-export const slugifyProductValue = (value) => String(value || "")
-  .normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .toLowerCase()
-  .replace(/[^a-z0-9]+/g, "-")
-  .replace(/^-+|-+$/g, "")
-  .slice(0, 96);
+import { slugifyProductName } from "../../../frontend/src/domain/catalog/normalizeProduct.js";
 
-export const createUniqueProductIdentity = (name, products = [], drafts = []) => {
+export const slugifyProductValue = slugifyProductName;
+
+export const createUniqueProductIdentity = (name, products = []) => {
   const base = slugifyProductValue(name) || "produk-baru";
-  const usedSlugs = new Set([...products, ...drafts].map((item) => item?.slug).filter(Boolean));
-  const usedIds = new Set([...products, ...drafts].map((item) => item?.id).filter(Boolean));
+  const usedIds = new Set(products.map((item) => item.id));
+  const usedSlugs = new Set(products.map((item) => item.slug));
   let suffix = 1;
   let slug = base;
-  let id = `prod-${base}`;
+  let id = `prod-${slug}`;
   while (usedSlugs.has(slug) || usedIds.has(id)) {
     suffix += 1;
     slug = `${base}-${suffix}`;
-    id = `prod-${base}-${suffix}`;
+    id = `prod-${slug}`;
   }
   return { id, slug };
 };

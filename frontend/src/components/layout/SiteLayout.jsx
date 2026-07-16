@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { FiBookmark, FiMenu, FiMoon, FiSearch, FiSun, FiX } from "react-icons/fi";
 import BrandLogo from "../common/BrandLogo";
-import DemoNotice from "../common/DemoNotice";
 import MobileBottomNavigation from "./MobileBottomNavigation";
 import MobileMoreMenu from "./MobileMoreMenu";
 import { SITE } from "../../config/site";
@@ -164,7 +163,6 @@ const SiteLayout = () => {
         </div>
       </header>
 
-      <DemoNotice />
 
       <main id="main-content">
         <Outlet />

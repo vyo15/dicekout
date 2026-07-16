@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import { access, mkdtemp, rm, utimes, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -47,16 +48,21 @@ const createRepo = async (t) => {
   return repo;
 };
 
-const importTemp = (repo, label) => repo.importTempMedia({
-  buffer: Buffer.from(label),
-  finalName: `${label}.webp`,
-  metadata: {
-    hash: "",
-    path: `images/products/${label}.webp`,
-    original: { name: `${label}.png`, format: "PNG", width: 800, height: 800, size: label.length },
-    optimized: { format: "WebP", width: 800, height: 800, size: label.length, savedPercent: 0 },
-  },
-});
+const importTemp = (repo, label) => {
+  const buffer = Buffer.from(label);
+  const hash = crypto.createHash("sha256").update(buffer).digest("hex");
+  const finalName = `${label}-${hash.slice(0, 12)}.webp`;
+  return repo.importTempMedia({
+    buffer,
+    finalName,
+    metadata: {
+      hash,
+      path: `images/products/${finalName}`,
+      original: { name: `${label}.png`, format: "PNG", width: 800, height: 800, size: buffer.length },
+      optimized: { format: "WebP", width: 800, height: 800, size: buffer.length, savedPercent: 0 },
+    },
+  });
+};
 
 test("temporary media shared by two drafts is removed only after the last draft is deleted", async (t) => {
   const repo = await createRepo(t);
@@ -103,4 +109,21 @@ test("startup cleanup removes old orphan temp but preserves an old temp referenc
 
   await access(path.join(repo.paths.tempDir, referenced.tempName));
   await assert.rejects(access(orphan));
+});
+
+
+test("saveDraft rejects missing or tampered temporary media before writing a draft", async (t) => {
+  const repo = await createRepo(t);
+  const item = draftProduct("prod-invalid-temp", "Invalid Temp Draft");
+  const missing = await importTemp(repo, "missing-temp");
+  await rm(path.join(repo.paths.tempDir, missing.tempName), { force: true });
+
+  await assert.rejects(repo.saveDraft(item, missing), /temporary tidak ditemukan/i);
+  assert.equal((await repo.listDrafts()).length, 0);
+
+  const tampered = await importTemp(repo, "tampered-temp");
+  await assert.rejects(repo.saveDraft(item, { ...tampered, hash: "0".repeat(64) }), /Checksum/);
+  await assert.rejects(repo.saveDraft(item, { ...tampered, path: "images/products/other.webp" }), /Path gambar temporary/);
+  await assert.rejects(repo.saveDraft(item, { tempName: tampered.tempName }), /tidak lengkap/);
+  assert.equal((await repo.listDrafts()).length, 0);
 });

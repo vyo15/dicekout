@@ -3,14 +3,17 @@ import { Link } from "react-router-dom";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import Seo from "../components/common/Seo";
 import ProductGrid from "../components/catalog/ProductGrid";
+import { AffiliateDisclosureNote } from "../components/catalog/AffiliateLinkButton";
 import EmptyState from "../components/feedback/EmptyState";
 import { useProductPreferences } from "../hooks/useProductPreferences";
 import { clearSavedProducts } from "../utils/productPreferences";
 import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
+import { getPrimaryAffiliateLink } from "../utils/catalog";
 
 const SavedProductsPage = () => {
   useCatalogScrollRestoration();
   const { savedProducts } = useProductPreferences();
+  const hasDirectMarketplaceLinks = savedProducts.some((product) => Boolean(getPrimaryAffiliateLink(product)));
 
   return (
     <>
@@ -43,6 +46,7 @@ const SavedProductsPage = () => {
                   <FiTrash2 aria-hidden="true" /> Hapus semua
                 </button>
               </div>
+              {hasDirectMarketplaceLinks ? <AffiliateDisclosureNote compact className="catalog-affiliate-disclosure" /> : null}
               <ProductGrid products={savedProducts} variant="catalog" />
             </>
           ) : (

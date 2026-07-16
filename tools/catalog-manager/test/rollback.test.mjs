@@ -122,3 +122,71 @@ test("apply rollback restores old JSON, media, draft, and temp; safety rollback 
   assert.equal((await repo.listDrafts()).length, 0);
   await assert.rejects(access(path.join(repo.paths.tempDir, tempMedia.tempName)));
 });
+
+test("backup preflight marks incomplete and unsupported backups as non-restorable", async (t) => {
+  const { repo } = await createFixture(t);
+  const catalog = await repo.readCatalog();
+
+  const incompleteId = "2026-07-16T00-00-00-incomplete";
+  const incompleteDir = path.join(repo.paths.backupsDir, incompleteId);
+  await mkdir(incompleteDir, { recursive: true });
+  await writeJson(path.join(incompleteDir, "manifest.json"), {
+    version: 2,
+    id: incompleteId,
+    operation: "apply-product",
+    createdAt: "2026-07-16T00:00:00.000Z",
+    mediaBackedUp: [],
+    draftsBackedUp: [],
+    tempBackedUp: [],
+  });
+
+  const unsupportedId = "2026-07-16T00-00-01-unsupported";
+  const unsupportedDir = path.join(repo.paths.backupsDir, unsupportedId);
+  await mkdir(unsupportedDir, { recursive: true });
+  await Promise.all([
+    writeJson(path.join(unsupportedDir, "products.json"), catalog.products),
+    writeJson(path.join(unsupportedDir, "collections.json"), catalog.collections),
+    writeJson(path.join(unsupportedDir, "manifest.json"), {
+      version: 999,
+      id: unsupportedId,
+      operation: "apply-product",
+      createdAt: "2026-07-16T00:00:01.000Z",
+      mediaBackedUp: [],
+      draftsBackedUp: [],
+      tempBackedUp: [],
+    }),
+  ]);
+
+  const missingMediaId = "2026-07-16T00-00-02-missing-media";
+  const missingMediaDir = path.join(repo.paths.backupsDir, missingMediaId);
+  await mkdir(missingMediaDir, { recursive: true });
+  await Promise.all([
+    writeJson(path.join(missingMediaDir, "products.json"), catalog.products),
+    writeJson(path.join(missingMediaDir, "collections.json"), catalog.collections),
+    writeJson(path.join(missingMediaDir, "manifest.json"), {
+      version: 2,
+      id: missingMediaId,
+      operation: "apply-product",
+      createdAt: "2026-07-16T00:00:02.000Z",
+      mediaBackedUp: ["missing.webp"],
+      draftsBackedUp: [],
+      tempBackedUp: [],
+    }),
+  ]);
+
+  const backups = await repo.listBackups();
+  const incomplete = backups.find((backup) => backup.id === incompleteId);
+  const unsupported = backups.find((backup) => backup.id === unsupportedId);
+  const missingMedia = backups.find((backup) => backup.id === missingMediaId);
+
+  assert.equal(incomplete.restorable, false);
+  assert.match(incomplete.issue, /products\.json|collections\.json/);
+  assert.equal(unsupported.restorable, false);
+  assert.match(unsupported.issue, /Versi backup/);
+  assert.equal(missingMedia.restorable, false);
+  assert.match(missingMedia.issue, /tidak lengkap/);
+
+  await assert.rejects(repo.rollback(incompleteId), /tidak dapat dipulihkan/);
+  await assert.rejects(repo.rollback(unsupportedId), /tidak dapat dipulihkan/);
+  assert.equal((await repo.readCatalog()).products[0].id, catalog.products[0].id);
+});

@@ -1,17 +1,40 @@
 import { FiExternalLink } from "react-icons/fi";
-import { getMarketplace } from "../../config/marketplaces";
+import {
+  getAffiliateCtaLabel,
+  getMarketplace,
+} from "../../config/marketplaces";
 import { getSafeExternalUrl } from "../../utils/urls";
 
-const AffiliateLinkButton = ({ link, className = "button button--primary", compact = false }) => {
+export const AffiliateDisclosureNote = ({ compact = false, className = "" }) => (
+  <p className={`affiliate-disclosure-note${compact ? " affiliate-disclosure-note--compact" : ""}${className ? ` ${className}` : ""}`}>
+    <FiExternalLink aria-hidden="true" />
+    <span>Tautan marketplace dapat berupa link affiliate tanpa menambah harga yang kamu bayar.</span>
+  </p>
+);
+
+const AffiliateLinkButton = ({
+  link,
+  className = "",
+  compact = false,
+  context = "detail",
+  variant = "primary",
+}) => {
   const marketplace = getMarketplace(link?.marketplace);
   const safeUrl = getSafeExternalUrl(link?.url, link?.marketplace);
   if (!safeUrl || !marketplace) return null;
 
-  const label = link.label?.trim() || marketplace.defaultCta;
+  const label = getAffiliateCtaLabel(link, context);
+  const resolvedClassName = [
+    className || `button ${variant === "secondary" ? "button--secondary" : "button--primary"}`,
+    "affiliate-link-button",
+    `affiliate-link-button--${variant}`,
+    `affiliate-link-button--${context}`,
+    compact ? "button--compact" : "",
+  ].filter(Boolean).join(" ");
 
   return (
     <a
-      className={`${className}${compact ? " button--compact" : ""}`}
+      className={resolvedClassName}
       href={safeUrl}
       target="_blank"
       rel="noopener sponsored nofollow"

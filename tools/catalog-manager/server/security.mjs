@@ -1,6 +1,8 @@
 import path from "node:path";
 import { realpath } from "node:fs/promises";
 
+const isContained = (root, candidate) => candidate === root || candidate.startsWith(`${root}${path.sep}`);
+
 export const assertLocalRequest = (req, port) => {
   const host = String(req.headers.host || "");
   if (![ `127.0.0.1:${port}`, `localhost:${port}` ].includes(host)) throw new Error("Host tidak diizinkan.");
@@ -14,20 +16,47 @@ export const assertSession = (req, token) => {
 
 export const assertSafeBasename = (value, label = "Nama file") => {
   const name = String(value || "");
-  if (!name || name !== path.basename(name) || name.includes("\0")) throw new Error(`${label} tidak valid.`);
+  if (
+    !name
+    || name === "."
+    || name === ".."
+    || name.includes("/")
+    || name.includes("\\")
+    || name.includes("\0")
+    || [...name].some((character) => {
+      const code = character.charCodeAt(0);
+      return code < 32 || code === 127;
+    })
+    || name !== path.basename(name)
+  ) throw new Error(`${label} tidak valid.`);
   return name;
 };
 
 export const resolveContainedPath = async (root, relativeName) => {
   const resolvedRoot = await realpath(root);
   const normalized = String(relativeName || "").replaceAll("\\", "/");
-  if (!normalized || normalized.startsWith("/") || normalized.split("/").includes("..")) throw new Error("Path berada di luar allowlist.");
-  const candidate = path.resolve(resolvedRoot, normalized);
-  if (candidate !== resolvedRoot && !candidate.startsWith(`${resolvedRoot}${path.sep}`)) throw new Error("Path berada di luar allowlist.");
-  return candidate;
-};
+  if (
+    !normalized
+    || normalized.startsWith("/")
+    || normalized.split("/").some((segment) => segment === ".." || segment === ".")
+  ) throw new Error("Path berada di luar allowlist.");
 
-export const assertContainedPath = async (root, candidate) => {
-  const relative = path.relative(root, candidate);
-  return resolveContainedPath(root, relative);
+  const candidate = path.resolve(resolvedRoot, normalized);
+  if (!isContained(resolvedRoot, candidate)) throw new Error("Path berada di luar allowlist.");
+
+  const missingSegments = [];
+  let current = candidate;
+  while (true) {
+    try {
+      const resolvedCurrent = await realpath(current);
+      if (!isContained(resolvedRoot, resolvedCurrent)) throw new Error("Path berada di luar allowlist.");
+      return path.join(resolvedCurrent, ...missingSegments);
+    } catch (error) {
+      if (error?.code !== "ENOENT") throw error;
+      const parent = path.dirname(current);
+      if (parent === current) throw new Error("Path berada di luar allowlist.");
+      missingSegments.unshift(path.basename(current));
+      current = parent;
+    }
+  }
 };

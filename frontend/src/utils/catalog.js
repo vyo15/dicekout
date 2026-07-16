@@ -39,12 +39,17 @@ export const getRelatedProducts = (product, limit = 4) => products
   .filter((candidate) => candidate.id !== product.id && candidate.categorySlug === product.categorySlug)
   .slice(0, limit);
 
-export const getPrimaryAffiliateLink = (product) => {
-  const activeLinks = Array.isArray(product?.affiliateLinks)
-    ? product.affiliateLinks.filter((link) => link.status !== "inactive")
-    : [];
-  return activeLinks.find((link) => link.isPrimary) || activeLinks[0] || null;
+export const getActiveAffiliateLinks = (product) => {
+  const links = Array.isArray(product?.affiliateLinks) ? product.affiliateLinks : [];
+
+  return links
+    .map((link, index) => ({ link, index }))
+    .filter(({ link }) => Boolean(link) && link.status !== "inactive")
+    .sort((a, b) => Number(Boolean(b.link.isPrimary)) - Number(Boolean(a.link.isPrimary)) || a.index - b.index)
+    .map(({ link }) => link);
 };
+
+export const getPrimaryAffiliateLink = (product) => getActiveAffiliateLinks(product)[0] || null;
 
 export const searchProducts = ({
   query = "",

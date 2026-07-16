@@ -221,3 +221,24 @@ Riwayat backup hanya untuk pemulihan operasional Catalog Manager. Backup berada 
 - Tidak ada klaim harga, stok, rating, diskon, promo, atau urgency palsu.
 - Validasi panel lolos.
 - Setelah apply, jalankan `npm run check` dan review Git diff.
+
+## Hierarki CTA affiliate
+
+CTA publik mengikuti satu sumber urutan yang sama: link aktif dengan `isPrimary: true` selalu ditempatkan pertama, lalu link aktif lain mengikuti urutan data. Urutan array manual tidak boleh mengalahkan link utama.
+
+Label default aman:
+
+- detail produk: `Lihat harga di [Marketplace]`;
+- kartu katalog desktop: `Lihat di [Marketplace]`;
+- sticky mobile: `Buka di [Marketplace]`;
+- marketplace alternatif: `Lihat di [Marketplace]`.
+
+Label custom tetap diperbolehkan, tetapi jangan membuat klaim diskon, harga termurah, stok terbatas, promo hari ini, atau urgency lain tanpa data realtime yang dapat dibuktikan. URL affiliate harus dipertahankan persis, termasuk referral code, sub-ID, campaign, UTM, dan query attribution.
+
+Alur CTA publik:
+
+1. kartu homepage, kategori, koleksi, dan produk terkait mengarahkan pengguna ke detail rekomendasi;
+2. kartu katalog desktop boleh memiliki direct CTA marketplace disertai disclosure compact di area grid;
+3. detail desktop menampilkan quick CTA, panel marketplace berhierarki, dan CTA penutup setelah informasi produk;
+4. detail mobile memakai satu sticky CTA utama; marketplace alternatif dibuka melalui bottom sheet;
+5. checkout dan pembayaran tetap dilakukan sepenuhnya di marketplace.

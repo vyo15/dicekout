@@ -1,24 +1,35 @@
+import { FiMoreHorizontal } from "react-icons/fi";
+import { getActiveAffiliateLinks } from "../../utils/catalog";
 import AffiliateLinkButton from "./AffiliateLinkButton";
-import SaveProductButton from "./SaveProductButton";
 
-const StickyMarketplaceBar = ({ product, links = [] }) => {
-  if (!links.length) return null;
+const StickyMarketplaceBar = ({ product, onOpenMore }) => {
+  const links = getActiveAffiliateLinks(product);
+  const primaryLink = links[0] || null;
+  const alternativeLinks = links.slice(1);
 
-  const visibleLinks = links.slice(0, 2);
+  if (!primaryLink) return null;
 
   return (
-    <aside className="sticky-marketplace-bar" aria-label="Aksi marketplace cepat">
-      <div className="sticky-marketplace-bar__links">
-        {visibleLinks.map((link) => (
-          <AffiliateLinkButton
-            key={`${link.marketplace}-${link.url}`}
-            link={link}
-            className="button sticky-marketplace-bar__cta"
-            compact
-          />
-        ))}
-      </div>
-      <SaveProductButton product={product} compact />
+    <aside
+      className={`sticky-marketplace-bar${alternativeLinks.length ? " sticky-marketplace-bar--multiple" : ""}`}
+      aria-label="Aksi marketplace cepat"
+    >
+      <AffiliateLinkButton
+        link={primaryLink}
+        className="button sticky-marketplace-bar__cta"
+        context="sticky"
+      />
+      {alternativeLinks.length ? (
+        <button
+          className="button sticky-marketplace-bar__more"
+          type="button"
+          onClick={onOpenMore}
+          aria-haspopup="dialog"
+        >
+          <FiMoreHorizontal aria-hidden="true" />
+          <span>Marketplace lain</span>
+        </button>
+      ) : null}
     </aside>
   );
 };

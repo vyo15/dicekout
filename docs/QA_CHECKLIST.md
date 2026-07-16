@@ -117,8 +117,10 @@
 
 - [ ] Nama produk baru otomatis menghasilkan ID stabil dan slug yang unik.
 - [ ] ID dan slug existing tetap terkunci saat mengedit produk source.
-- [ ] Nama duplikat memperoleh suffix tanpa menimpa produk existing.
-- [ ] Perpindahan produk meminta konfirmasi ketika ada perubahan belum disimpan.
+- [ ] Nama duplikat memperoleh suffix tanpa menimpa produk existing atau draft lokal.
+- [ ] Dua produk baru dengan nama sama menghasilkan ID/slug draft yang berbeda.
+- [ ] Perpindahan produk, termasuk menu Perlu ditinjau, meminta konfirmasi ketika ada perubahan belum disimpan.
+- [ ] Navigasi editor tidak dapat membuang temporary image ketika save/apply sedang berjalan.
 - [ ] Tab Informasi utama, Rekomendasi, Link & konten, dan Publikasi dapat dinavigasi dengan keyboard.
 - [ ] Thumbnail hasil konversi WebP, termasuk transparansi, tampil pada preview dan palette yang dipilih.
 - [ ] Produk SVG demo existing tetap dapat dipreview secara lokal.
@@ -173,6 +175,7 @@
 - [ ] Tombol delete source tetap disabled sebelum nama produk diketik persis dan checkbox dikonfirmasi.
 - [ ] Penghapusan memakai product ID dari server, bukan index array, nama, slug, atau path dari browser.
 - [ ] Fingerprint yang stale membatalkan delete tanpa mengubah source.
+- [ ] Respons analisis delete lama tidak dapat mengganti target dialog produk yang dibuka kemudian.
 - [ ] Double-click atau dua tab tidak dapat menjalankan mutation bersamaan.
 - [ ] Produk target hilang tepat satu kali dari `products.json`.
 - [ ] Product ID hilang dari semua `collections[].productIds`, termasuk relasi yang sebelumnya tidak sinkron.
@@ -207,6 +210,7 @@
 - [ ] Mengunggah gambar pengganti membersihkan temporary lama yang tidak direferensikan.
 - [ ] Membatalkan editor membersihkan temporary eksklusif.
 - [ ] Temporary yang direferensikan draft tidak dibersihkan TTL.
+- [ ] Save draft menolak temporary file hilang, checksum mismatch, path mismatch, atau metadata tidak lengkap tanpa menulis draft rusak.
 - [ ] Temporary orphan lebih dari 24 jam dibersihkan saat manager dimulai.
 - [ ] Apply gagal tidak menghapus gambar source lama.
 - [ ] Ganti gambar berhasil menghapus gambar lama hanya jika tidak dipakai data lain.
@@ -215,10 +219,58 @@
 
 - [ ] Riwayat backup tidak menampilkan ID teknis kepada pengguna.
 - [ ] Backup invalid ditandai dan tombol pulihkan disabled.
+- [ ] Preflight backup menolak manifest versi tidak didukung, JSON wajib hilang/rusak, dan file manifest yang tidak lengkap.
 - [ ] Rollback membuat backup kondisi saat ini sebelum restore.
 - [ ] Rollback mengembalikan JSON, media, draft, dan temporary terkait.
 - [ ] Rollback dapat dibalik melalui backup pengaman baru.
 - [ ] Jika rollback gagal, pemulihan kondisi sebelum rollback dicoba otomatis.
 - [ ] Dialog delete/rollback memiliki `role="dialog"`, label, description, focus awal, focus trap, Escape, backdrop close, dan mengembalikan fokus ke pemicu.
+- [ ] Filter status/kategori memiliki accessible name dan field komposit tidak menghasilkan nested `<label>`.
+- [ ] Tab editor memakai `tablist`/`tab`/`tabpanel`, `aria-selected`, serta Arrow Left/Right, Home, dan End.
 - [ ] Busy state mencegah tombol destructive dijalankan berulang.
 - [ ] Data form tetap ada ketika upload, validasi, apply, delete, atau rollback gagal.
+- [ ] Tanggal `updatedAt` mengikuti tanggal kalender lokal, termasuk pukul 00.00–06.59 WIB.
+
+## Affiliate CTA dan alur ke marketplace
+
+- [ ] Link aktif dengan `isPrimary: true` selalu menjadi CTA pertama walaupun urutan array berbeda.
+- [ ] Link nonaktif tidak tampil pada kartu, detail, sticky CTA, atau bottom sheet.
+- [ ] Referral code, sub-ID, campaign, UTM, dan query attribution identik sebelum dan sesudah render.
+- [ ] Homepage, kategori, koleksi, dan produk terkait hanya mengarahkan ke detail rekomendasi.
+- [ ] Kartu katalog desktop menampilkan `Lihat rekomendasi` dan direct CTA marketplace utama bila link tersedia.
+- [ ] Direct CTA kartu katalog tersembunyi pada mobile agar tombol tidak sempit atau terpotong.
+- [ ] Disclosure compact tampil dekat grid yang memiliki direct outbound CTA.
+- [ ] Quick CTA detail desktop terlihat sebelum pengguna membaca seluruh halaman.
+- [ ] Marketplace utama memakai tombol kuning; marketplace alternatif memakai tombol secondary/outline.
+- [ ] CTA penutup tampil setelah informasi produk dan sebelum produk terkait pada desktop.
+- [ ] Sticky mobile hanya menampilkan satu CTA utama dan tombol marketplace lain bila diperlukan.
+- [ ] Tombol simpan tidak mengambil ruang pada sticky marketplace bar.
+- [ ] Bottom sheet marketplace lain memiliki focus trap, Escape, backdrop close, dan focus return.
+- [ ] CTA membuka tab baru dengan `rel="noopener sponsored nofollow"`.
+- [ ] Microcopy menjelaskan bahwa harga, stok, variasi, dan promo mengikuti marketplace.
+- [ ] Tidak ada copy `beli sekarang`, countdown, stok terbatas, atau promo palsu.
+- [ ] Catalog Manager menawarkan preset label aman dan memperingatkan label promosi/urgency yang belum terverifikasi.
+- [ ] Layout diuji pada lebar 320px, 360px, 390px, tablet, dan desktop dalam light/dark mode.
+
+## Security regression — Catalog Manager
+
+- [ ] `npm run lint --workspace dicekout-catalog-manager` berhasil tanpa error/warning.
+- [ ] GET dan POST `/api/*` menolak request tanpa `x-dicekout-session`.
+- [ ] Draft dengan ID/slug berisi `../`, slash, backslash, atau karakter kontrol tidak dapat menulis di luar `.catalog-manager/drafts`.
+- [ ] `tempMedia.tempName` dan `tempMedia.finalName` berisi traversal ditolak sebelum source berubah.
+- [ ] Static media tidak dapat dibaca melalui `..`, encoded traversal, path absolut, atau symlink yang menunjuk keluar allowlist.
+- [ ] Membatalkan/mengganti upload membersihkan temporary media yang tidak lagi direferensikan.
+- [ ] `package-lock.json` hanya memakai registry npm publik dan tidak menyimpan alamat registry internal.
+
+## Catalog hero kitchen artwork
+
+- [ ] Desktop 1366px, 1440px, dan 1920px menampilkan kitchen artwork memenuhi hero tanpa tile atau ruang kosong.
+- [ ] Mobile 320px, 360px, dan 390px memakai crop portrait serta tidak menutupi headline, breadcrumb, atau meta katalog.
+- [ ] Light mode mempertahankan warna foto dan tidak terlihat terlalu putih/pudar.
+- [ ] Dark mode menjaga detail foto namun kontras headline tetap memenuhi kebutuhan baca.
+- [ ] Fade bawah menyatu dengan toolbar katalog tanpa garis atau blok warna yang terasa ditempel.
+- [ ] Toolbar search, urutan, dan filter berada pada satu shell; keyboard focus tetap terlihat.
+- [ ] Search, sort, kategori, kebutuhan, pilihan, terbaru, reset, URL params, dan scroll restoration tetap bekerja.
+- [ ] Badge `Pilihan` hanya tampil untuk produk dengan `featured: true`.
+- [ ] Asset living-room lama tidak ada lagi dan tidak direferensikan oleh source atau test.
+- [ ] Tidak ada perubahan pada affiliate URL, query attribution, product ID/slug, route, canonical, sitemap, atau structured data.

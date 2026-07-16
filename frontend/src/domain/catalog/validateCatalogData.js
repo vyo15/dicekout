@@ -1,4 +1,9 @@
-import { getMarketplace, hostnameMatchesMarketplace } from "../../config/marketplaces.js";
+import {
+  getMarketplace,
+  hasUnverifiedCtaClaim,
+  hostnameMatchesMarketplace,
+} from "../../config/marketplaces.js";
+import { parseSafeExternalUrl } from "../security/safeExternalUrl.js";
 import {
   productPaletteById,
   PRODUCT_IMAGE_FITS,
@@ -13,16 +18,6 @@ export const isSafeRelativeCatalogPath = (value) => typeof value === "string"
   && !value.startsWith("/")
   && !value.includes("..")
   && !/^[a-z][a-z0-9+.-]*:/i.test(value);
-
-export const parseSafeExternalUrl = (value) => {
-  try {
-    const parsed = new URL(String(value || "").trim());
-    if (!["http:", "https:"].includes(parsed.protocol) || parsed.username || parsed.password) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-};
 
 export const validateCatalogData = ({ site, categories, collections, products }) => {
   const errors = [];
@@ -138,9 +133,10 @@ export const validateCatalogData = ({ site, categories, collections, products })
       marketplaceIds.add(link.marketplace);
       const parsed = parseSafeExternalUrl(link.url);
       if (!parsed) errors.push(`${prefix} memiliki affiliate URL tidak aman: ${link.url}`);
-      else if (!hostnameMatchesMarketplace(parsed.hostname, marketplace)) errors.push(`${linkPrefix}.url tidak cocok dengan hostname marketplace ${marketplace.label}: ${parsed.hostname}`);
+      else if (!hostnameMatchesMarketplace(parsed.parsed.hostname, marketplace)) errors.push(`${linkPrefix}.url tidak cocok dengan hostname marketplace ${marketplace.label}: ${parsed.parsed.hostname}`);
       if (link.status && !["active", "inactive"].includes(link.status)) errors.push(`${linkPrefix}.status tidak valid.`);
       if (link.label !== undefined && typeof link.label !== "string") errors.push(`${linkPrefix}.label harus teks.`);
+      if (hasUnverifiedCtaClaim(link.label)) warnings.push(`${linkPrefix}.label mengandung klaim promo, harga, atau urgensi yang perlu diverifikasi.`);
       const exactUrl = String(link.url || "").trim();
       if (exactUrl) {
         const previous = seenAffiliateUrls.get(exactUrl);

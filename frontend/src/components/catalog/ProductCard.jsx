@@ -13,6 +13,7 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
   const primaryLink = getPrimaryAffiliateLink(product);
   const detailPath = `/produk/${product.slug}`;
   const catalogVariant = variant === "catalog";
+  const directMarketplaceLink = catalogVariant ? primaryLink : null;
   const homeScrollVariant = variant === "home-scroll";
   const homeCompactVariant = variant === "home-compact";
   const variantClass = catalogVariant
@@ -44,6 +45,7 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
           />
           <div className="product-card__badges">
             {product.demo ? <span className="badge badge--demo">Contoh produk</span> : null}
+            {catalogVariant && product.featured ? <span className="badge badge--featured">Pilihan</span> : null}
             {catalogVariant && product.newest ? <span className="badge badge--newest">Terbaru</span> : null}
           </div>
         </div>
@@ -63,11 +65,18 @@ const ProductCard = ({ product, priority = false, variant = "default" }) => {
         ) : null}
       </div>
 
-      <div className={`product-card__actions${primaryLink ? " product-card__actions--multiple" : ""}`}>
+      <div className={`product-card__actions${directMarketplaceLink ? " product-card__actions--multiple" : ""}`}>
         <Link className="button button--secondary button--compact" to={detailPath} state={detailState} onClick={rememberPosition}>
-          Lihat detail <FiArrowUpRight aria-hidden="true" />
+          Lihat rekomendasi <FiArrowUpRight aria-hidden="true" />
         </Link>
-        {primaryLink ? <AffiliateLinkButton link={primaryLink} compact /> : null}
+        {directMarketplaceLink ? (
+          <AffiliateLinkButton
+            link={directMarketplaceLink}
+            className="button product-card__marketplace-cta"
+            compact
+            context="card"
+          />
+        ) : null}
       </div>
     </article>
   );

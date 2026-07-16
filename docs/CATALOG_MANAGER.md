@@ -45,11 +45,11 @@ Catalog Manager tidak melakukan commit, push, deploy, atau perubahan Git otomati
 
 ### Draft lokal
 
-Draft berada di `.catalog-manager/drafts/`, tidak masuk Git, dan dapat menyimpan referensi gambar temporary. Saat draft dihapus, gambar temporary hanya ikut dibersihkan bila tidak digunakan draft lain.
+Draft berada di `.catalog-manager/drafts/`, tidak masuk Git, dan dapat menyimpan referensi gambar temporary. ID dan slug produk baru selalu diperiksa terhadap produk source **dan seluruh draft lokal** agar draft baru tidak menimpa draft lain secara diam-diam. Server memverifikasi keberadaan file temporary, basename, path final, content hash, dan checksum sebelum draft ditulis. Saat draft dihapus, gambar temporary hanya ikut dibersihkan bila tidak digunakan draft lain.
 
 ### Duplikat produk
 
-Duplikasi membuat ID dan slug baru, mengubah status menjadi `draft`, serta mengosongkan affiliate link dan content reference. Gambar dapat dipakai bersama dan akan dilindungi oleh usage scan.
+Duplikasi membuat ID dan slug baru yang unik terhadap produk source dan draft lokal, mengubah status menjadi `draft`, serta mengosongkan affiliate link dan content reference. Gambar dapat dipakai bersama dan akan dilindungi oleh usage scan.
 
 ### Produk demo dan live
 
@@ -128,7 +128,7 @@ Backup disimpan lokal di `.catalog-manager/backups/` dan tidak ikut Git atau dep
 - media yang dihapus/diganti;
 - draft dan temporary media terkait.
 
-Lima backup delete terbaru dipertahankan. Riwayat backup dapat dibuka dari sidebar. Sebelum rollback, manager membuat backup kondisi saat ini sehingga pemulihan tetap dapat dibalik. Backup invalid tidak dapat dipulihkan.
+Lima backup delete terbaru dipertahankan. Riwayat backup dapat dibuka dari sidebar. Sebelum rollback, manager membuat backup kondisi saat ini sehingga pemulihan tetap dapat dibalik. Sebelum tombol **Pulihkan** diaktifkan, preflight memeriksa versi manifest, `products.json`, `collections.json`, validasi katalog, file media/draft/temp yang tercantum, serta ketersediaan gambar yang dibutuhkan. Backup tidak lengkap, rusak, atau versi yang belum didukung ditandai tidak dapat dipulihkan.
 
 ## Transaction-like write
 
@@ -202,3 +202,30 @@ npm run management
 ```
 
 Project menggunakan satu `package-lock.json` di root dan registry publik dari `.npmrc`. Jangan menambahkan lockfile workspace, proxy temporer, token, atau kredensial ke source.
+
+## Authoring label CTA marketplace
+
+Pada tab **Link & konten**, label tombol dapat dikosongkan untuk memakai label aman otomatis. Catalog Manager menyediakan preset sesuai marketplace:
+
+- `Lihat harga di [Marketplace]`;
+- `Lihat di [Marketplace]`;
+- `Buka di [Marketplace]`;
+- `Cek produk di [Marketplace]`.
+
+Custom label tetap tersedia untuk kebutuhan nyata. Panel dan validator memberi warning jika label mengandung klaim promo, harga, stok, atau urgency yang belum dapat diverifikasi. Warning tidak mengubah URL dan tidak menghapus parameter attribution.
+
+Ketika marketplace diganti, label preset lama dikosongkan agar default baru mengikuti marketplace yang dipilih. Label custom dipertahankan agar tidak terjadi kehilangan copy tanpa konfirmasi.
+
+## Hardening source lokal
+
+Catalog Manager memperlakukan browser sebagai klien yang tidak dipercaya penuh walaupun server hanya berjalan di `127.0.0.1`.
+
+- Semua endpoint `/api/*`, termasuk endpoint baca, wajib membawa session lokal yang dicetak terminal.
+- Nama draft, temporary media, final media, backup, dan file static diperiksa sebagai basename/path allowlist di server.
+- Resolusi path menolak `..`, path absolut, separator tersembunyi, karakter kontrol, dan escape melalui symbolic link.
+- Draft ID/slug dinormalisasi dengan helper slug canonical sebelum menjadi nama file.
+- Temporary media yang dibatalkan, diganti, tidak lagi direferensikan, atau kedaluwarsa dibersihkan melalui repository.
+- Save draft dan apply menolak temporary media yang hilang, checksum-nya berubah, atau path finalnya tidak cocok.
+- Operation lock di browser dan server mencegah save/apply/delete/rollback bertumpuk; navigasi editor dinonaktifkan selama operasi berjalan.
+- Analisis delete membawa request identity sehingga respons lama tidak dapat menimpa dialog produk lain.
+- Jalankan `npm run check` sebelum commit; perintah ini juga menjalankan ESLint, test repository, dan test interaksi komponen Catalog Manager.

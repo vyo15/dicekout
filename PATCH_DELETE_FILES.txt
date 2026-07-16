@@ -1,2 +1,0 @@
-frontend/public/brand/dicekout-wordmark-light.png
-frontend/public/brand/dicekout-wordmark-dark.png

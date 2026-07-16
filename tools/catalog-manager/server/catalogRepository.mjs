@@ -6,7 +6,6 @@ import {
   mkdir,
   readFile,
   readdir,
-  rename,
   rm,
   stat,
   writeFile,
@@ -14,10 +13,11 @@ import {
 import { atomicReplaceJsonFiles, atomicWriteJson } from "./atomicWrite.mjs";
 import { assertSafeBasename, resolveContainedPath } from "./security.mjs";
 import { validateCatalogData } from "../../../frontend/src/domain/catalog/validateCatalogData.js";
-import { normalizeProduct } from "../../../frontend/src/domain/catalog/normalizeProduct.js";
+import { normalizeProduct, slugifyProductName } from "../../../frontend/src/domain/catalog/normalizeProduct.js";
 
 const DRAFT_VERSION = 1;
 const BACKUP_VERSION = 2;
+const MIN_SUPPORTED_BACKUP_VERSION = 1;
 const DELETE_BACKUP_RETENTION = 5;
 const TEMP_MAX_AGE_MS = 24 * 60 * 60 * 1000;
 const TEMP_MAX_FILES = 20;
@@ -144,7 +144,7 @@ export const createCatalogRepository = (projectRoot) => {
   };
 
   const draftKeyFromProduct = (product) => {
-    const key = String(product.id || product.slug || `draft-${Date.now()}`);
+    const key = slugifyProductName(product.id || product.slug) || `draft-${Date.now()}`;
     const safe = safeOperationToken(key);
     if (!safe) throw new Error("Draft belum memiliki ID atau slug yang valid.");
     return safe;
@@ -228,6 +228,7 @@ export const createCatalogRepository = (projectRoot) => {
 
   const saveDraft = async (product, tempMedia) => runMutation("menyimpan draft", async () => {
     await ensureDirs();
+    const verifiedTemp = await verifyTempMedia(tempMedia);
     const normalized = normalizeProduct(product);
     const key = draftKeyFromProduct(normalized);
     const target = await resolveContainedPath(draftsDir, `${key}.json`);
@@ -242,11 +243,17 @@ export const createCatalogRepository = (projectRoot) => {
       version: DRAFT_VERSION,
       savedAt: new Date().toISOString(),
       product: normalized,
-      tempMedia: tempMedia || null,
+      tempMedia: verifiedTemp ? {
+        ...tempMedia,
+        tempName: verifiedTemp.tempName,
+        finalName: verifiedTemp.finalName,
+        path: `${PRODUCT_MEDIA_PREFIX}${verifiedTemp.finalName}`,
+        hash: verifiedTemp.hash,
+      } : null,
     });
     for (const record of duplicateRecords) await rm(record.file, { force: true });
     for (const tempName of previousTempNames) {
-      if (tempName !== tempMedia?.tempName) await removeTempIfUnreferenced(tempName);
+      if (tempName !== verifiedTemp?.tempName) await removeTempIfUnreferenced(tempName);
     }
     await cleanupTempMedia();
     return key;
@@ -274,10 +281,15 @@ export const createCatalogRepository = (projectRoot) => {
   };
 
   const verifyTempMedia = async (tempMedia) => {
-    if (!tempMedia?.tempName || !tempMedia?.finalName) return null;
+    if (tempMedia === null || tempMedia === undefined) return null;
+    if (!tempMedia || typeof tempMedia !== "object" || !tempMedia.tempName || !tempMedia.finalName) {
+      throw new Error("Referensi gambar temporary tidak lengkap. Unggah ulang gambar.");
+    }
     const tempName = assertSafeBasename(tempMedia.tempName, "Nama media temporary");
     const finalName = assertSafeBasename(tempMedia.finalName, "Nama media final");
     if (!finalName.endsWith(".webp")) throw new Error("Media final wajib berformat WebP.");
+    const expectedPath = `${PRODUCT_MEDIA_PREFIX}${finalName}`;
+    if (tempMedia.path && tempMedia.path !== expectedPath) throw new Error("Path gambar temporary tidak cocok dengan nama file final.");
     const tempPath = await resolveContainedPath(tempDir, tempName);
     if (!await exists(tempPath)) throw new Error("Gambar temporary tidak ditemukan. Unggah ulang gambar.");
     const buffer = await readFile(tempPath);
@@ -374,6 +386,67 @@ export const createCatalogRepository = (projectRoot) => {
     return { id, dir, manifest };
   };
 
+  const supportedBackupVersion = (version) => version === undefined
+    || version === null
+    || (Number.isInteger(version) && version >= MIN_SUPPORTED_BACKUP_VERSION && version <= BACKUP_VERSION);
+
+  const inspectBackup = async (dir, currentCatalog, manifest = {}) => {
+    if (!supportedBackupVersion(manifest.version)) {
+      return { restorable: false, issue: `Versi backup ${manifest.version} belum didukung.` };
+    }
+
+    let products;
+    let collections;
+    try {
+      [products, collections] = await Promise.all([
+        readJsonFile(path.join(dir, "products.json")),
+        readJsonFile(path.join(dir, "collections.json")),
+      ]);
+    } catch {
+      return { restorable: false, issue: "products.json atau collections.json tidak tersedia/valid." };
+    }
+
+    const candidate = { ...currentCatalog, products, collections };
+    const validation = validateCatalogData(candidate);
+    if (validation.errors.length) {
+      return { restorable: false, issue: "Isi backup tidak lolos validasi katalog." };
+    }
+
+    const backupFiles = [
+      ["mediaBackedUp", "media", "media"],
+      ["draftsBackedUp", "drafts", "draft"],
+      ["tempBackedUp", "temp", "temporary media"],
+    ];
+    for (const [manifestKey, folder, label] of backupFiles) {
+      const names = manifest[manifestKey] || [];
+      if (!Array.isArray(names)) return { restorable: false, issue: `Daftar ${label} pada manifest tidak valid.` };
+      for (const name of names) {
+        let safeName;
+        try {
+          safeName = assertSafeBasename(name, `Nama ${label} backup`);
+        } catch {
+          return { restorable: false, issue: `Nama ${label} pada backup tidak aman.` };
+        }
+        if (!await exists(path.join(dir, folder, safeName))) {
+          return { restorable: false, issue: `File ${label} yang tercantum pada manifest tidak lengkap.` };
+        }
+      }
+    }
+
+    const mediaBackupDir = path.join(dir, "media");
+    for (const product of candidate.products) {
+      const mediaName = relativeProductMediaName(product.image);
+      if (!mediaName) continue;
+      const currentFile = await resolveContainedPath(mediaDir, mediaName);
+      const backupFile = path.join(mediaBackupDir, mediaName);
+      if (!await exists(currentFile) && !await exists(backupFile)) {
+        return { restorable: false, issue: "Backup tidak memiliki seluruh gambar produk yang dibutuhkan." };
+      }
+    }
+
+    return { restorable: true, issue: "", products, collections, candidate };
+  };
+
   const pruneDeleteBackups = async () => {
     const backups = await listBackups();
     const deleteBackups = backups.filter((backup) => backup.operation === "delete-product");
@@ -385,6 +458,7 @@ export const createCatalogRepository = (projectRoot) => {
 
   const listBackups = async () => {
     await ensureDirs();
+    const currentCatalog = await readCatalog();
     const result = [];
     for (const name of await readdir(backupsDir)) {
       const safeName = assertSafeBasename(name, "ID backup");
@@ -395,21 +469,22 @@ export const createCatalogRepository = (projectRoot) => {
       if (await exists(manifestPath)) {
         try {
           const manifest = await readJsonFile(manifestPath);
-          result.push({ ...manifest, id: safeName, restorable: true });
+          const inspection = await inspectBackup(dir, currentCatalog, manifest);
+          result.push({ ...manifest, id: safeName, restorable: inspection.restorable, issue: inspection.issue });
           continue;
         } catch {
-          result.push({ id: safeName, operation: "invalid", createdAt: "", restorable: false });
+          result.push({ id: safeName, operation: "invalid", createdAt: "", restorable: false, issue: "manifest.json tidak valid." });
           continue;
         }
       }
-      const productsPath = path.join(dir, "products.json");
-      const collectionsPath = path.join(dir, "collections.json");
+      const inspection = await inspectBackup(dir, currentCatalog);
       result.push({
         id: safeName,
         operation: "legacy",
         createdAt: info.mtime.toISOString(),
         product: null,
-        restorable: await exists(productsPath) && await exists(collectionsPath),
+        restorable: inspection.restorable,
+        issue: inspection.issue,
       });
     }
     return result.sort((a, b) => String(b.createdAt || b.id).localeCompare(String(a.createdAt || a.id)));
@@ -419,18 +494,12 @@ export const createCatalogRepository = (projectRoot) => {
     const id = assertSafeBasename(String(backupId || ""), "ID backup");
     const dir = await resolveContainedPath(backupsDir, id);
     if (!await exists(dir)) throw new Error("Backup tidak ditemukan.");
-    const [products, collections, currentCatalog] = await Promise.all([
-      readJsonFile(path.join(dir, "products.json")),
-      readJsonFile(path.join(dir, "collections.json")),
-      readCatalog(),
-    ]);
-    const candidate = { ...currentCatalog, products, collections };
-    const validation = validateCatalogData(candidate);
-    if (validation.errors.length) throw new Error(`Backup tidak valid:
-${validation.errors.join("\n")}`);
-
+    const currentCatalog = await readCatalog();
     const manifestPath = path.join(dir, "manifest.json");
     const manifest = await exists(manifestPath) ? await readJsonFile(manifestPath) : {};
+    const inspection = await inspectBackup(dir, currentCatalog, manifest);
+    if (!inspection.restorable) throw new Error(`Backup tidak dapat dipulihkan: ${inspection.issue}`);
+    const { products, collections, candidate } = inspection;
     let safetyBackup = null;
     if (createSafetyBackup) {
       const mediaFiles = [];

@@ -300,3 +300,51 @@ Catalog Manager dijalankan pada `127.0.0.1:666` dan diperiksa tanpa mengubah sou
 - Delete dan rollback tidak dijalankan pada data katalog aktual; keduanya diuji melalui fixture repository terisolasi agar source pengguna tidak termutasi.
 - Review visual interaktif tetap perlu dilakukan di browser Windows pengguna pada zoom dan breakpoint yang tercantum di `docs/QA_CHECKLIST.md`.
 - Kategori, koleksi, media orphan browser, export/import lintas-PC, dan pagination besar tetap merupakan fase lanjutan terpisah sebagaimana plan; patch ini menyelesaikan workflow inti produk, delete, image, backup, rollback, dan editor yang telah disetujui.
+
+## Patch hierarki CTA affiliate
+
+Patch CTA menggunakan source terbaru dan tidak mengubah schema, slug, route, URL affiliate, atau parameter attribution. Perubahan utama:
+
+- helper canonical mengurutkan link aktif dengan primary selalu pertama tanpa memutasi data;
+- label CTA menyesuaikan konteks kartu, detail, sticky mobile, dan marketplace alternatif;
+- kartu homepage/kategori/koleksi/terkait fokus ke detail rekomendasi;
+- direct marketplace CTA hanya tersedia pada katalog desktop dengan disclosure compact;
+- detail desktop memiliki quick CTA, hierarki primary/secondary marketplace, dan final CTA setelah informasi produk;
+- sticky mobile disederhanakan menjadi satu primary CTA dan tombol bottom sheet untuk marketplace lain;
+- Save tidak lagi ditempatkan di sticky marketplace bar;
+- Catalog Manager menyediakan preset CTA aman dan warning klaim promo/harga/stok/urgency;
+- validator memberi warning terhadap label CTA yang memerlukan pembuktian realtime;
+- test memverifikasi primary ordering, inactive filtering, attribution preservation, contextual CTA copy, preset, dan warning label berisiko.
+
+## Audit hardening 15 Juli 2026
+
+Audit eksternal lama dibandingkan ulang dengan source aktual. Lima temuan server-side utama sudah tertutup pada baseline sebelum patch ini: validasi `tempMedia`, draft key aman, static media memakai contained-path resolver, seluruh API memakai session, serta cleanup temporary media aktif.
+
+Patch lanjutan ini menambahkan defense-in-depth dan maintainability:
+
+- basename menolak `.`/`..`, separator lintas-platform, NUL, dan karakter kontrol;
+- contained-path resolver memverifikasi real path ancestor sehingga symlink tidak dapat keluar allowlist;
+- regression test repository untuk traversal `saveDraft()` dan `apply()`;
+- satu helper canonical untuk URL eksternal aman dan satu helper canonical untuk slug produk;
+- session query diproses melalui hook/effect, bukan side effect ketika React render;
+- komponen primitive, API hook, utility, dan product library dipisahkan dari `App.jsx`;
+- ESLint Catalog Manager dimasukkan ke `npm run lint` dan `npm run check`;
+- `.gitattributes` menetapkan line ending lintas Windows/Linux;
+- file instruksi patch lama dihapus dari source utama.
+
+## Catalog hero kitchen artwork and blended catalog shell
+
+Patch ini mengganti artwork ruang lama pada halaman **Semua Produk** dengan kitchen artwork yang disetujui tanpa mengubah route, schema, data produk, SEO, maupun affiliate attribution.
+
+Perubahan utama:
+
+- asset responsif baru `catalog-kitchen-desktop.webp` dan `catalog-kitchen-mobile.webp`;
+- crop desktop dan mobile dipisahkan agar subjek utama tetap terlihat tanpa browser melakukan upscale dari file kecil secara langsung;
+- overlay light/dark menggunakan token theme dan fade bawah menyatukan artwork dengan area katalog;
+- headline memakai bobot dan ukuran yang lebih tenang agar tidak menutupi artwork;
+- search/sort/filter toolbar dipindahkan menjadi satu shell penuh di atas sidebar dan grid produk;
+- hasil katalog mendapat heading semantik dan jumlah hasil yang tetap mengikuti filter URL;
+- badge `Pilihan` memakai field `featured` existing tanpa menambah schema;
+- asset living-room lama dihapus setelah seluruh usage diaudit nol.
+
+Batasan: source artwork awal berukuran 736 × 589 px. Asset WebP hasil patch diproses dengan resize Lanczos dan sharpening ringan untuk mengurangi artefak browser, tetapi detail asli tetap dibatasi resolusi sumber. Penggantian ke foto asli 1920 px atau lebih dapat dilakukan kemudian tanpa mengubah markup maupun CSS.

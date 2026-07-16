@@ -14,3 +14,15 @@ test("product identity avoids existing ids and slugs", () => {
 test("slug generation removes accents and unsafe characters", () => {
   assert.equal(slugifyProductValue("  Café & Meja / Baru  "), "cafe-meja-baru");
 });
+
+
+test("product identity reserves ids and slugs from source products and local drafts", () => {
+  const reserved = [
+    { id: "prod-lampu-meja-led", slug: "lampu-meja-led" },
+    { id: "prod-lampu-meja-led-2", slug: "lampu-meja-led-2", _draft: { key: "prod-lampu-meja-led-2" } },
+  ];
+  assert.deepEqual(
+    createUniqueProductIdentity("Lampu Meja LED", reserved),
+    { id: "prod-lampu-meja-led-3", slug: "lampu-meja-led-3" },
+  );
+});
