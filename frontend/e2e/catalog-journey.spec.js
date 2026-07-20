@@ -14,16 +14,19 @@ test("pengunjung dapat mencari, membuka detail, refresh langsung, dan kembali ke
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,follow");
   await expect(page.locator('meta[property="og:site_name"]')).toHaveAttribute("content", "DicekOut");
 
-  const search = page.getByRole("search").getByRole("searchbox");
+  const searchForm = page.getByRole("search");
+  const search = searchForm.getByRole("combobox", { name: "Cari produk" });
   await search.fill("lampu meja");
-  await page.getByRole("search").getByRole("button", { name: "Cari" }).click();
+  await searchForm.getByRole("button", { name: "Cari", exact: true }).click();
 
   await expect(page).toHaveURL(/\/produk\?q=lampu(?:\+|%20)meja$/);
   await expect(page.getByRole("heading", { level: 2, name: /Hasil untuk “lampu meja”/i })).toBeVisible();
 
   await page.getByRole("link", { name: "Lampu Meja LED Minimalis", exact: true }).first().click();
   await expect(page.getByRole("heading", { level: 1, name: "Lampu Meja LED Minimalis" })).toBeVisible();
-  await expect(page.getByText("Marketplace belum tersedia")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { level: 2, name: "Marketplace belum tersedia", exact: true }),
+  ).toBeVisible();
 
   await page.reload();
   await expect(page.getByRole("heading", { level: 1, name: "Lampu Meja LED Minimalis" })).toBeVisible();
@@ -46,7 +49,7 @@ test("route yang tidak tersedia menampilkan 404 yang dapat dipulihkan", async ({
   await page.goto("/produk/produk-yang-tidak-ada");
   await expect(page.getByRole("heading", { level: 1, name: /tidak ditemukan/i })).toBeVisible();
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", "noindex,follow");
-  await page.getByRole("link", { name: /Kembali ke beranda/i }).click();
+  await page.getByRole("link", { name: "Kembali ke beranda", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
 });
 
@@ -55,8 +58,9 @@ test("navigasi dan filter mobile tetap dapat digunakan tanpa overflow", async ({
   await page.goto("/produk");
   await expect(page.getByRole("navigation", { name: "Navigasi utama mobile" })).toBeVisible();
   await page.getByRole("button", { name: "Filter" }).click();
-  await expect(page.getByRole("dialog", { name: "Filter Produk" })).toBeVisible();
-  await page.getByRole("button", { name: "Tutup filter" }).click();
-  await expect(page.getByRole("dialog", { name: "Filter Produk" })).toBeHidden();
+  const filterDialog = page.getByRole("dialog", { name: "Filter Produk" });
+  await expect(filterDialog).toBeVisible();
+  await filterDialog.getByRole("button", { name: "Tutup filter", exact: true }).click();
+  await expect(filterDialog).toBeHidden();
   await expectNoHorizontalOverflow(page);
 });
