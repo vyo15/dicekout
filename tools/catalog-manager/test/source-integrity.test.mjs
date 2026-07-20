@@ -6,6 +6,14 @@ const rootLockPath = new URL("../../../package-lock.json", import.meta.url);
 const rootNpmrcPath = new URL("../../../.npmrc", import.meta.url);
 const serverPath = new URL("../server/index.mjs", import.meta.url);
 
+const readManagerStyles = async () => (await Promise.all([
+  "base.css",
+  "catalog.css",
+  "layout.css",
+  "theme.css",
+  "workflow.css",
+].map((file) => readFile(new URL(`../src/styles/${file}`, import.meta.url), "utf8")))).join("\n");
+
 test("root dependency files only reference the public npm registry", async () => {
   const [lock, npmrc] = await Promise.all([
     readFile(rootLockPath, "utf8"),
@@ -103,12 +111,12 @@ test("catalog manager documentation uses the configured local port", async () =>
 });
 
 test("catalog manager reuses the public DicekOut brand assets", async () => {
-  const [app, server, html] = await Promise.all([
-    readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
+  const [header, server, html] = await Promise.all([
+    readFile(new URL("../src/components/ManagerHeader.jsx", import.meta.url), "utf8"),
     readFile(new URL("../server/index.mjs", import.meta.url), "utf8"),
     readFile(new URL("../index.html", import.meta.url), "utf8")
   ]);
-  assert.match(app, /brand-assets\/dicekout-logo\.png/);
+  assert.match(header, /brand-assets\/dicekout-logo\.png/);
   assert.match(server, /frontend["], ["]public["], ["]brand/);
   assert.match(server, /favicon-64\.png/);
   assert.match(html, /brand-assets\/favicon-64\.png/);
@@ -116,14 +124,14 @@ test("catalog manager reuses the public DicekOut brand assets", async () => {
 
 
 test("catalog manager uses a full-page header with DicekOut.ID branding", async () => {
-  const [app, styles] = await Promise.all([
-    readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
-    readFile(new URL("../src/styles.css", import.meta.url), "utf8")
+  const [header, styles] = await Promise.all([
+    readFile(new URL("../src/components/ManagerHeader.jsx", import.meta.url), "utf8"),
+    readManagerStyles()
   ]);
 
-  assert.match(app, /className="manager-header"/);
-  assert.match(app, /DicekOut\.ID/);
-  assert.match(app, /manager-brand__logo/);
+  assert.match(header, /className="manager-header"/);
+  assert.match(header, /DicekOut\.ID/);
+  assert.match(header, /manager-brand__logo/);
   assert.match(styles, /grid-template-areas:\s*"header header"/);
   assert.match(styles, /grid-area:header/);
   assert.match(styles, /width:100%/);
@@ -131,19 +139,19 @@ test("catalog manager uses a full-page header with DicekOut.ID branding", async 
 
 
 test("catalog manager uses React Icons and clean solid color navigation", async () => {
-  const [app, styles, managerPackage] = await Promise.all([
-    readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
-    readFile(new URL("../src/styles.css", import.meta.url), "utf8"),
+  const [sidebar, styles, managerPackage] = await Promise.all([
+    readFile(new URL("../src/components/ManagerSidebar.jsx", import.meta.url), "utf8"),
+    readManagerStyles(),
     readFile(new URL("../package.json", import.meta.url), "utf8")
   ]);
 
-  assert.match(app, /from "react-icons\/fi"/);
-  assert.match(app, /FiBox/);
-  assert.match(app, /FiFileText/);
-  assert.match(app, /FiCheckCircle/);
-  assert.equal(app.includes("<span>▦</span>"), false);
-  assert.equal(app.includes("<span>▣</span>"), false);
-  assert.equal(app.includes("<span>✓</span>"), false);
+  assert.match(sidebar, /from "react-icons\/fi"/);
+  assert.match(sidebar, /FiBox/);
+  assert.match(sidebar, /FiFileText/);
+  assert.match(sidebar, /FiCheckCircle/);
+  assert.equal(sidebar.includes("<span>▦</span>"), false);
+  assert.equal(sidebar.includes("<span>▣</span>"), false);
+  assert.equal(sidebar.includes("<span>✓</span>"), false);
 
   assert.equal(styles.includes("linear-gradient("), false);
   assert.match(styles, /--manager-sidebar:var\(--surface\)/);
@@ -180,16 +188,18 @@ test("catalog manager lint and shared utilities are wired into quality checks", 
 
 
 test("catalog editor guards draft identity and navigation workflows", async () => {
-  const [app, managerPackage] = await Promise.all([
+  const [app, sidebar, deleteFlow, managerPackage] = await Promise.all([
     readFile(new URL("../src/App.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/ManagerSidebar.jsx", import.meta.url), "utf8"),
+    readFile(new URL("../src/hooks/useDeleteProductFlow.js", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8").then(JSON.parse),
   ]);
 
   assert.equal(app.includes("createUniqueProductIdentity(value, catalog?.products, drafts)"), false);
   assert.match(app, /createUniqueProductIdentity\(value, \[\.\.\.\(catalog\?\.products \|\| \[\]\), \.\.\.drafts\]\)/);
-  assert.match(app, /onClick=\{\(\) => showProducts\("source", "draft"\)\}/);
+  assert.match(sidebar, /onShowProducts\("source", "draft"\)/);
   assert.equal(app.includes('onClick={() => { setListMode("source"); setStatusFilter("draft"); setView("products"); }}'), false);
-  assert.match(app, /mergeDeleteImpact/);
+  assert.match(deleteFlow, /mergeDeleteImpact/);
   assert.match(managerPackage.scripts.test, /--import tsx --test/);
   for (const dependency of ["@testing-library/react", "@testing-library/user-event", "jsdom", "tsx"]) {
     assert.ok(managerPackage.devDependencies[dependency]);
@@ -203,9 +213,10 @@ test("repository source hygiene excludes obsolete patch instructions and defines
 });
 
 test("catalog API and local media handlers keep server-side defense in depth", async () => {
-  const [server, repository, security] = await Promise.all([
+  const [server, repository, tempMediaRepository, security] = await Promise.all([
     readFile(new URL("../server/index.mjs", import.meta.url), "utf8"),
     readFile(new URL("../server/catalogRepository.mjs", import.meta.url), "utf8"),
+    readFile(new URL("../server/tempMediaRepository.mjs", import.meta.url), "utf8"),
     readFile(new URL("../server/security.mjs", import.meta.url), "utf8"),
   ]);
 
@@ -215,9 +226,9 @@ test("catalog API and local media handlers keep server-side defense in depth", a
   assert.ok(apiStart >= 0 && sessionGuard > apiStart && sessionGuard < firstGetRoute);
   assert.match(server, /serveAllowedFile/);
   assert.match(server, /resolveContainedPath\(root, name\)/);
-  assert.match(repository, /verifyTempMedia/);
-  assert.match(repository, /assertSafeBasename\(tempMedia\.tempName/);
-  assert.match(repository, /assertSafeBasename\(tempMedia\.finalName/);
-  assert.match(repository, /removeTemp: removeTempIfUnreferenced/);
+  assert.match(repository, /verifyTempMedia: tempMediaRepository\.verifyTempMedia/);
+  assert.match(tempMediaRepository, /assertSafeBasename\(tempMedia\.tempName/);
+  assert.match(tempMediaRepository, /assertSafeBasename\(tempMedia\.finalName/);
+  assert.match(repository, /removeTemp: tempMediaRepository\.removeTempIfUnreferenced/);
   assert.match(security, /realpath\(current\)/);
 });

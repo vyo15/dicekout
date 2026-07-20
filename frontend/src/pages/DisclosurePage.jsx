@@ -2,10 +2,7 @@ import { FiExternalLink, FiInfo, FiShoppingBag } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import { SITE } from "../config/site";
-
-const formatDate = (value) => value
-  ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${value}T00:00:00Z`))
-  : null;
+import { formatLongDate } from "../utils/formatDate.js";
 
 const DisclosurePage = () => (
   <>
@@ -69,7 +66,7 @@ const DisclosurePage = () => (
             {SITE.operatorName ? `DicekOut dikelola oleh ${SITE.operatorName}. ` : "Identitas pengelola akan dilengkapi sebelum mode live. "}
             {SITE.contactEmail ? <>Pertanyaan dapat dikirim ke <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.</> : "Kontak publik belum diaktifkan pada mode demo."}
           </p>
-          {SITE.policyUpdatedAt ? <p className="legal-footnote">Terakhir diperbarui: {formatDate(SITE.policyUpdatedAt)}.</p> : null}
+          {SITE.policyUpdatedAt ? <p className="legal-footnote">Terakhir diperbarui: {formatLongDate(SITE.policyUpdatedAt)}.</p> : null}
         </article>
       </div>
     </section>

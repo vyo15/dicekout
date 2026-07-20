@@ -1,0 +1,213 @@
+/* Monochrome light theme overrides */
+html[data-theme="light"] .site-shell {
+  background: var(--color-page);
+}
+
+html[data-theme="light"] :where(
+  .hero-section,
+  .section--aqua,
+  .page-hero:not(.page-hero--catalog),
+  .page-hero--category,
+  .page-hero--collection,
+  .page-hero--about,
+  .product-detail__image-wrap,
+  .transparency-card,
+  .collection-card__visual,
+  .category-card__visual,
+  .product-card__image-wrap
+) {
+  background-image: none;
+}
+html[data-theme="light"] :where(.text-link, .text-button),
+html[data-theme="light"] :where(.catalog-search__field > svg, .breadcrumbs a:hover),
+html[data-theme="light"] :where(.product-collections a, .recommendation-box > span),
+html[data-theme="light"] :where(.category-card__link, .collection-card__link) {
+  color: var(--color-text);
+}
+
+html[data-theme="light"] :where(
+  .header-search-button,
+  .button--primary,
+  .search-bar button,
+  .catalog-search__field button,
+  .affiliate-link-button--primary,
+  .mobile-bottom-nav a.active,
+  .bottom-sheet__primary-action
+) {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-fixed-white);
+  box-shadow: none;
+}
+
+html[data-theme="light"] :where(
+  .header-search-button:hover,
+  .button--primary:hover,
+  .search-bar button:hover,
+  .catalog-search__field button:hover,
+  .affiliate-link-button--primary:hover
+) {
+  background: var(--color-primary-dark);
+}
+
+html[data-theme="light"] :where(.eyebrow, .hero-kicker, .badge) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+}
+
+html[data-theme="light"] :where(
+  .category-card,
+  .collection-card,
+  .product-card,
+  .info-card,
+  .catalog-toolbar,
+  .marketplace-panel,
+  .bottom-sheet,
+  .mobile-more-menu__links
+) {
+  background: var(--color-surface);
+  border-color: var(--color-border);
+}
+
+html[data-theme="light"] .category-card {
+  --category-color: var(--color-primary);
+}
+
+html[data-theme="light"] :where(
+  .category-card--blue,
+  .category-card--orange,
+  .category-card--mint,
+  .category-card--purple
+) {
+  --category-color: var(--color-primary);
+}
+
+html[data-theme="light"] :where(
+  .category-card__icon,
+  .info-card__icon,
+  .empty-state__icon,
+  .recommendation-box
+) {
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+  border-color: var(--color-border);
+}
+
+html[data-theme="light"] :where(
+  .info-card--positive .info-card__icon,
+  .info-card--attention .info-card__icon,
+  .info-card--fit .info-card__icon
+) {
+  background: var(--color-surface-soft);
+  color: var(--color-text);
+}
+
+html[data-theme="light"] .button--light {
+  border: 1px solid var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: none;
+}
+
+html[data-theme="light"] .mobile-bottom-nav {
+  border-color: var(--color-border);
+  background: color-mix(in srgb, var(--color-fixed-white) 96%, transparent);
+  box-shadow: var(--shadow-nav);
+}
+
+html[data-theme="light"] .mobile-bottom-nav a {
+  color: var(--color-muted);
+}
+
+html[data-theme="light"] .mobile-bottom-nav a.active {
+  color: var(--color-fixed-white);
+}
+
+html[data-theme="light"] :where(.product-card__image-wrap, .product-detail__image-wrap) {
+  background: var(--color-image-surface);
+}
+
+html[data-theme="light"] :where(.product-card, .category-card, .collection-card) {
+  box-shadow: 0 10px 28px color-mix(in srgb, var(--color-fixed-black) 5.5%, transparent);
+}
+
+html[data-theme="light"] :where(a, button, input, select):focus-visible {
+  outline-color: var(--color-primary);
+}
+
+
+/* Restrained DicekOut yellow accent
+   Yellow is intentionally limited to search and outbound marketplace actions. */
+html[data-theme="light"] :where(
+  .search-bar button,
+  .catalog-search__field button,
+  .affiliate-link-button--primary
+) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 10px 22px color-mix(in srgb, var(--color-accent) 24%, transparent);
+}
+
+html[data-theme="light"] :where(
+  .search-bar button:hover,
+  .catalog-search__field button:hover,
+  .affiliate-link-button--primary:hover
+) {
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+  color: var(--color-on-accent);
+}
+
+html[data-theme="light"] .search-bar > svg,
+html[data-theme="light"] .catalog-search__field > svg {
+  color: var(--color-text);
+}
+
+html[data-theme="light"] .mobile-bottom-nav__item--search {
+  color: var(--color-text);
+}
+
+html[data-theme="light"] .mobile-bottom-nav__search-icon {
+  border-color: var(--color-surface);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--color-accent) 26%, transparent);
+}
+
+html[data-theme="light"] .mobile-bottom-nav__item--search:hover .mobile-bottom-nav__search-icon {
+  background: var(--color-accent-hover);
+}
+
+html[data-theme="dark"] :where(
+  .search-bar button,
+  .catalog-search__field button,
+  .affiliate-link-button--primary
+) {
+  border-color: var(--color-accent);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+
+html[data-theme="dark"] :where(
+  .search-bar button:hover,
+  .catalog-search__field button:hover,
+  .affiliate-link-button--primary:hover
+) {
+  border-color: var(--color-accent-hover);
+  background: var(--color-accent-hover);
+  color: var(--color-on-accent);
+}
+
+@media (max-width: 640px) {
+  html[data-theme="dark"] .mobile-bottom-nav__item--search {
+    color: var(--color-text);
+  }
+
+  html[data-theme="dark"] .mobile-bottom-nav__search-icon {
+    border-color: var(--color-surface);
+    background: var(--color-accent);
+    color: var(--color-on-accent);
+  }
+}

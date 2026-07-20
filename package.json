@@ -13,8 +13,10 @@
     "build": "npm run build --workspace dicekout-frontend",
     "lint": "npm run lint --workspace dicekout-frontend && npm run lint --workspace dicekout-catalog-manager",
     "test": "npm run test --workspace dicekout-frontend && npm run test --workspace dicekout-catalog-manager",
-    "check": "npm run check --workspace dicekout-frontend && npm run lint --workspace dicekout-catalog-manager && npm run test --workspace dicekout-catalog-manager && npm run build --workspace dicekout-catalog-manager",
-    "test:e2e": "npm run test:e2e --workspace dicekout-frontend"
+    "check": "npm run validate:source && npm run check --workspace dicekout-frontend && npm run lint --workspace dicekout-catalog-manager && npm run test --workspace dicekout-catalog-manager && npm run build --workspace dicekout-catalog-manager",
+    "test:e2e": "npm run test:e2e --workspace dicekout-frontend",
+    "validate:source": "node scripts/validate-source-tree.mjs",
+    "package:source": "node scripts/create-clean-archive.mjs"
   },
   "workspaces": [
     "frontend",

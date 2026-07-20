@@ -25,6 +25,15 @@ npm run management
 
 Root memakai npm workspaces sehingga satu `npm install` memasang dependency website dan Catalog Manager, termasuk `sharp` untuk optimasi gambar lokal. Gunakan URL bertoken yang dicetak terminal. Jangan membuka URL lama dari riwayat browser karena session token berubah setiap kali manager dijalankan.
 
+
+## Struktur source manager
+
+Client dan server dipisah agar UI tidak menampung business logic file-system. `src/App.jsx` hanya mengorkestrasi view utama; header, sidebar, editor, preview, backup, operation lock, unsaved guard, dan destructive flow berada pada komponen/hook masing-masing.
+
+`server/catalogRepository.mjs` adalah façade yang mempertahankan API repository. Implementasi internal berada di `catalogStore.mjs`, `draftRepository.mjs`, `tempMediaRepository.mjs`, `backupRepository.mjs`, dan `productMutationService.mjs`. Pemisahan ini tidak mengubah draft version, backup version, path local state, atau behavior rollback.
+
+Boundary lintas aplikasi hanya melalui `frontend/src/shared/`; jangan kembali membuat deep import ke implementation file frontend.
+
 ## Workflow produk
 
 ```text
@@ -242,3 +251,14 @@ Catalog Manager memperlakukan browser sebagai klien yang tidak dipercaya penuh w
 Tab **Publish** menampilkan checklist kesiapan sebelum produk nyata berstatus `published` diterapkan. Tombol apply dinonaktifkan sampai seluruh pemeriksaan awal terpenuhi; validasi server tetap menjadi sumber keputusan terakhir. Checklist mencakup ID/slug unik terhadap produk dan draft, konten rekomendasi, gambar, relasi kategori, affiliate URL HTTPS dan format marketplace, kecocokan platform konten, tanggal review, dan metadata live.
 
 Checklist tidak mengubah referral code, sub-ID, campaign, UTM, slug existing, atau schema produk secara otomatis. Temuan harus diperbaiki pada field yang relevan lalu divalidasi ulang.
+
+## Clean source ZIP
+
+Dependency, build, draft, backup, dan temporary media tidak boleh ikut source ZIP. Setelah perubahan di-commit dan working tree bersih:
+
+```bash
+npm run validate:source
+npm run package:source
+```
+
+Archive dibuat dari file tracked dengan satu root `dicekout/`. Ketika dipindah ke komputer lain, ekstrak ZIP lalu jalankan `npm install`; jangan memakai `node_modules` dari komputer lama.

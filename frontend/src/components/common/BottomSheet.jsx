@@ -1,68 +1,19 @@
-import { useEffect, useId, useRef } from "react";
+import { useId, useRef } from "react";
 import { FiX } from "react-icons/fi";
-
-const getFocusableElements = (container) => Array.from(container.querySelectorAll(
-  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])',
-)).filter((element) => !element.hasAttribute("hidden") && element.getAttribute("aria-hidden") !== "true");
+import { useFocusTrap } from "../../hooks/useFocusTrap.js";
 
 const BottomSheet = ({ open, onClose, title, children, variant = "sheet" }) => {
   const panelRef = useRef(null);
   const closeButtonRef = useRef(null);
   const titleId = useId();
 
-  useEffect(() => {
-    if (!open) return undefined;
-
-    const previouslyFocused = document.activeElement;
-    document.body.classList.add("bottom-sheet-open");
-
-    const focusFrame = window.requestAnimationFrame(() => {
-      closeButtonRef.current?.focus();
-    });
-
-    const handleKeyDown = (event) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-
-      if (event.key !== "Tab" || !panelRef.current) return;
-
-      const focusable = getFocusableElements(panelRef.current);
-      if (!focusable.length) {
-        event.preventDefault();
-        panelRef.current.focus();
-        return;
-      }
-
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-
-      if (!panelRef.current.contains(document.activeElement)) {
-        event.preventDefault();
-        (event.shiftKey ? last : first).focus();
-        return;
-      }
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.cancelAnimationFrame(focusFrame);
-      document.body.classList.remove("bottom-sheet-open");
-      document.removeEventListener("keydown", handleKeyDown);
-      previouslyFocused?.focus?.();
-    };
-  }, [onClose, open]);
+  useFocusTrap({
+    open,
+    containerRef: panelRef,
+    initialFocusRef: closeButtonRef,
+    onEscape: onClose,
+    bodyClassName: "bottom-sheet-open",
+  });
 
   if (!open) return null;
 

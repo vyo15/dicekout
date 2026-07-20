@@ -1,6 +1,6 @@
 import crypto from "node:crypto";
 import sharp from "sharp";
-import { slugifyProductName } from "../../../frontend/src/domain/catalog/normalizeProduct.js";
+import { slugifyProductName } from "../../../frontend/src/shared/catalogDomain.js";
 
 export const MAX_IMAGE_INPUT_BYTES = 25 * 1024 * 1024;
 export const MAX_IMAGE_PIXELS = 50_000_000;

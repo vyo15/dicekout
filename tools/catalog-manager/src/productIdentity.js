@@ -1,4 +1,4 @@
-import { slugifyProductName } from "../../../frontend/src/domain/catalog/normalizeProduct.js";
+import { slugifyProductName } from "../../../frontend/src/shared/catalogDomain.js";
 
 export const slugifyProductValue = slugifyProductName;
 

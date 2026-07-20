@@ -1,0 +1,82 @@
+.hero-section {
+  position: relative;
+  overflow: hidden;
+  padding-block: clamp(48px, 7vw, 92px) clamp(70px, 8vw, 110px);
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--color-surface-soft) 93%, transparent), color-mix(in srgb, var(--color-fixed-white) 98%, transparent)),
+    var(--color-bg);
+}
+
+html[data-theme="dark"] .hero-section {
+  background:
+    radial-gradient(circle at 8% 15%, color-mix(in srgb, var(--color-decorative-cool-strong) 16%, transparent), transparent 28rem),
+    linear-gradient(180deg, var(--color-page), var(--color-surface));
+}
+
+.hero-section__glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(4px);
+  pointer-events: none;
+}
+
+.hero-section__glow--one {
+  width: 360px;
+  height: 360px;
+  left: -160px;
+  top: 80px;
+  background: color-mix(in srgb, var(--color-decorative-cool) 26%, transparent);
+}
+
+.hero-section__glow--two {
+  width: 300px;
+  height: 300px;
+  right: -130px;
+  bottom: -70px;
+  background: color-mix(in srgb, var(--color-decorative-warm) 22%, transparent);
+}
+
+.search-bar {
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+  padding: 7px 7px 7px 18px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 18px;
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+}
+
+.search-bar > svg {
+  width: 20px;
+  height: 20px;
+  color: var(--color-primary);
+}
+
+.search-bar input {
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: 14px;
+}
+
+.search-bar input::placeholder {
+  color: var(--color-muted);
+}
+
+.search-bar button {
+  align-self: stretch;
+  min-width: 88px;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: var(--color-on-primary);
+  font-size: 13px;
+  font-weight: var(--font-weight-extrabold);
+  cursor: pointer;
+}

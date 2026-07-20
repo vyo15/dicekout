@@ -58,6 +58,7 @@ npm run check
 
 Perintah tersebut menjalankan:
 
+- validasi source tree agar generated/local/secret tidak tracked;
 - ESLint;
 - validasi schema dan relasi katalog;
 - validasi affiliate URL;

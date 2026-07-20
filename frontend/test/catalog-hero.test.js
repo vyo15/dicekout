@@ -10,12 +10,26 @@ const readSource = (relativePath) => fs.readFileSync(path.join(frontendRoot, rel
 test("catalog hero uses responsive kitchen artwork and a blended catalog shell", () => {
   const productsPage = readSource("src/pages/ProductsPage.jsx");
   const productCard = readSource("src/components/catalog/ProductCard.jsx");
+  const catalogHero = readSource("src/components/catalog/CatalogHero.jsx");
   const siteLayout = readSource("src/components/layout/SiteLayout.jsx");
-  const siteCss = readSource("src/styles/site.css");
+  const siteCss = [
+    "base.css",
+    "home-foundation.css",
+    "catalog-cards.css",
+    "catalog-controls.css",
+    "product-detail.css",
+    "legal.css",
+    "layout-responsive.css",
+    "home.css",
+    "catalog.css",
+    "overlays.css",
+    "theme-overrides.css",
+    "product-enhancements.css",
+  ].map((file) => readSource(`src/styles/${file}`)).join("\n");
 
   assert.match(productsPage, /catalog-kitchen-desktop\.webp/);
   assert.match(productsPage, /catalog-kitchen-mobile\.webp/);
-  assert.match(productsPage, /Cari berdasarkan nama, kebutuhan, atau kategori yang paling relevan\./);
+  assert.match(catalogHero, /Cari berdasarkan nama, kebutuhan, atau kategori yang paling relevan\./);
   assert.match(productsPage, /products-catalog-shell/);
   assert.match(productsPage, /Cari produk, kategori, atau kebutuhan\.\.\./);
   assert.match(siteCss, /\.products-catalog-toolbar\s*\{[^}]*backdrop-filter:\s*blur\(22px\)/s);

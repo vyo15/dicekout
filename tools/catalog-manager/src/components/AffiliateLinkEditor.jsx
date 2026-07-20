@@ -2,8 +2,8 @@ import { FiExternalLink } from "react-icons/fi";
 import {
   getMarketplaceCtaPresets,
   hasUnverifiedCtaClaim,
-} from "../../../../frontend/src/config/marketplaces.js";
-import { validateAffiliateUrl } from "../../../../frontend/src/utils/urls.js";
+} from "../../../../frontend/src/shared/catalogConfig.js";
+import { validateAffiliateUrl } from "../../../../frontend/src/shared/catalogSecurity.js";
 import { Field, Section } from "./ManagerPrimitives.jsx";
 
 export function AffiliateLinkEditor({

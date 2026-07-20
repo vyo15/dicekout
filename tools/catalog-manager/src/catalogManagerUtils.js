@@ -1,5 +1,5 @@
-import { getSafeContentUrl, validateAffiliateUrl } from "../../../frontend/src/utils/urls.js";
-import { hasUnverifiedCtaClaim } from "../../../frontend/src/config/marketplaces.js";
+import { getSafeContentUrl, validateAffiliateUrl } from "../../../frontend/src/shared/catalogSecurity.js";
+import { hasUnverifiedCtaClaim } from "../../../frontend/src/shared/catalogConfig.js";
 
 export const lines = (value) => String(value || "").split("\n").map((item) => item.trim()).filter(Boolean);
 export const today = (value = new Date()) => {

@@ -2,10 +2,7 @@ import { FiDatabase, FiExternalLink, FiMoon, FiShield } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import { SITE } from "../config/site";
-
-const formatDate = (value) => value
-  ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${value}T00:00:00Z`))
-  : null;
+import { formatLongDate } from "../utils/formatDate.js";
 
 const PrivacyPage = () => (
   <>
@@ -70,8 +67,8 @@ const PrivacyPage = () => (
           <p>
             {SITE.contactEmail ? <>Pertanyaan terkait privasi dapat dikirim ke <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>.</> : "Kontak privasi akan dicantumkan sebelum website beralih ke mode live."}
           </p>
-          {SITE.policyEffectiveAt ? <p className="legal-footnote">Berlaku sejak: {formatDate(SITE.policyEffectiveAt)}.</p> : null}
-          {SITE.policyUpdatedAt ? <p className="legal-footnote">Terakhir diperbarui: {formatDate(SITE.policyUpdatedAt)}.</p> : null}
+          {SITE.policyEffectiveAt ? <p className="legal-footnote">Berlaku sejak: {formatLongDate(SITE.policyEffectiveAt)}.</p> : null}
+          {SITE.policyUpdatedAt ? <p className="legal-footnote">Terakhir diperbarui: {formatLongDate(SITE.policyUpdatedAt)}.</p> : null}
         </article>
       </div>
     </section>

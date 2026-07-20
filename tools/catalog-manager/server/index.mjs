@@ -7,8 +7,8 @@ import { createServer as createViteServer } from "vite";
 import { assertLocalRequest, assertSafeBasename, assertSession, resolveContainedPath } from "./security.mjs";
 import { createCatalogRepository } from "./catalogRepository.mjs";
 import { MAX_IMAGE_INPUT_BYTES, processProductImage } from "./imageProcessor.mjs";
-import { marketplaces } from "../../../frontend/src/config/marketplaces.js";
-import { productPalettes, PRODUCT_IMAGE_POSITIONS, PRODUCT_IMAGE_SCALES } from "../../../frontend/src/config/productPalettes.js";
+import { marketplaces } from "../../../frontend/src/shared/catalogConfig.js";
+import { productPalettes, PRODUCT_IMAGE_POSITIONS, PRODUCT_IMAGE_SCALES } from "../../../frontend/src/shared/catalogConfig.js";
 
 const managerDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const projectRoot = path.resolve(managerDir, "..", "..");

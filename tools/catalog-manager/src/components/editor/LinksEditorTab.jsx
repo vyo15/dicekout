@@ -1,4 +1,4 @@
-import { contentPlatforms } from "../../../../../frontend/src/config/contentPlatforms.js";
+import { contentPlatforms } from "../../../../../frontend/src/shared/catalogConfig.js";
 import { AffiliateLinkEditor } from "../AffiliateLinkEditor.jsx";
 import { Field, Section } from "../ManagerPrimitives.jsx";
 

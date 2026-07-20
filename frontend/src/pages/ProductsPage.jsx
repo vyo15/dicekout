@@ -1,10 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import { FiArrowRight, FiFilter, FiRefreshCw, FiX } from "react-icons/fi";
+import { useCallback, useMemo, useState } from "react";
+import { FiArrowRight, FiFilter } from "react-icons/fi";
 import Seo from "../components/common/Seo";
-import Breadcrumbs from "../components/common/Breadcrumbs";
 import CatalogFilters from "../components/catalog/CatalogFilters";
 import CatalogFilterDrawer from "../components/catalog/CatalogFilterDrawer";
+import CatalogHero from "../components/catalog/CatalogHero.jsx";
+import CatalogResultsHeader from "../components/catalog/CatalogResultsHeader.jsx";
 import ProductGrid from "../components/catalog/ProductGrid";
 import { AffiliateDisclosureNote } from "../components/catalog/AffiliateLinkButton";
 import EmptyState from "../components/feedback/EmptyState";
@@ -17,7 +17,7 @@ import {
   searchProducts,
 } from "../utils/catalog";
 import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
-import { normalizeCatalogSearchParams } from "../utils/catalogNavigation";
+import { useCatalogQueryState } from "../hooks/useCatalogQueryState.js";
 import { withBasePath } from "../config/site";
 import { createCollectionPageJsonLd } from "../utils/structuredData";
 
@@ -28,54 +28,24 @@ const catalogHeroStyle = {
 
 const ProductsPage = () => {
   useCatalogScrollRestoration();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const location = useLocation();
-  const navigate = useNavigate();
-  const searchInputRef = useRef(null);
-  const normalizedSearch = useMemo(() => normalizeCatalogSearchParams(searchParams, {
-    categorySlugs: categories.map((category) => category.slug),
-    collectionSlugs: collections.map((collection) => collection.slug),
-  }), [searchParams]);
+  const categorySlugs = useMemo(() => categories.map((category) => category.slug), []);
+  const collectionSlugs = useMemo(() => collections.map((collection) => collection.slug), []);
   const {
-    query: queryParam,
-    category: categoryParam,
-    collection: collectionParam,
-    sort: sortParam,
-    featured: featuredParam,
-    newest: newestParam,
-  } = normalizedSearch.values;
-  const [query, setQuery] = useState(queryParam);
+    values: {
+      query: queryParam,
+      category: categoryParam,
+      collection: collectionParam,
+      sort: sortParam,
+      featured: featuredParam,
+      newest: newestParam,
+    },
+    query,
+    setQuery,
+    searchInputRef,
+    updateParams,
+    resetFilters,
+  } = useCatalogQueryState({ categorySlugs, collectionSlugs });
   const [filterOpen, setFilterOpen] = useState(false);
-
-  useEffect(() => setQuery(queryParam), [queryParam]);
-
-  useEffect(() => {
-    if (!normalizedSearch.changed) return;
-    setSearchParams(normalizedSearch.params, { replace: true });
-  }, [normalizedSearch, setSearchParams]);
-
-  useEffect(() => {
-    if (!location.state?.focusCatalogSearch) return undefined;
-
-    const focusFrame = window.requestAnimationFrame(() => {
-      const searchInput = searchInputRef.current;
-      if (!searchInput) return;
-
-      const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      searchInput.scrollIntoView({
-        behavior: reduceMotion ? "auto" : "smooth",
-        block: "center",
-      });
-      searchInput.focus({ preventScroll: true });
-
-      navigate(`${location.pathname}${location.search}`, {
-        replace: true,
-        state: null,
-      });
-    });
-
-    return () => window.cancelAnimationFrame(focusFrame);
-  }, [location.pathname, location.search, location.state, navigate]);
 
   const result = useMemo(() => searchProducts({
     query: queryParam,
@@ -105,25 +75,7 @@ const ProductsPage = () => {
     return counts;
   }, { all: 0 }), []);
 
-  const updateParams = useCallback((updates) => {
-    const next = new URLSearchParams(searchParams);
-
-    Object.entries(updates).forEach(([key, value]) => {
-      if (value === null || value === undefined || value === "") next.delete(key);
-      else next.set(key, String(value));
-    });
-
-    setSearchParams(next);
-  }, [searchParams, setSearchParams]);
-
-  const handleSearch = (nextQuery) => {
-    updateParams({ q: nextQuery || null });
-  };
-
-  const resetFilters = useCallback(() => {
-    setQuery("");
-    setSearchParams({});
-  }, [setSearchParams]);
+  const handleSearch = (nextQuery) => updateParams({ q: nextQuery || null });
 
   const closeFilterDrawer = useCallback(() => setFilterOpen(false), []);
 
@@ -198,25 +150,11 @@ const ProductsPage = () => {
         })}
       />
 
-      <section
-        className="page-hero page-hero--compact page-hero--catalog"
+      <CatalogHero
         style={catalogHeroStyle}
-      >
-        <div className="container">
-          <div className="page-hero__catalog-row">
-            <div className="page-hero__catalog-copy">
-              <Breadcrumbs items={[{ label: "Beranda", to: "/" }, { label: "Semua Produk" }]} />
-              <span className="eyebrow">Katalog DicekOut</span>
-              <h1>Temukan produk yang sedang kamu cari.</h1>
-              <p>Cari berdasarkan nama, kebutuhan, atau kategori yang paling relevan.</p>
-              <div className="page-hero__catalog-meta" aria-label="Ringkasan katalog">
-                <span><strong>{products.length}</strong> produk tersedia</span>
-                <span><strong>{categories.length}</strong> kategori pilihan</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+        productCount={products.length}
+        categoryCount={categories.length}
+      />
 
       <section className="products-catalog-section section--surface" id="catalog-products">
         <div className="container products-catalog-shell">
@@ -261,33 +199,14 @@ const ProductsPage = () => {
             </aside>
 
             <div className="products-catalog-main">
-              <div className="products-catalog-result-bar" aria-live="polite">
-                <div className="products-catalog-result-copy">
-                  <h2>{queryParam ? `Hasil untuk “${queryParam}”` : "Produk rekomendasi"}</h2>
-                  <p><strong>{result.length} produk</strong> ditemukan</p>
-                </div>
-
-                <div className="products-catalog-active-filters" aria-label="Filter aktif">
-                  {activeFilters.map((filter) => (
-                    <span className="products-catalog-chip" key={filter.key}>
-                      {filter.label}
-                      <button
-                        type="button"
-                        onClick={() => removeActiveFilter(filter.key)}
-                        aria-label={`Hapus filter ${filter.label}`}
-                      >
-                        <FiX aria-hidden="true" />
-                      </button>
-                    </span>
-                  ))}
-
-                  {hasActiveFilters ? (
-                    <button className="products-catalog-reset" type="button" onClick={resetFilters}>
-                      <FiRefreshCw aria-hidden="true" /> Reset semua
-                    </button>
-                  ) : null}
-                </div>
-              </div>
+              <CatalogResultsHeader
+                query={queryParam}
+                resultCount={result.length}
+                activeFilters={activeFilters}
+                hasActiveFilters={hasActiveFilters}
+                onRemoveFilter={removeActiveFilter}
+                onReset={resetFilters}
+              />
 
               {result.length ? (
                 <>

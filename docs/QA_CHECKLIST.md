@@ -1,5 +1,25 @@
 # QA Checklist DicekOut
 
+## Arsitektur dan source hygiene
+
+- [ ] `npm run validate:source` lulus.
+- [ ] Tidak ada `node_modules`, `dist`, `.catalog-manager`, coverage, report, cache, `.env`, atau secret yang tracked.
+- [ ] `frontend/src/styles/site.css` dan `tools/catalog-manager/src/styles.css` tidak dibuat kembali.
+- [ ] Selector hero generasi lama (`hero-copy`, `hero-showcase`, `showcase-window`, `floating-shape`) tidak kembali.
+- [ ] Catalog Manager hanya mengimpor domain/config/security frontend melalui `frontend/src/shared/`.
+- [ ] `createCatalogRepository()` tetap menjadi façade dan public method-nya tidak berubah.
+- [ ] Draft version tetap `1`; backup version tetap `2`; minimum restore version tetap `1`.
+- [ ] `App.jsx` tidak kembali menampung markup header/sidebar/editor/preview atau logic delete race secara langsung.
+- [ ] Seluruh file source baru menggunakan LF sesuai `.gitattributes`.
+
+## Clean release archive
+
+- [ ] Seluruh perubahan sudah di-commit dan working tree bersih.
+- [ ] `npm run check` dan `npm run test:e2e` lulus sebelum archive.
+- [ ] `npm run package:source` menghasilkan satu root `dicekout/`.
+- [ ] ZIP dapat diekstrak ke folder baru, `npm install` berhasil, lalu `npm run check` lulus.
+- [ ] ZIP tidak membawa generated files atau state lokal.
+
 ## Otomatis
 
 - [ ] `npm run lint`
