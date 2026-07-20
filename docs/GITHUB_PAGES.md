@@ -64,7 +64,10 @@ Perintah tersebut menjalankan:
 - guard data demo/indexing;
 - Vite production build;
 - generator static route;
-- sitemap dan robots generator.
+- sitemap dan robots generator;
+- validasi sinkronisasi `VITE_BASE_PATH` dengan path `VITE_SITE_URL`.
+
+Setelah build, workflow memasang Chromium lalu menjalankan Playwright terhadap production preview. Deployment dibatalkan bila direct route, canonical filter, halaman 404, navigasi mobile, atau overflow utama gagal.
 
 ## 5. Direct link
 
@@ -77,3 +80,13 @@ dist/kategori/elektronik/index.html
 ```
 
 Dengan demikian, link produk dapat dibuka langsung dari media sosial tanpa HashRouter.
+
+
+## 6. Guard indexing dan konfigurasi URL
+
+- Selama `allowIndexing` masih `false`, runtime dan static HTML selalu memakai `noindex,follow`; prop halaman tidak dapat membatalkan guard global ini.
+- Untuk custom domain gunakan `VITE_BASE_PATH=/` dan URL origin tanpa path repository.
+- Untuk domain `github.io`, path `VITE_SITE_URL` harus sama dengan `VITE_BASE_PATH`.
+- Jangan mengaktifkan indexing sebelum domain, canonical, katalog live, disclosure, dan privacy selesai diverifikasi.
+
+Build juga menjalankan `validate-static-output.mjs` untuk memastikan semua route statis, canonical, robots, sitemap, metadata sosial, 404, dan structured data telah tertulis konsisten sebelum artifact diunggah.

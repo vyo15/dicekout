@@ -6,6 +6,7 @@ import ProductGrid from "../components/catalog/ProductGrid";
 import NotFoundPage from "./NotFoundPage";
 import { getCollection, getProductsByCollection } from "../utils/catalog";
 import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
+import { createCollectionPageJsonLd } from "../utils/structuredData";
 
 const CollectionPage = () => {
   useCatalogScrollRestoration();
@@ -21,6 +22,17 @@ const CollectionPage = () => {
         title={`${collection.name} | Koleksi DicekOut`}
         description={collection.description}
         path={`koleksi/${collection.slug}`}
+        noindex={Boolean(collection.demo)}
+        jsonLd={createCollectionPageJsonLd({
+          name: collection.name,
+          description: collection.description,
+          path: `koleksi/${collection.slug}`,
+          breadcrumbs: [
+            { name: "Beranda", path: "" },
+            { name: "Koleksi", path: "koleksi" },
+            { name: collection.name, path: `koleksi/${collection.slug}` },
+          ],
+        })}
       />
 
       <section className="page-hero page-hero--collection">

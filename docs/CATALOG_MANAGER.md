@@ -62,11 +62,17 @@ Duplikasi membuat ID dan slug baru yang unik terhadap produk source dan draft lo
 
 Setiap link memiliki marketplace, label, URL, status aktif/nonaktif, dan satu link utama. Catalog Manager:
 
-- mempertahankan referral code, sub-ID, campaign, UTM, deep link, urutan query, dan parameter attribution;
-- menolak protokol berbahaya dan credential tertanam;
-- memvalidasi hostname terhadap marketplace registry;
-- tidak membuat cloaking, redirect tersembunyi, atau URL baru;
-- membuka pemeriksaan link di tab baru dengan `noopener sponsored nofollow`.
+- mewajibkan affiliate URL memakai HTTPS;
+- mempertahankan referral code, affiliate ID, sub-ID, campaign, UTM, deep link, urutan query, dan parameter attribution;
+- membedakan URL eksternal yang aman dari format affiliate yang dikenali;
+- memakai exact-host allowlist untuk Shopee dan menolak `seller.shopee.co.id` serta subdomain/lookalike lain;
+- menerima short link resmi `s.shopee.co.id/<token>`/`shope.ee/<token>`, wrapper resmi `an_redir`, dan URL tujuan yang masih membawa parameter attribution resmi Shopee;
+- menolak URL produk Shopee biasa, fake `affiliate_id`, HTTP, wrapper tanpa `affiliate_id`, atau `origin_link` ke domain luar;
+- tidak membuat cloaking, redirect tersembunyi, tracking hop, shortener, atau URL baru;
+- hanya menampilkan tombol **Periksa link** saat format lolos validator;
+- membuka pemeriksaan di tab baru dengan `noopener sponsored nofollow`.
+
+Status **format valid** tidak berarti komisi dijamin. Panel tidak dapat membuktikan token/affiliate ID milik akun Anda, eligibility produk, atau hasil transaksi. Untuk Shopee, buat link dari akun Shopee Affiliate Anda lalu cek kliknya di Laporan Performa. Untuk marketplace lain, panel tetap memvalidasi HTTPS/hostname tetapi menampilkan warning sampai standar resminya diaudit khusus.
 
 ## Optimasi gambar otomatis
 
@@ -229,3 +235,10 @@ Catalog Manager memperlakukan browser sebagai klien yang tidak dipercaya penuh w
 - Operation lock di browser dan server mencegah save/apply/delete/rollback bertumpuk; navigasi editor dinonaktifkan selama operasi berjalan.
 - Analisis delete membawa request identity sehingga respons lama tidak dapat menimpa dialog produk lain.
 - Jalankan `npm run check` sebelum commit; perintah ini juga menjalankan ESLint, test repository, dan test interaksi komponen Catalog Manager.
+
+
+## Publish readiness
+
+Tab **Publish** menampilkan checklist kesiapan sebelum produk nyata berstatus `published` diterapkan. Tombol apply dinonaktifkan sampai seluruh pemeriksaan awal terpenuhi; validasi server tetap menjadi sumber keputusan terakhir. Checklist mencakup ID/slug unik terhadap produk dan draft, konten rekomendasi, gambar, relasi kategori, affiliate URL HTTPS dan format marketplace, kecocokan platform konten, tanggal review, dan metadata live.
+
+Checklist tidak mengubah referral code, sub-ID, campaign, UTM, slug existing, atau schema produk secara otomatis. Temuan harus diperbaiki pada field yang relevan lalu divalidasi ulang.

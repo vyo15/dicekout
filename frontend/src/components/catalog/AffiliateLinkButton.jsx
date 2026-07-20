@@ -5,8 +5,8 @@ import {
 } from "../../config/marketplaces";
 import { getSafeExternalUrl } from "../../utils/urls";
 
-export const AffiliateDisclosureNote = ({ compact = false, className = "" }) => (
-  <p className={`affiliate-disclosure-note${compact ? " affiliate-disclosure-note--compact" : ""}${className ? ` ${className}` : ""}`}>
+export const AffiliateDisclosureNote = ({ compact = false, className = "", id }) => (
+  <p id={id} className={`affiliate-disclosure-note${compact ? " affiliate-disclosure-note--compact" : ""}${className ? ` ${className}` : ""}`}>
     <FiExternalLink aria-hidden="true" />
     <span>Tautan marketplace dapat berupa link affiliate tanpa menambah harga yang kamu bayar.</span>
   </p>
@@ -18,6 +18,7 @@ const AffiliateLinkButton = ({
   compact = false,
   context = "detail",
   variant = "primary",
+  disclosureId,
 }) => {
   const marketplace = getMarketplace(link?.marketplace);
   const safeUrl = getSafeExternalUrl(link?.url, link?.marketplace);
@@ -38,6 +39,7 @@ const AffiliateLinkButton = ({
       href={safeUrl}
       target="_blank"
       rel="noopener sponsored nofollow"
+      aria-describedby={disclosureId}
       aria-label={`${label}, dibuka di tab baru`}
     >
       {label}

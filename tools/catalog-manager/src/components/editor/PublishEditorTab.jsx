@@ -10,6 +10,7 @@ export function PublishEditorTab({
   errorCount,
   validate,
   busy,
+  publishReady,
 }) {
   return (
     <>
@@ -35,6 +36,13 @@ export function PublishEditorTab({
         </div>
       </Section>
       <Section title="Pemeriksaan akhir" description="Checklist ini membantu mencegah produk setengah jadi diterapkan ke katalog.">
+        <div className={`publish-readiness-banner${publishReady ? " publish-readiness-banner--ready" : ""}`} role="status">
+          <FiCheckCircle aria-hidden="true" />
+          <div>
+            <strong>{publishReady ? "Siap dipublikasikan" : "Belum siap dipublikasikan"}</strong>
+            <span>{publishReady ? "Seluruh pemeriksaan awal sudah terpenuhi. Jalankan validasi lengkap sebelum apply." : "Lengkapi item yang masih bertanda Belum sebelum menerapkan status published."}</span>
+          </div>
+        </div>
         <div className="review-summary">
           <div><strong>{completion}/{readinessChecks.length}</strong><span>Kesiapan produk</span></div>
           <div><strong>{activeAffiliateLinks.length}</strong><span>Link aktif</span></div>

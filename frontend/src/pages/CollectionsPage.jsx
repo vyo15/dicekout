@@ -2,6 +2,7 @@ import Breadcrumbs from "../components/common/Breadcrumbs";
 import Seo from "../components/common/Seo";
 import CollectionCard from "../components/catalog/CollectionCard";
 import { collections } from "../utils/catalog";
+import { createCollectionPageJsonLd } from "../utils/structuredData";
 
 const CollectionsPage = () => (
   <>
@@ -9,6 +10,12 @@ const CollectionsPage = () => (
       title="Koleksi Rekomendasi | DicekOut"
       description="Jelajahi koleksi rekomendasi DicekOut berdasarkan kebutuhan dan konteks penggunaan."
       path="koleksi"
+      jsonLd={createCollectionPageJsonLd({
+        name: "Koleksi Rekomendasi",
+        description: "Jelajahi koleksi rekomendasi DicekOut berdasarkan kebutuhan dan konteks penggunaan.",
+        path: "koleksi",
+        breadcrumbs: [{ name: "Beranda", path: "" }, { name: "Koleksi", path: "koleksi" }],
+      })}
     />
     <section className="page-hero page-hero--compact">
       <div className="container">

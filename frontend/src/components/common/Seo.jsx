@@ -35,36 +35,49 @@ const Seo = ({
   title,
   description = SITE.description,
   path = "",
+  canonicalPath = path,
   image = SITE.defaultOgImage,
+  imageAlt,
   type = "website",
   noindex = !SITE.allowIndexing,
   jsonLd = null,
 }) => {
   useEffect(() => {
     const resolvedTitle = title || SITE.title;
-    const canonical = toAbsoluteUrl(path);
+    const canonical = toAbsoluteUrl(canonicalPath);
     const imageUrl = toAbsoluteUrl(image);
-    const robots = noindex ? "noindex,nofollow" : "index,follow";
+    const resolvedImageAlt = imageAlt || resolvedTitle;
+    const shouldNoindex = noindex || !SITE.allowIndexing;
+    const robots = shouldNoindex ? "noindex,follow" : "index,follow";
 
     document.title = resolvedTitle;
     ensureCanonical(canonical);
     ensureMeta('meta[name="description"]', { name: "description", content: description });
     ensureMeta('meta[name="robots"]', { name: "robots", content: robots });
     ensureMeta('meta[property="og:type"]', { property: "og:type", content: type });
+    ensureMeta('meta[property="og:site_name"]', { property: "og:site_name", content: SITE.brandName });
     ensureMeta('meta[property="og:title"]', { property: "og:title", content: resolvedTitle });
     ensureMeta('meta[property="og:description"]', { property: "og:description", content: description });
     ensureMeta('meta[property="og:url"]', { property: "og:url", content: canonical });
     ensureMeta('meta[property="og:image"]', { property: "og:image", content: imageUrl });
+    ensureMeta('meta[property="og:image:alt"]', { property: "og:image:alt", content: resolvedImageAlt });
     ensureMeta('meta[name="twitter:card"]', { name: "twitter:card", content: "summary_large_image" });
     ensureMeta('meta[name="twitter:title"]', { name: "twitter:title", content: resolvedTitle });
     ensureMeta('meta[name="twitter:description"]', { name: "twitter:description", content: description });
     ensureMeta('meta[name="twitter:image"]', { name: "twitter:image", content: imageUrl });
+    ensureMeta('meta[name="twitter:image:alt"]', { name: "twitter:image:alt", content: resolvedImageAlt });
+    if (SITE.searchConsoleVerification) {
+      ensureMeta('meta[name="google-site-verification"]', {
+        name: "google-site-verification",
+        content: SITE.searchConsoleVerification,
+      });
+    }
     replaceJsonLd(jsonLd);
 
     return () => {
       document.getElementById("dicekout-jsonld")?.remove();
     };
-  }, [description, image, jsonLd, noindex, path, title, type]);
+  }, [canonicalPath, description, image, imageAlt, jsonLd, noindex, title, type]);
 
   return null;
 };

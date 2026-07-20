@@ -30,3 +30,9 @@ jobs:
           VITE_BASE_PATH: /
           VITE_SITE_URL: https://dicekout.id
         run: npm run check
+
+      - name: Install Chromium for end-to-end tests
+        run: npx playwright install --with-deps chromium
+
+      - name: Run catalog journey end-to-end tests
+        run: npm run test:e2e:run --workspace dicekout-frontend

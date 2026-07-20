@@ -2,7 +2,7 @@ import { FiMoreHorizontal } from "react-icons/fi";
 import { getActiveAffiliateLinks } from "../../utils/catalog";
 import AffiliateLinkButton from "./AffiliateLinkButton";
 
-const StickyMarketplaceBar = ({ product, onOpenMore }) => {
+const StickyMarketplaceBar = ({ product, onOpenMore, disclosureId }) => {
   const links = getActiveAffiliateLinks(product);
   const primaryLink = links[0] || null;
   const alternativeLinks = links.slice(1);
@@ -14,10 +14,16 @@ const StickyMarketplaceBar = ({ product, onOpenMore }) => {
       className={`sticky-marketplace-bar${alternativeLinks.length ? " sticky-marketplace-bar--multiple" : ""}`}
       aria-label="Aksi marketplace cepat"
     >
+      {disclosureId ? (
+        <span id={disclosureId} className="sr-only">
+          Tautan marketplace dapat berupa link affiliate tanpa menambah harga yang kamu bayar.
+        </span>
+      ) : null}
       <AffiliateLinkButton
         link={primaryLink}
         className="button sticky-marketplace-bar__cta"
         context="sticky"
+        disclosureId={disclosureId}
       />
       {alternativeLinks.length ? (
         <button

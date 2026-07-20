@@ -1,9 +1,13 @@
 import {
   getMarketplace,
   hasUnverifiedCtaClaim,
-  hostnameMatchesMarketplace,
 } from "../../config/marketplaces.js";
 import { parseSafeExternalUrl } from "../security/safeExternalUrl.js";
+import { validateAffiliateUrl } from "../../utils/urls.js";
+import {
+  getContentPlatform,
+  hostnameMatchesContentPlatform,
+} from "../../config/contentPlatforms.js";
 import {
   productPaletteById,
   PRODUCT_IMAGE_FITS,
@@ -96,7 +100,8 @@ export const validateCatalogData = ({ site, categories, collections, products })
     if (!isSafeRelativeCatalogPath(product.image)) errors.push(`${prefix}.image harus path lokal relatif yang aman.`);
     if (product.status === "published" && !product.demo && !/\.webp$/i.test(product.image || "")) warnings.push(`${prefix}.image belum WebP; optimalkan melalui Catalog Manager saat gambar diperbarui.`);
     validateDate(product.updatedAt, `${prefix}.updatedAt`, { required: true });
-    const publishedLive = isLive && product.status === "published" && !product.demo;
+    const publishedReal = product.status === "published" && !product.demo;
+    const publishedLive = isLive && publishedReal;
     validateDate(product.reviewedAt, `${prefix}.reviewedAt`, { required: publishedLive });
     for (const field of ["collectionSlugs", "pros", "considerations", "suitableFor", "notSuitableFor", "keywords", "aliases", "affiliateLinks", "contentReferences"]) {
       if (!Array.isArray(product[field])) errors.push(`${prefix}.${field} harus array.`);
@@ -106,13 +111,17 @@ export const validateCatalogData = ({ site, categories, collections, products })
     if (!PRODUCT_IMAGE_FITS.includes(visual.imageFit || "contain")) errors.push(`${prefix}.visual.imageFit tidak valid.`);
     if (!PRODUCT_IMAGE_SCALES.includes(visual.imageScale || "medium")) errors.push(`${prefix}.visual.imageScale tidak valid.`);
     if (!PRODUCT_IMAGE_POSITIONS.includes(visual.imagePosition || "center")) errors.push(`${prefix}.visual.imagePosition tidak valid.`);
+    if (publishedReal) {
+      ensureStringArray(product.pros, `${prefix}.pros`, { min: 1 });
+      ensureStringArray(product.considerations, `${prefix}.considerations`, { min: 1 });
+      ensureStringArray(product.suitableFor, `${prefix}.suitableFor`, { min: 1 });
+      ensureStringArray(product.notSuitableFor, `${prefix}.notSuitableFor`, { min: 1 });
+      if (!product.affiliateLinks?.some((link) => link.status !== "inactive")) errors.push(`${prefix} wajib memiliki minimal satu affiliate link aktif sebelum dipublikasikan.`);
+    }
     if (publishedLive) {
-      ensureStringArray(product.pros, `${prefix}.pros`, { min: 1 }); ensureStringArray(product.considerations, `${prefix}.considerations`, { min: 1 });
-      ensureStringArray(product.suitableFor, `${prefix}.suitableFor`, { min: 1 }); ensureStringArray(product.notSuitableFor, `${prefix}.notSuitableFor`, { min: 1 });
       requiredString(product.imageSource, `${prefix}.imageSource`); requiredString(product.imageLicense, `${prefix}.imageLicense`);
       if (!Number.isInteger(product.imageWidth) || product.imageWidth < 600) errors.push(`${prefix}.imageWidth minimal 600px untuk produk live.`);
       if (!Number.isInteger(product.imageHeight) || product.imageHeight < 600) errors.push(`${prefix}.imageHeight minimal 600px untuk produk live.`);
-      if (!product.affiliateLinks?.some((link) => link.status !== "inactive")) errors.push(`${prefix} wajib memiliki minimal satu affiliate link aktif.`);
       if (/\.svg$/i.test(product.image)) errors.push(`${prefix} masih memakai SVG; gunakan foto WebP/JPEG/PNG berizin untuk produk live.`);
     }
     for (const collectionSlug of product.collectionSlugs || []) {
@@ -131,12 +140,19 @@ export const validateCatalogData = ({ site, categories, collections, products })
       if (!marketplace) { errors.push(`${linkPrefix}.marketplace tidak terdaftar: ${link.marketplace}`); continue; }
       if (marketplaceIds.has(link.marketplace)) errors.push(`${prefix} memiliki marketplace duplikat: ${link.marketplace}`);
       marketplaceIds.add(link.marketplace);
-      const parsed = parseSafeExternalUrl(link.url);
-      if (!parsed) errors.push(`${prefix} memiliki affiliate URL tidak aman: ${link.url}`);
-      else if (!hostnameMatchesMarketplace(parsed.parsed.hostname, marketplace)) errors.push(`${linkPrefix}.url tidak cocok dengan hostname marketplace ${marketplace.label}: ${parsed.parsed.hostname}`);
+      const affiliateValidation = validateAffiliateUrl(link.url, link.marketplace);
+      if (!affiliateValidation.valid) {
+        errors.push(`${linkPrefix}.url tidak valid: ${affiliateValidation.message}`);
+      } else if (affiliateValidation.warning) {
+        warnings.push(`${linkPrefix}.url: ${affiliateValidation.warning}`);
+      }
       if (link.status && !["active", "inactive"].includes(link.status)) errors.push(`${linkPrefix}.status tidak valid.`);
       if (link.label !== undefined && typeof link.label !== "string") errors.push(`${linkPrefix}.label harus teks.`);
-      if (hasUnverifiedCtaClaim(link.label)) warnings.push(`${linkPrefix}.label mengandung klaim promo, harga, atau urgensi yang perlu diverifikasi.`);
+      if (hasUnverifiedCtaClaim(link.label)) {
+        const message = `${linkPrefix}.label mengandung klaim promo, harga, atau urgensi yang perlu diverifikasi.`;
+        if (publishedReal) errors.push(message);
+        else warnings.push(message);
+      }
       const exactUrl = String(link.url || "").trim();
       if (exactUrl) {
         const previous = seenAffiliateUrls.get(exactUrl);
@@ -147,9 +163,16 @@ export const validateCatalogData = ({ site, categories, collections, products })
     for (const [index, reference] of (product.contentReferences || []).entries()) {
       const refPrefix = `${prefix}.contentReferences[${index}]`;
       requiredString(reference.platform, `${refPrefix}.platform`); requiredString(reference.label, `${refPrefix}.label`);
-      if (!parseSafeExternalUrl(reference.url)) errors.push(`${refPrefix}.url tidak aman.`);
+      const platform = getContentPlatform(reference.platform);
+      if (!platform) errors.push(`${refPrefix}.platform tidak didukung: ${reference.platform}`);
+      const parsedReference = parseSafeExternalUrl(reference.url);
+      if (!parsedReference) errors.push(`${refPrefix}.url tidak aman.`);
+      else if (platform && !hostnameMatchesContentPlatform(parsedReference.parsed.hostname, platform)) {
+        errors.push(`${refPrefix}.url tidak cocok dengan platform ${platform.label}: ${parsedReference.parsed.hostname}`);
+      }
       validateDate(reference.publishedAt, `${refPrefix}.publishedAt`);
     }
+    if (product.affiliateDisclosureVariant && !["standard", "compact"].includes(product.affiliateDisclosureVariant)) errors.push(`${prefix}.affiliateDisclosureVariant tidak valid.`);
     if (site.allowIndexing && product.status === "published" && product.demo) errors.push(`Produk demo tidak boleh dipublikasikan saat indexing aktif: ${product.slug}`);
   }
   for (const collection of collections) {

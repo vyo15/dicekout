@@ -24,6 +24,7 @@ import NotFoundPage from "./NotFoundPage";
 import { SITE, toAbsoluteUrl, withBasePath } from "../config/site";
 import { getProductVisualClassNames } from "../config/productPalettes";
 import { addRecentlyViewedProduct } from "../utils/productPreferences";
+import { sanitizeCatalogReturnRoute } from "../utils/catalogNavigation";
 import {
   getActiveAffiliateLinks,
   getCategory,
@@ -60,21 +61,38 @@ const ProductDetailPage = () => {
   const productCollections = (product.collectionSlugs || []).map(getCollection).filter(Boolean);
   const path = `produk/${product.slug}`;
   const shareUrl = toAbsoluteUrl(path);
-  const returnTo = location.state?.catalogReturnTo || "/produk";
+  const returnTo = sanitizeCatalogReturnRoute(location.state?.catalogReturnTo);
   const returnLabel = returnTo === "/" ? "Kembali ke beranda" : "Kembali ke daftar sebelumnya";
   const reviewedLabel = product.reviewedAt
     ? new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(new Date(`${product.reviewedAt}T00:00:00Z`))
     : null;
 
-  const breadcrumbJsonLd = {
+  const productOgImage = product.ogImage || (!product.demo ? product.image : SITE.defaultOgImage);
+  const productJsonLd = {
     "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Beranda", item: toAbsoluteUrl("") },
-      { "@type": "ListItem", position: 2, name: "Produk", item: toAbsoluteUrl("produk") },
-      { "@type": "ListItem", position: 3, name: product.name, item: toAbsoluteUrl(path) },
+    "@graph": [
+      {
+        "@type": "Product",
+        name: product.name,
+        description: product.summary,
+        image: toAbsoluteUrl(productOgImage),
+        url: toAbsoluteUrl(path),
+        category: category?.name,
+        dateModified: product.reviewedAt || product.updatedAt || undefined,
+      },
+      {
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          { "@type": "ListItem", position: 1, name: "Beranda", item: toAbsoluteUrl("") },
+          { "@type": "ListItem", position: 2, name: "Produk", item: toAbsoluteUrl("produk") },
+          { "@type": "ListItem", position: 3, name: product.name, item: toAbsoluteUrl(path) },
+        ],
+      },
     ],
   };
+  const affiliateDisclosureId = "product-affiliate-disclosure";
+  const mobileAffiliateDisclosureId = "mobile-affiliate-disclosure";
+  const sheetAffiliateDisclosureId = "marketplace-sheet-affiliate-disclosure";
 
   const handleImageError = (event) => {
     event.currentTarget.src = withBasePath("images/products/fallback.svg");
@@ -86,9 +104,11 @@ const ProductDetailPage = () => {
         title={`${product.name} | DicekOut`}
         description={product.summary}
         path={path}
-        image={product.ogImage || SITE.defaultOgImage}
+        image={productOgImage}
+        imageAlt={product.imageAlt || product.name}
+        type="product"
         noindex={product.demo || !SITE.allowIndexing}
-        jsonLd={breadcrumbJsonLd}
+        jsonLd={productJsonLd}
       />
 
       <section className="product-detail-section section section--surface">
@@ -140,13 +160,14 @@ const ProductDetailPage = () => {
                     <p>Harga, stok, dan variasi mengikuti informasi terbaru di marketplace.</p>
                   </div>
                   <div className="product-quick-cta__actions">
-                    <AffiliateLinkButton link={primaryLink} context="detail" />
+                    <AffiliateLinkButton link={primaryLink} context="detail" disclosureId={affiliateDisclosureId} />
                     {alternativeLinks.length ? (
                       <button className="text-link" type="button" onClick={openMarketplaceSheet} aria-haspopup="dialog">
                         <FiMoreHorizontal aria-hidden="true" /> Marketplace lain
                       </button>
                     ) : null}
                   </div>
+                  <AffiliateDisclosureNote compact id={affiliateDisclosureId} />
                 </div>
               ) : null}
 
@@ -173,42 +194,37 @@ const ProductDetailPage = () => {
                 references={product.contentReferences}
               />
 
-              <div className="marketplace-panel">
-                <div>
-                  <h2>Pilih marketplace</h2>
-                  <p>Gunakan marketplace utama atau pilih alternatif yang tersedia.</p>
-                </div>
-
-                {primaryLink ? (
-                  <>
-                    <div className="marketplace-panel__primary">
-                      <AffiliateLinkButton link={primaryLink} context="detail" />
-                    </div>
-                    {alternativeLinks.length ? (
-                      <div className="marketplace-panel__secondary">
-                        <h3>Marketplace lain</h3>
-                        <div className="marketplace-panel__links">
-                          {alternativeLinks.map((link) => (
-                            <AffiliateLinkButton
-                              key={`${link.marketplace}-${link.url}`}
-                              link={link}
-                              context="secondary"
-                              variant="secondary"
-                            />
-                          ))}
-                        </div>
-                      </div>
-                    ) : null}
-                  </>
-                ) : (
-                  <div className="marketplace-panel__empty" role="note">
-                    <FiAlertCircle aria-hidden="true" />
-                    <span>Tautan marketplace belum tersedia karena katalog masih memakai data contoh.</span>
+              {alternativeLinks.length || !primaryLink ? (
+                <div className="marketplace-panel">
+                  <div>
+                    <h2>{primaryLink ? "Marketplace lain" : "Marketplace belum tersedia"}</h2>
+                    <p>{primaryLink
+                      ? "Pilih alternatif marketplace yang tersedia untuk produk ini."
+                      : "Tautan marketplace belum tersedia untuk produk ini."}</p>
                   </div>
-                )}
 
-                <AffiliateDisclosureNote />
-              </div>
+                  {alternativeLinks.length ? (
+                    <div className="marketplace-panel__links">
+                      {alternativeLinks.map((link) => (
+                        <AffiliateLinkButton
+                          key={`${link.marketplace}-${link.url}`}
+                          link={link}
+                          context="secondary"
+                          variant="secondary"
+                          disclosureId={affiliateDisclosureId}
+                        />
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="marketplace-panel__empty" role="note">
+                      <FiAlertCircle aria-hidden="true" />
+                      <span>Coba kembali setelah tautan produk selesai ditinjau oleh DicekOut.</span>
+                    </div>
+                  )}
+
+                  {!primaryLink ? <AffiliateDisclosureNote /> : null}
+                </div>
+              ) : null}
             </div>
           </div>
         </div>
@@ -282,7 +298,7 @@ const ProductDetailPage = () => {
               <p>Harga dan ketersediaan terbaru akan ditampilkan langsung oleh marketplace.</p>
             </div>
             <div className="product-final-cta__actions">
-              <AffiliateLinkButton link={primaryLink} context="detail" />
+              <AffiliateLinkButton link={primaryLink} context="detail" disclosureId={affiliateDisclosureId} />
               {alternativeLinks.length ? (
                 <button className="button button--secondary" type="button" onClick={openMarketplaceSheet} aria-haspopup="dialog">
                   <FiMoreHorizontal aria-hidden="true" /> Marketplace lain
@@ -302,7 +318,11 @@ const ProductDetailPage = () => {
         </button>
       </div>
 
-      <StickyMarketplaceBar product={product} onOpenMore={openMarketplaceSheet} />
+      <StickyMarketplaceBar
+        product={product}
+        onOpenMore={openMarketplaceSheet}
+        disclosureId={mobileAffiliateDisclosureId}
+      />
 
       <BottomSheet
         open={marketplaceSheetOpen && alternativeLinks.length > 0}
@@ -316,11 +336,12 @@ const ProductDetailPage = () => {
               link={link}
               context="secondary"
               variant="secondary"
+              disclosureId={sheetAffiliateDisclosureId}
             />
           ))}
         </div>
         <p className="marketplace-sheet-note">Harga, stok, variasi, dan promo mengikuti informasi terbaru di marketplace.</p>
-        <AffiliateDisclosureNote compact />
+        <AffiliateDisclosureNote compact id={sheetAffiliateDisclosureId} />
       </BottomSheet>
     </>
   );

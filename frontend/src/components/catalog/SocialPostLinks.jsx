@@ -13,20 +13,8 @@ import {
 } from "react-icons/si";
 import BottomSheet from "../common/BottomSheet";
 import { withBasePath } from "../../config/site";
-import { getSafeExternalUrl } from "../../utils/urls";
-
-const PLATFORM_ALIASES = {
-  fb: "facebook",
-  facebook: "facebook",
-  ig: "instagram",
-  instagram: "instagram",
-  "tik-tok": "tiktok",
-  "tik tok": "tiktok",
-  tiktok: "tiktok",
-  youtube: "youtube",
-  "youtube-shorts": "youtube",
-  youtu: "youtube",
-};
+import { getContentPlatform, normalizeContentPlatformId } from "../../config/contentPlatforms";
+import { getSafeContentUrl } from "../../utils/urls";
 
 const PLATFORM_CONFIG = {
   facebook: {
@@ -51,17 +39,13 @@ const PLATFORM_CONFIG = {
   },
 };
 
-const normalizePlatform = (platform) => {
-  const normalized = String(platform || "").trim().toLowerCase();
-  return PLATFORM_ALIASES[normalized] || normalized || "other";
-};
-
 const getPlatformConfig = (platform) => {
-  const normalizedPlatform = normalizePlatform(platform);
+  const normalizedPlatform = normalizeContentPlatformId(platform);
+  const registryPlatform = getContentPlatform(normalizedPlatform);
   return {
     platform: normalizedPlatform,
     ...(PLATFORM_CONFIG[normalizedPlatform] || {
-      label: String(platform || "Konten").trim() || "Konten",
+      label: registryPlatform?.label || String(platform || "Konten").trim() || "Konten",
       className: "other",
       Icon: FiLink,
     }),
@@ -99,7 +83,7 @@ const SocialPostLinks = ({ productName, productImage, references = [] }) => {
   const [open, setOpen] = useState(false);
 
   const safeReferences = useMemo(() => references.map((reference, index) => {
-    const safeUrl = getSafeExternalUrl(reference?.url);
+    const safeUrl = getSafeContentUrl(reference?.url, reference?.platform);
     if (!safeUrl) return null;
 
     const config = getPlatformConfig(reference?.platform);

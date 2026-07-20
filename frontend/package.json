@@ -6,12 +6,15 @@
   "scripts": {
     "dev": "vite",
     "validate:catalog": "node scripts/validate-catalog.mjs",
-    "build": "npm run validate:catalog && vite build && node scripts/generate-static-routes.mjs",
+    "build": "npm run validate:deployment && npm run validate:catalog && vite build && node scripts/generate-static-routes.mjs && node scripts/validate-static-output.mjs",
     "lint": "eslint .",
     "check": "npm run lint && npm run test && npm run validate:theme && npm run build",
     "preview": "vite preview",
     "test": "node --test test/*.test.js",
-    "validate:theme": "node scripts/validate-theme-tokens.mjs"
+    "validate:theme": "node scripts/validate-theme-tokens.mjs",
+    "validate:deployment": "node scripts/validate-deployment-config.mjs",
+    "test:e2e": "npm run build && playwright test",
+    "test:e2e:run": "playwright test"
   },
   "dependencies": {
     "react": "^19.1.1",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",
+    "@playwright/test": "^1.61.1",
     "@types/react": "^19.1.10",
     "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^5.0.0",

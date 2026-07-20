@@ -7,6 +7,7 @@ const NotFoundPage = () => (
     <Seo
       title="Halaman Tidak Ditemukan | DicekOut"
       description="Halaman atau produk yang Anda cari sudah tidak tersedia atau tidak ditemukan di DicekOut."
+      path="404"
       noindex
     />
     <section className="not-found-page">

@@ -1,3 +1,4 @@
+import { contentPlatforms } from "../../../../../frontend/src/config/contentPlatforms.js";
 import { AffiliateLinkEditor } from "../AffiliateLinkEditor.jsx";
 import { Field, Section } from "../ManagerPrimitives.jsx";
 
@@ -33,11 +34,9 @@ export function LinksEditorTab({
             <div className="repeat-card__grid">
               <Field label="Platform">
                 <select value={reference.platform} onChange={(event) => updateReference(index, { platform: event.target.value })}>
-                  <option value="instagram">Instagram</option>
-                  <option value="tiktok">TikTok</option>
-                  <option value="youtube">YouTube</option>
-                  <option value="facebook">Facebook</option>
-                  <option value="other">Lainnya</option>
+                  {contentPlatforms.map((platform) => (
+                    <option key={platform.id} value={platform.id}>{platform.label}</option>
+                  ))}
                 </select>
               </Field>
               <Field label="Judul konten">

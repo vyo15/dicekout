@@ -1,4 +1,5 @@
-import { parseSafeExternalUrl } from "../../../frontend/src/domain/security/safeExternalUrl.js";
+import { getSafeContentUrl, validateAffiliateUrl } from "../../../frontend/src/utils/urls.js";
+import { hasUnverifiedCtaClaim } from "../../../frontend/src/config/marketplaces.js";
 
 export const lines = (value) => String(value || "").split("\n").map((item) => item.trim()).filter(Boolean);
 export const today = (value = new Date()) => {
@@ -26,8 +27,6 @@ export const formatDateTime = (value) => {
     : new Intl.DateTimeFormat("id-ID", { dateStyle: "medium", timeStyle: "short" }).format(parsed);
 };
 
-export const safeHttpUrl = (value) => parseSafeExternalUrl(value)?.original || "";
-
 export const orderActiveAffiliateLinks = (links = []) => links
   .map((link, index) => ({ link, index }))
   .filter(({ link }) => Boolean(link) && link.status !== "inactive")
@@ -39,7 +38,8 @@ export const blankProduct = () => ({
   categorySlug: "", collectionSlugs: [], recommendationReason: "", pros: [], considerations: [],
   suitableFor: [], notSuitableFor: [], keywords: [], aliases: [], featured: false, newest: true,
   sortOrder: 999, status: "draft", demo: false, updatedAt: today(), reviewedAt: "",
-  imageSource: "", imageLicense: "", imageWidth: 0, imageHeight: 0, affiliateLinks: [],
+  imageSource: "", imageLicense: "", imageWidth: 0, imageHeight: 0, marketplaceProductId: "",
+  affiliateDisclosureVariant: "standard", affiliateLinks: [],
   contentReferences: [], visual: { paletteId: "neutral", imageFit: "contain", imageScale: "medium", imagePosition: "center" },
 });
 
@@ -56,4 +56,46 @@ export const backupLabels = {
   "pre-rollback": "Pengaman sebelum pemulihan",
   legacy: "Backup lama",
   invalid: "Backup tidak valid",
+};
+
+
+const hasText = (value) => Boolean(String(value || "").trim());
+const hasItems = (value) => Array.isArray(value) && value.some((item) => hasText(item));
+
+export const getProductReadinessChecks = ({ product, catalog, drafts = [] }) => {
+  const sourceProducts = catalog?.products || [];
+  const allReserved = [...sourceProducts, ...drafts];
+  const sameIdentity = (item) => item?.id === product.id && item?.slug === product.slug;
+  const identityUnique = hasText(product.id) && hasText(product.slug) && !allReserved.some((item) => (
+    !sameIdentity(item) && (item?.id === product.id || item?.slug === product.slug)
+  ));
+  const categoryValid = Boolean(catalog?.categories?.some((item) => item.slug === product.categorySlug));
+  const activeLinks = orderActiveAffiliateLinks(product.affiliateLinks);
+  const primaryLinks = (product.affiliateLinks || []).filter((link) => link?.isPrimary);
+  const affiliateLinksValid = activeLinks.length > 0 && activeLinks.every((link) => (
+    validateAffiliateUrl(link.url, link.marketplace).valid && !hasUnverifiedCtaClaim(link.label)
+  ));
+  const contentReferencesValid = (product.contentReferences || []).every((reference) => (
+    hasText(reference.label) && Boolean(getSafeContentUrl(reference.url, reference.platform))
+  ));
+  const publishedReal = product.status === "published" && !product.demo;
+  const liveProduct = catalog?.site?.catalogMode === "live" && publishedReal;
+
+  return [
+    ["ID dan slug unik", identityUnique],
+    ["Nama produk", hasText(product.name)],
+    ["Ringkasan dan deskripsi", hasText(product.summary) && hasText(product.description)],
+    ["Gambar dan alt text", hasText(product.image) && hasText(product.imageAlt)],
+    ["Kategori valid", categoryValid],
+    ["Alasan rekomendasi", hasText(product.recommendationReason)],
+    ["Kelebihan dan perhatian", hasItems(product.pros) && hasItems(product.considerations)],
+    ["Kesesuaian pengguna", hasItems(product.suitableFor) && (product.demo || hasItems(product.notSuitableFor))],
+    ["Satu link utama yang aktif", product.demo || (primaryLinks.length === 1 && primaryLinks[0]?.status !== "inactive")],
+    ["URL HTTPS dan format affiliate marketplace", product.demo || affiliateLinksValid],
+    ["Link konten sesuai platform", contentReferencesValid],
+    ["Tanggal ditinjau", !publishedReal || hasText(product.reviewedAt)],
+    ["Sumber dan lisensi gambar", !liveProduct || (hasText(product.imageSource) && hasText(product.imageLicense))],
+    ["Resolusi gambar live", !liveProduct || (Number(product.imageWidth) >= 600 && Number(product.imageHeight) >= 600)],
+    ["Disclosure affiliate", ["standard", "compact"].includes(product.affiliateDisclosureVariant || "standard")],
+  ];
 };

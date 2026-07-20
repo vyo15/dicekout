@@ -6,6 +6,7 @@ import ProductGrid from "../components/catalog/ProductGrid";
 import NotFoundPage from "./NotFoundPage";
 import { getCategory, getProductsByCategory } from "../utils/catalog";
 import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
+import { createCollectionPageJsonLd } from "../utils/structuredData";
 
 const CategoryPage = () => {
   useCatalogScrollRestoration();
@@ -21,6 +22,16 @@ const CategoryPage = () => {
         title={`${category.name} | Rekomendasi DicekOut`}
         description={`${category.description} Jelajahi produk pilihan dalam kategori ${category.name}.`}
         path={`kategori/${category.slug}`}
+        jsonLd={createCollectionPageJsonLd({
+          name: category.name,
+          description: category.description,
+          path: `kategori/${category.slug}`,
+          breadcrumbs: [
+            { name: "Beranda", path: "" },
+            { name: "Kategori", path: "kategori" },
+            { name: category.name, path: `kategori/${category.slug}` },
+          ],
+        })}
       />
 
       <section className={`page-hero page-hero--category page-hero--${category.accent}`}>

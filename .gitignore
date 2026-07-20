@@ -12,3 +12,8 @@ Thumbs.db
 .catalog-manager/
 catalog-exports/
 *.draft.local.json
+
+# Browser test artifacts
+playwright-report/
+test-results/
+blob-report/

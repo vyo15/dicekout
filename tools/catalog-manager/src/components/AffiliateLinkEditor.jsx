@@ -3,7 +3,7 @@ import {
   getMarketplaceCtaPresets,
   hasUnverifiedCtaClaim,
 } from "../../../../frontend/src/config/marketplaces.js";
-import { safeHttpUrl } from "../catalogManagerUtils.js";
+import { validateAffiliateUrl } from "../../../../frontend/src/utils/urls.js";
 import { Field, Section } from "./ManagerPrimitives.jsx";
 
 export function AffiliateLinkEditor({
@@ -17,11 +17,17 @@ export function AffiliateLinkEditor({
   return (
     <Section
       title="Link affiliate"
-      description="URL disimpan tanpa mengubah referral code, sub-ID, campaign, UTM, atau query attribution."
+      description="Tempel URL asli dari program affiliate resmi. Sistem tidak mengubah referral code, sub-ID, campaign, UTM, atau query attribution."
     >
       {links.map((link, index) => {
         const ctaPresets = getMarketplaceCtaPresets(link.marketplace);
         const riskyLabel = hasUnverifiedCtaClaim(link.label);
+        const hasUrl = Boolean(String(link.url || "").trim());
+        const affiliateValidation = hasUrl
+          ? validateAffiliateUrl(link.url, link.marketplace)
+          : null;
+        const affiliateStatusId = `affiliate-url-status-${index}`;
+        const urlDescribedBy = affiliateValidation ? affiliateStatusId : undefined;
 
         return (
           <div className="repeat-card" key={`${link.marketplace}-${index}`}>
@@ -70,11 +76,30 @@ export function AffiliateLinkEditor({
                 ) : null}
               </Field>
 
-              <Field label="URL affiliate asli" className="span-2">
+              <Field
+                label="URL affiliate asli"
+                className="span-2"
+                hint={!hasUrl ? "Untuk Shopee, gunakan short link atau wrapper resmi yang dibuat dari akun Shopee Affiliate Anda." : undefined}
+              >
                 <input
+                  type="url"
+                  inputMode="url"
+                  placeholder="https://s.shopee.co.id/token-resmi"
                   value={link.url}
                   onChange={(event) => onLinkChange(index, { url: event.target.value })}
+                  aria-describedby={urlDescribedBy}
+                  aria-invalid={affiliateValidation ? !affiliateValidation.valid : undefined}
                 />
+                {affiliateValidation ? (
+                  <small
+                    className={affiliateValidation.valid ? undefined : "field-warning"}
+                    id={affiliateStatusId}
+                    role={affiliateValidation.valid ? "status" : "alert"}
+                  >
+                    {affiliateValidation.message}
+                    {affiliateValidation.warning ? ` ${affiliateValidation.warning}` : ""}
+                  </small>
+                ) : null}
               </Field>
 
               <Field label="Status link">
@@ -98,9 +123,9 @@ export function AffiliateLinkEditor({
                   />
                   <span>Link utama</span>
                 </label>
-                {safeHttpUrl(link.url) ? (
+                {affiliateValidation?.valid ? (
                   <a
-                    href={safeHttpUrl(link.url)}
+                    href={affiliateValidation.original}
                     target="_blank"
                     rel="noopener sponsored nofollow"
                   >

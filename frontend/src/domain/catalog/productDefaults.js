@@ -1,6 +1,12 @@
 import { DEFAULT_PRODUCT_PALETTE_ID } from "../../config/productPalettes.js";
 
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export const createProductDefaults = () => ({
   id: "",
@@ -31,7 +37,7 @@ export const createProductDefaults = () => ({
   imageWidth: 0,
   imageHeight: 0,
   marketplaceProductId: "",
-  affiliateDisclosureVariant: "default",
+  affiliateDisclosureVariant: "standard",
   affiliateLinks: [],
   contentReferences: [],
   visual: {

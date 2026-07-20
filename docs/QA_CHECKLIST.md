@@ -81,7 +81,10 @@
 - [ ] `catalogMode` tetap `demo` sampai seluruh placeholder diganti.
 - [ ] Produk live tidak memakai ilustrasi SVG demo.
 - [ ] Setiap produk live memiliki minimal satu affiliate link aktif.
-- [ ] Host affiliate URL sesuai marketplace registry.
+- [ ] Affiliate URL memakai HTTPS dan host sesuai marketplace registry.
+- [ ] Shopee hanya menerima exact host `s.shopee.co.id`, `shope.ee`, `shopee.co.id`, atau `www.shopee.co.id` sesuai formatnya.
+- [ ] URL produk Shopee biasa, fake `affiliate_id`, `seller.shopee.co.id`, HTTP, dan lookalike domain ditolak.
+- [ ] Wrapper Shopee memiliki satu `origin_link` HTTPS ke Shopee dan satu `affiliate_id`; duplicate critical parameter ditolak.
 - [ ] Tidak ada affiliate URL identik pada produk berbeda.
 - [ ] Referral code, sub-ID, campaign, UTM, dan query parameter tetap utuh.
 - [ ] `reviewedAt`, sumber gambar, izin gambar, dan dimensi gambar terisi.
@@ -250,6 +253,11 @@
 - [ ] Microcopy menjelaskan bahwa harga, stok, variasi, dan promo mengikuti marketplace.
 - [ ] Tidak ada copy `beli sekarang`, countdown, stok terbatas, atau promo palsu.
 - [ ] Catalog Manager menawarkan preset label aman dan memperingatkan label promosi/urgency yang belum terverifikasi.
+- [ ] Tombol `Periksa link` hanya tampil bila affiliate validator lulus, bukan hanya karena hostname cocok.
+- [ ] Short link Shopee tetap identik setelah input, simpan draft, apply, build, dan render.
+- [ ] CTA meminta URL Shopee secara langsung tanpa hop `/go`, `/out`, redirect JavaScript, iframe, atau shortener pihak ketiga.
+- [ ] Klik uji dari DicekOut tercatat pada Laporan Performa akun Shopee Affiliate yang benar.
+- [ ] `dicekout.id` sudah didaftarkan/disetujui sebagai media promosi bila diwajibkan program affiliate.
 - [ ] Layout diuji pada lebar 320px, 360px, 390px, tablet, dan desktop dalam light/dark mode.
 
 ## Security regression — Catalog Manager
@@ -274,3 +282,20 @@
 - [ ] Badge `Pilihan` hanya tampil untuk produk dengan `featured: true`.
 - [ ] Asset living-room lama tidak ada lagi dan tidak direferensikan oleh source atau test.
 - [ ] Tidak ada perubahan pada affiliate URL, query attribution, product ID/slug, route, canonical, sitemap, atau structured data.
+
+
+## Frontend production journey dan SEO
+
+- [ ] `npm run test:e2e` lulus pada desktop Chromium dan viewport Pixel 7.
+- [ ] Pencarian dari homepage membuka katalog, detail dapat direfresh langsung, dan tombol kembali mempertahankan filter sebelumnya.
+- [ ] Parameter kategori, koleksi, sort, dan flag yang tidak valid dibersihkan tanpa menghapus parameter asing.
+- [ ] Halaman katalog dengan filter memakai canonical `/produk` dan `noindex,follow`.
+- [ ] Selama `allowIndexing: false`, tidak ada halaman yang dapat mengubah robots menjadi `index,follow`.
+- [ ] Route tidak dikenal menampilkan 404 ramah dan `noindex,follow`.
+- [ ] Metadata Open Graph/Twitter memiliki site name dan image alt; structured data tidak membuat harga, rating, review, stok, atau offer palsu.
+- [ ] URL konten Instagram/TikTok/YouTube/Facebook hanya tampil bila host cocok dengan platform.
+- [ ] Produk nyata berstatus published tidak dapat diterapkan sebelum publish-readiness lengkap.
+- [ ] Production preview tidak memiliki horizontal overflow pada desktop dan mobile.
+- [ ] `VITE_BASE_PATH` dan pathname `VITE_SITE_URL` sinkron untuk GitHub Pages maupun custom domain.
+- [ ] Catalog Manager tidak menawarkan platform konten di luar registry dan tombol `Periksa link` hanya muncul bila URL lolos validasi affiliate marketplace.
+- [ ] Structured data kategori, koleksi, dan katalog tetap tersedia setelah React aktif dan tidak tertinggal dari halaman sebelumnya saat navigasi SPA.

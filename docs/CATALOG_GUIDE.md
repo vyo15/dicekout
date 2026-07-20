@@ -35,25 +35,62 @@ Field utama:
 
 ## Affiliate link
 
-Contoh struktur link:
+Contoh Shopee yang direkomendasikan:
 
 ```json
 {
   "marketplace": "shopee",
-  "label": "Cek di Shopee",
-  "url": "https://contoh-marketplace.test/produk?affiliate_id=JANGAN_DIUBAH",
+  "label": "",
+  "url": "https://s.shopee.co.id/9fJO0rHK9y",
   "isPrimary": true,
   "status": "active"
 }
 ```
 
-Aturan:
+Aturan global:
 
-- Gunakan URL lengkap dengan protokol `https://` atau `http://`.
-- Jangan hapus referral code, sub-ID, campaign, UTM, deep link, atau query parameter.
-- Jangan gunakan `javascript:`, `data:`, URL berisi username/password, atau redirect internal dari input pengguna.
-- UI membuka link langsung dengan `noopener sponsored nofollow` dan tidak memakai `noreferrer`.
-- Pastikan link benar-benar menuju produk yang dijelaskan.
+- Affiliate URL production wajib memakai `https://`.
+- Link harus dibuat melalui akun/program affiliate resmi marketplace, bukan URL produk biasa yang ditempeli parameter buatan sendiri.
+- Simpan URL asli secara utuh. Sistem hanya memangkas whitespace di awal/akhir dan tidak mengurutkan ulang query.
+- Jangan menghapus atau mengubah referral code, affiliate ID, sub-ID, campaign, UTM, deep link, token short link, atau parameter attribution.
+- Jangan memakai `javascript:`, `data:`, `file:`, credential tertanam, Bitly/shortener pihak ketiga, iframe, auto-click, meta refresh, atau redirect `/go`/`/out` milik DicekOut.
+- UI membuka link langsung dengan `target="_blank"` dan `rel="noopener sponsored nofollow"`; `noreferrer` tidak ditambahkan.
+- Pastikan link menuju produk yang dijelaskan dan disclosure tampil dekat CTA.
+
+### Format Shopee yang diterima
+
+Validator Shopee memakai exact-host allowlist dan tidak menerima subdomain sembarang.
+
+1. Short link resmi:
+
+   ```text
+   https://s.shopee.co.id/<token-resmi>
+   https://shope.ee/<token-resmi>
+   ```
+
+2. Wrapper resmi `an_redir` pada `s.shopee.co.id` atau `shope.ee`, dengan:
+
+   - tepat satu `origin_link` HTTPS menuju `shopee.co.id`/`www.shopee.co.id`;
+   - tepat satu `affiliate_id` yang tidak kosong;
+   - maksimal satu `sub_id`;
+   - seluruh nilai disimpan tanpa rekonstruksi.
+
+3. URL tujuan hasil redirect Shopee hanya dikenali bila memiliki kombinasi attribution resmi: `utm_medium=affiliates`, `utm_source=an_*`, `uls_trackid`, dan `utm_term`. Short link atau wrapper asli tetap lebih disarankan.
+
+Contoh yang ditolak sebagai affiliate Shopee:
+
+```text
+http://s.shopee.co.id/9fJO0rHK9y
+https://shopee.co.id/product/123/456
+https://shopee.co.id/product/123/456?affiliate_id=buatan-sendiri
+https://seller.shopee.co.id/portal/product/list/all
+https://s.shopee.co.id.example.com/token
+https://dicekout.id/go/produk
+```
+
+Validasi format tidak dapat membuktikan bahwa token atau `affiliate_id` benar-benar milik akun Anda, produk masih eligible, atau komisi pasti dibayar. Setelah membuat link dari akun Shopee Affiliate, buka melalui halaman DicekOut dan cek kliknya pada Laporan Performa. Jangan melakukan pembelian melalui link sendiri.
+
+Marketplace selain Shopee saat ini tetap menjalani pemeriksaan HTTPS dan hostname registry, tetapi panel menampilkan warning bahwa format affiliate spesifik marketplace tersebut belum diaudit.
 
 ## Relasi koleksi
 
@@ -137,7 +174,7 @@ Platform dengan logo SVG brand yang tersedia:
 - `youtube`
 - `facebook`
 
-Nilai platform lain tetap dapat digunakan dan akan memakai ikon link generik. Gunakan satu item untuk setiap postingan nyata yang benar-benar membahas produk tersebut. Jangan memakai URL homepage platform, link contoh, postingan privat, atau postingan yang tidak terkait hanya untuk memunculkan tombol.
+Hanya ID platform yang terdaftar (`tiktok`, `instagram`, `youtube`, dan `facebook`, termasuk alias yang dinormalisasi) yang dapat dipublikasikan. Host URL harus cocok dengan platform yang dipilih; misalnya item Instagram tidak boleh menunjuk ke YouTube. Gunakan satu item untuk setiap postingan nyata yang benar-benar membahas produk tersebut. Jangan memakai URL homepage platform, link contoh, postingan privat, atau postingan yang tidak terkait hanya untuk memunculkan tombol.
 
 Contoh beberapa platform untuk satu produk:
 
@@ -170,7 +207,7 @@ Perilaku UI:
 
 ID marketplace yang didukung tersimpan di `frontend/src/config/marketplaces.js`. Gunakan ID tersebut pada `affiliateLinks[].marketplace`, misalnya `shopee`, `tokopedia`, `lazada`, `tiktok-shop`, `blibli`, `amazon`, atau `other`.
 
-Gunakan `other` hanya setelah domain tujuan diperiksa manual. Validator tidak mengubah URL, query string, sub-ID, UTM, atau parameter attribution.
+Gunakan `other` hanya setelah domain tujuan dan sumber program affiliate diperiksa manual. Validator mewajibkan HTTPS, tidak mengubah URL/query attribution, dan menampilkan warning karena format affiliate khusus marketplace selain Shopee belum diaudit.
 
 ## Aturan gambar produk melalui Catalog Manager
 
@@ -242,3 +279,10 @@ Alur CTA publik:
 3. detail desktop menampilkan quick CTA, panel marketplace berhierarki, dan CTA penutup setelah informasi produk;
 4. detail mobile memakai satu sticky CTA utama; marketplace alternatif dibuka melalui bottom sheet;
 5. checkout dan pembayaran tetap dilakukan sepenuhnya di marketplace.
+
+
+## Publish readiness wajib
+
+Produk `published` dengan `demo: false` harus lolos gate meskipun website secara keseluruhan masih berada dalam mode demo. Catalog Manager memeriksa identitas unik terhadap source dan draft, konten rekomendasi, gambar dan alt text, kategori, affiliate URL HTTPS beserta format Shopee yang dikenali, kecocokan platform konten, tanggal review, disclosure, serta metadata gambar untuk mode live.
+
+Label CTA yang mengandung klaim harga, diskon, promo, stok, atau urgensi yang belum diverifikasi akan memblokir produk nyata yang hendak dipublikasikan. Parameter attribution pada URL tidak diubah oleh validator atau renderer.

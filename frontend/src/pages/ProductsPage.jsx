@@ -17,7 +17,9 @@ import {
   searchProducts,
 } from "../utils/catalog";
 import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
+import { normalizeCatalogSearchParams } from "../utils/catalogNavigation";
 import { withBasePath } from "../config/site";
+import { createCollectionPageJsonLd } from "../utils/structuredData";
 
 const catalogHeroStyle = {
   "--catalog-hero-image": `url("${withBasePath("images/hero/catalog-kitchen-desktop.webp")}")`,
@@ -30,16 +32,27 @@ const ProductsPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const searchInputRef = useRef(null);
-  const queryParam = searchParams.get("q") || "";
-  const categoryParam = searchParams.get("kategori") || "all";
-  const collectionParam = searchParams.get("koleksi") || "all";
-  const sortParam = searchParams.get("urut") || "recommended";
-  const featuredParam = searchParams.get("pilihan") === "1";
-  const newestParam = searchParams.get("terbaru") === "1";
+  const normalizedSearch = useMemo(() => normalizeCatalogSearchParams(searchParams, {
+    categorySlugs: categories.map((category) => category.slug),
+    collectionSlugs: collections.map((collection) => collection.slug),
+  }), [searchParams]);
+  const {
+    query: queryParam,
+    category: categoryParam,
+    collection: collectionParam,
+    sort: sortParam,
+    featured: featuredParam,
+    newest: newestParam,
+  } = normalizedSearch.values;
   const [query, setQuery] = useState(queryParam);
   const [filterOpen, setFilterOpen] = useState(false);
 
   useEffect(() => setQuery(queryParam), [queryParam]);
+
+  useEffect(() => {
+    if (!normalizedSearch.changed) return;
+    setSearchParams(normalizedSearch.params, { replace: true });
+  }, [normalizedSearch, setSearchParams]);
 
   useEffect(() => {
     if (!location.state?.focusCatalogSearch) return undefined;
@@ -133,6 +146,10 @@ const ProductsPage = () => {
     selectedCollection ? { key: "koleksi", label: selectedCollection.name } : null,
     featuredParam ? { key: "pilihan", label: "Pilihan DicekOut" } : null,
     newestParam ? { key: "terbaru", label: "Terbaru dibahas" } : null,
+    sortParam !== "recommended" ? {
+      key: "urut",
+      label: sortParam === "newest" ? "Urutan: terbaru" : "Urutan: nama A–Z",
+    } : null,
   ].filter(Boolean);
 
   const removeActiveFilter = (key) => {
@@ -167,7 +184,18 @@ const ProductsPage = () => {
       <Seo
         title={title}
         description="Jelajahi seluruh produk rekomendasi DicekOut berdasarkan nama, kategori, dan koleksi konten."
-        path={queryParam ? `produk?q=${encodeURIComponent(queryParam)}` : "produk"}
+        path="produk"
+        canonicalPath="produk"
+        noindex={hasActiveFilters}
+        jsonLd={createCollectionPageJsonLd({
+          name: "Semua Produk Rekomendasi",
+          description: "Katalog produk rekomendasi DicekOut.",
+          path: "produk",
+          breadcrumbs: [
+            { name: "Beranda", path: "" },
+            { name: "Semua Produk", path: "produk" },
+          ],
+        })}
       />
 
       <section

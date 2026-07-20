@@ -46,22 +46,31 @@ Panel lokal hanya dijalankan dengan:
 npm run management
 ```
 
-Build dan seluruh pemeriksaan:
+Build dan seluruh pemeriksaan unit/static:
 
 ```bash
 npm run check
 ```
 
-Hasil build berada di `frontend/dist/`.
+Setelah Chromium Playwright terpasang, jalankan user journey production:
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+Hasil build berada di `frontend/dist/`. Artifact `playwright-report/` dan `test-results/` bersifat lokal dan tidak boleh masuk source.
 
 ## Data yang harus diganti sebelum publikasi
 
 1. Ganti produk contoh di `frontend/src/data/products.json`.
 2. Masukkan gambar produk berizin ke `frontend/public/images/products/`.
-3. Isi link affiliate secara utuh tanpa menghapus referral code atau query parameter.
-4. Ubah koleksi dan kategori agar sesuai dengan produk nyata.
-5. Ubah `catalogMode` menjadi `live` dan `allowIndexing` menjadi `true` pada `frontend/src/data/site.json` hanya setelah seluruh data demo dihapus.
-6. Tinjau kembali disclosure dan privacy sebelum website diindeks.
+3. Buat link melalui akun/program affiliate resmi marketplace; jangan memakai URL produk biasa atau menambahkan parameter affiliate buatan sendiri.
+4. Untuk Shopee, gunakan short link/wrapper resmi HTTPS dan pastikan klik tercatat pada Laporan Performa akun Anda.
+5. Daftarkan `dicekout.id` sebagai media promosi pada program affiliate terkait bila diwajibkan.
+6. Ubah koleksi dan kategori agar sesuai dengan produk nyata.
+7. Ubah `catalogMode` menjadi `live` dan `allowIndexing` menjadi `true` pada `frontend/src/data/site.json` hanya setelah seluruh data demo dihapus.
+8. Tinjau kembali disclosure dan privacy sebelum website diindeks.
 
 Validator akan menolak build bila indexing diaktifkan sementara masih ada produk atau koleksi dengan `demo: true`.
 

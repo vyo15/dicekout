@@ -2,7 +2,9 @@ const MARKETPLACE_DEFINITIONS = [
   {
     id: "shopee",
     label: "Shopee",
-    hostnames: ["shopee.co.id", "shope.ee", "s.shopee.co.id"],
+    hostnames: ["shopee.co.id", "www.shopee.co.id", "shope.ee", "s.shopee.co.id"],
+    allowSubdomains: false,
+    affiliateValidation: "shopee-strict",
     defaultCta: "Lihat harga di Shopee",
   },
   {
@@ -79,11 +81,16 @@ export const getAffiliateCtaLabel = (link, context = "detail") => {
 
 export const hasUnverifiedCtaClaim = (value) => RISKY_CTA_LABEL_PATTERN.test(String(value || "").trim());
 
+const normalizeHostname = (value) => String(value || "").trim().toLowerCase().replace(/\.$/, "");
+
 export const hostnameMatchesMarketplace = (hostname, marketplace) => {
   if (!marketplace || marketplace.id === "other") return true;
-  const normalized = String(hostname || "").toLowerCase().replace(/^www\./, "");
+  const normalized = normalizeHostname(hostname);
+  const allowSubdomains = marketplace.allowSubdomains !== false;
+
   return marketplace.hostnames.some((allowed) => {
-    const allowedNormalized = allowed.toLowerCase().replace(/^www\./, "");
-    return normalized === allowedNormalized || normalized.endsWith(`.${allowedNormalized}`);
+    const allowedNormalized = normalizeHostname(allowed);
+    return normalized === allowedNormalized
+      || (allowSubdomains && normalized.endsWith(`.${allowedNormalized}`));
   });
 };

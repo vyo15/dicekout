@@ -3110,17 +3110,17 @@ body.catalog-filter-open {
   background:
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--color-overlay) 90%, transparent) 0%,
-      color-mix(in srgb, var(--color-overlay) 74%, transparent) 34%,
-      color-mix(in srgb, var(--color-overlay) 46%, transparent) 58%,
-      color-mix(in srgb, var(--color-overlay) 20%, transparent) 82%,
-      color-mix(in srgb, var(--color-overlay) 8%, transparent) 100%
+      color-mix(in srgb, var(--color-overlay) 74%, transparent) 0%,
+      color-mix(in srgb, var(--color-overlay) 58%, transparent) 24%,
+      color-mix(in srgb, var(--color-overlay) 34%, transparent) 48%,
+      color-mix(in srgb, var(--color-overlay) 14%, transparent) 72%,
+      transparent 88%
     ),
     linear-gradient(
       180deg,
       color-mix(in srgb, var(--color-overlay) 2%, transparent) 0%,
-      color-mix(in srgb, var(--color-overlay) 16%, transparent) 64%,
-      color-mix(in srgb, var(--color-overlay) 70%, transparent) 100%
+      color-mix(in srgb, var(--color-overlay) 8%, transparent) 54%,
+      color-mix(in srgb, var(--color-overlay) 54%, transparent) 100%
     );
 }
 
@@ -3128,17 +3128,17 @@ html[data-theme="light"] .page-hero--catalog::before {
   background:
     linear-gradient(
       90deg,
-      color-mix(in srgb, var(--color-page) 54%, transparent) 0%,
-      color-mix(in srgb, var(--color-page) 42%, transparent) 34%,
-      color-mix(in srgb, var(--color-page) 24%, transparent) 58%,
-      color-mix(in srgb, var(--color-page) 10%, transparent) 82%,
-      color-mix(in srgb, var(--color-page) 3%, transparent) 100%
+      color-mix(in srgb, var(--color-page) 28%, transparent) 0%,
+      color-mix(in srgb, var(--color-page) 18%, transparent) 24%,
+      color-mix(in srgb, var(--color-page) 10%, transparent) 48%,
+      color-mix(in srgb, var(--color-page) 4%, transparent) 72%,
+      transparent 88%
     ),
     linear-gradient(
       180deg,
       color-mix(in srgb, var(--color-page) 0%, transparent) 0%,
-      color-mix(in srgb, var(--color-page) 8%, transparent) 64%,
-      color-mix(in srgb, var(--color-page) 48%, transparent) 100%
+      color-mix(in srgb, var(--color-page) 4%, transparent) 54%,
+      color-mix(in srgb, var(--color-page) 34%, transparent) 100%
     );
 }
 
@@ -3180,7 +3180,51 @@ html[data-theme="light"] .page-hero--catalog::after {
 }
 
 .page-hero__catalog-copy {
+  position: relative;
   max-width: 760px;
+  z-index: 1;
+}
+
+.page-hero__catalog-copy::before {
+  content: "";
+  position: absolute;
+  inset: -42px -70px -60px -54px;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.92;
+  background:
+    radial-gradient(
+      circle at 18% 34%,
+      color-mix(in srgb, var(--color-page) 80%, transparent) 0%,
+      color-mix(in srgb, var(--color-page) 66%, transparent) 18%,
+      color-mix(in srgb, var(--color-page) 42%, transparent) 36%,
+      transparent 68%
+    ),
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-page) 78%, transparent) 0%,
+      color-mix(in srgb, var(--color-page) 46%, transparent) 36%,
+      transparent 76%
+    );
+  filter: blur(20px);
+}
+
+html[data-theme="dark"] .page-hero__catalog-copy::before {
+  opacity: 0.76;
+  background:
+    radial-gradient(
+      circle at 18% 34%,
+      rgba(5, 6, 8, 0.9) 0%,
+      rgba(5, 6, 8, 0.76) 20%,
+      rgba(5, 6, 8, 0.42) 40%,
+      transparent 70%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(5, 6, 8, 0.78) 0%,
+      rgba(5, 6, 8, 0.42) 38%,
+      transparent 78%
+    );
 }
 
 .page-hero--catalog .breadcrumbs {
@@ -3203,8 +3247,15 @@ html[data-theme="light"] .page-hero--catalog::after {
   font-size: clamp(46px, 5vw, 68px);
   line-height: 1.04;
   letter-spacing: -0.048em;
-  font-weight: var(--font-weight-semibold);
+  font-weight: 580;
   text-wrap: balance;
+  text-shadow:
+    0 1px 0 color-mix(in srgb, var(--color-fixed-white) 26%, transparent),
+    0 14px 34px color-mix(in srgb, var(--color-page) 14%, transparent);
+}
+
+html[data-theme="dark"] .page-hero--catalog h1 {
+  text-shadow: 0 14px 38px rgba(0, 0, 0, 0.34);
 }
 
 .page-hero--catalog p {
@@ -3212,8 +3263,13 @@ html[data-theme="light"] .page-hero--catalog::after {
   margin-top: 18px;
   color: var(--color-text-soft);
   font-size: 15.5px;
-  line-height: 1.7;
-  font-weight: var(--font-weight-regular);
+  line-height: 1.72;
+  font-weight: 430;
+  text-shadow: 0 10px 26px color-mix(in srgb, var(--color-page) 10%, transparent);
+}
+
+html[data-theme="dark"] .page-hero--catalog p {
+  text-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
 }
 
 .page-hero__catalog-meta {
@@ -3264,8 +3320,9 @@ html[data-theme="light"] .page-hero--catalog::after {
   background: linear-gradient(
     180deg,
     transparent 0%,
-    color-mix(in srgb, var(--color-page) 68%, transparent) 40%,
-    var(--color-page) 82%
+    color-mix(in srgb, var(--color-page) 34%, transparent) 22%,
+    color-mix(in srgb, var(--color-page) 68%, transparent) 52%,
+    var(--color-page) 86%
   );
 }
 
@@ -3746,20 +3803,20 @@ html[data-theme="light"] .page-hero--catalog::after {
   .page-hero--catalog::before {
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-overlay) 22%, transparent) 0%,
-      color-mix(in srgb, var(--color-overlay) 20%, transparent) 18%,
-      color-mix(in srgb, var(--color-overlay) 50%, transparent) 58%,
-      color-mix(in srgb, var(--color-overlay) 84%, transparent) 100%
+      color-mix(in srgb, var(--color-overlay) 6%, transparent) 0%,
+      color-mix(in srgb, var(--color-overlay) 10%, transparent) 18%,
+      color-mix(in srgb, var(--color-overlay) 26%, transparent) 54%,
+      color-mix(in srgb, var(--color-overlay) 72%, transparent) 100%
     );
   }
 
   html[data-theme="light"] .page-hero--catalog::before {
     background: linear-gradient(
       180deg,
-      color-mix(in srgb, var(--color-page) 14%, transparent) 0%,
-      color-mix(in srgb, var(--color-page) 16%, transparent) 18%,
-      color-mix(in srgb, var(--color-page) 34%, transparent) 58%,
-      color-mix(in srgb, var(--color-page) 64%, transparent) 100%
+      color-mix(in srgb, var(--color-page) 4%, transparent) 0%,
+      color-mix(in srgb, var(--color-page) 7%, transparent) 18%,
+      color-mix(in srgb, var(--color-page) 18%, transparent) 54%,
+      color-mix(in srgb, var(--color-page) 48%, transparent) 100%
     );
   }
 
@@ -3777,20 +3834,56 @@ html[data-theme="light"] .page-hero--catalog::after {
     margin-bottom: 17px;
   }
 
+  .page-hero__catalog-copy::before {
+    inset: -26px -18px -42px -18px;
+    opacity: 0.84;
+    filter: blur(16px);
+    background:
+      radial-gradient(
+        circle at 50% 76%,
+        color-mix(in srgb, var(--color-page) 42%, transparent) 0%,
+        color-mix(in srgb, var(--color-page) 28%, transparent) 34%,
+        transparent 72%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        color-mix(in srgb, var(--color-page) 16%, transparent) 56%,
+        color-mix(in srgb, var(--color-page) 36%, transparent) 100%
+      );
+  }
+
+  html[data-theme="dark"] .page-hero__catalog-copy::before {
+    opacity: 0.7;
+    background:
+      radial-gradient(
+        circle at 50% 76%,
+        rgba(5, 6, 8, 0.46) 0%,
+        rgba(5, 6, 8, 0.28) 34%,
+        transparent 72%
+      ),
+      linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(5, 6, 8, 0.18) 56%,
+        rgba(5, 6, 8, 0.48) 100%
+      );
+  }
+
   .page-hero--catalog h1 {
     max-width: 340px;
     margin-top: 18px;
     font-size: clamp(32px, 9vw, 36px);
-    line-height: 1.05;
+    line-height: 1.07;
     letter-spacing: -0.042em;
-    font-weight: var(--font-weight-semibold);
+    font-weight: 560;
   }
 
   .page-hero--catalog p {
     max-width: 320px;
     margin-top: 14px;
     font-size: 13px;
-    line-height: 1.65;
+    line-height: 1.68;
   }
 
   .page-hero__catalog-meta {

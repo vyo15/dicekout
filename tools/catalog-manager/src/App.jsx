@@ -38,6 +38,7 @@ import {
   clone,
   formatBytes,
   formatDateTime,
+  getProductReadinessChecks,
   orderActiveAffiliateLinks,
   today,
 } from "./catalogManagerUtils.js";
@@ -430,21 +431,10 @@ export default function App() {
   const previewImage = previewUrl || sourceImage;
   const errorCount = issues?.errors?.length || 0;
   const activeAffiliateLinks = orderActiveAffiliateLinks(product.affiliateLinks);
-  const readinessChecks = [
-    ["Nama produk", Boolean(product.name?.trim())],
-    ["Slug publik", Boolean(product.slug?.trim())],
-    ["Ringkasan", Boolean(product.summary?.trim())],
-    ["Deskripsi", Boolean(product.description?.trim())],
-    ["Gambar dan alt text", Boolean(product.image?.trim() && product.imageAlt?.trim())],
-    ["Kategori", Boolean(product.categorySlug?.trim())],
-    ["Alasan rekomendasi", Boolean(product.recommendationReason?.trim())],
-    ["Kelebihan", product.pros.length > 0],
-    ["Perhatian", product.considerations.length > 0],
-    ["Cocok untuk", product.suitableFor.length > 0],
-    ["Link marketplace aktif", activeAffiliateLinks.length > 0 || product.demo],
-    ["Tanggal ditinjau", Boolean(product.reviewedAt) || product.status !== "published" || product.demo],
-  ];
+  const readinessChecks = getProductReadinessChecks({ product, catalog, drafts });
   const completion = readinessChecks.filter(([, ready]) => ready).length;
+  const publishReady = completion === readinessChecks.length;
+  const applyDisabled = busy || (product.status === "published" && !publishReady);
 
 
   if (!catalog || !options) return <main className="loading"><span className="loading__spinner" />Menyiapkan Catalog Manager…<p>{notice}</p></main>;
@@ -505,7 +495,12 @@ export default function App() {
 
       {view === "editor" && <>
         <button className="editor-back" type="button" onClick={cancelEditor} disabled={busy}><FiArrowLeft aria-hidden="true" /><span>Kembali ke daftar produk</span></button>
-        <header className="topbar"><div><span className="eyebrow">Katalog / {mode === "new" ? "Produk baru" : mode === "draft" ? "Edit draft" : "Edit produk"}</span><h1>{mode === "new" ? "Tambah produk baru" : product.name || "Edit produk"}</h1><p>Isi informasi produk, review preview hasil akhir, lalu terapkan ke source ketika sudah siap.</p></div><div className="topbar__actions"><button className="button" onClick={cancelEditor} disabled={busy}>Batal</button><button className="button" onClick={saveDraft} disabled={busy}>Simpan draft</button><button className="button button--dark" onClick={validate} disabled={busy}>Validasi</button><button className="button button--accent" onClick={apply} disabled={busy}>Terapkan ke source</button></div></header>
+        <header className="topbar"><div><span className="eyebrow">Katalog / {mode === "new" ? "Produk baru" : mode === "draft" ? "Edit draft" : "Edit produk"}</span><h1>{mode === "new" ? "Tambah produk baru" : product.name || "Edit produk"}</h1><p>Isi informasi produk, review preview hasil akhir, lalu terapkan ke source ketika sudah siap.</p></div><div className="topbar__actions"><button className="button" onClick={cancelEditor} disabled={busy}>Batal</button><button className="button" onClick={saveDraft} disabled={busy}>Simpan draft</button><button className="button button--dark" onClick={validate} disabled={busy}>Validasi</button><button
+              className="button button--accent"
+              onClick={apply}
+              disabled={applyDisabled}
+              title={product.status === "published" && !publishReady ? "Lengkapi seluruh checklist publikasi terlebih dahulu." : undefined}
+            >Terapkan ke source</button></div></header>
 
         <div className="editor-layout">
           <aside className="editor-aside">
@@ -514,7 +509,7 @@ export default function App() {
               {product.image && <div className="media-meta"><span>{product.imageWidth || "?"} × {product.imageHeight || "?"} px</span><span>{tempMedia ? "WebP temporary" : "Source"}</span></div>}
               {tempMedia?.optimized && <div className="optimization-summary"><div><small>Asli</small><strong>{formatBytes(tempMedia.original?.size)}</strong><span>{tempMedia.original?.width} × {tempMedia.original?.height} · {tempMedia.original?.format}</span></div><FiImage aria-hidden="true" /><div><small>Hasil</small><strong>{formatBytes(tempMedia.optimized.size)}</strong><span>{tempMedia.optimized.width} × {tempMedia.optimized.height} · WebP</span></div><b>Hemat {tempMedia.optimized.savedPercent}%</b></div>}
             </Section>
-            <Section title="Status"><Field label="Status publikasi"><select value={product.status} onChange={(event) => update("status", event.target.value)}><option value="draft">Draft</option><option value="published">Published</option></select></Field><div className="status-summary"><span className={`status-dot status-dot--${product.status}`} /><div><strong>{product.status === "published" ? "Siap tampil" : "Belum dipublikasikan"}</strong><small>{product.status === "published" ? "Tetap wajib lolos validasi." : "Aman untuk dilanjutkan nanti."}</small></div></div></Section>
+            <Section title="Status"><Field label="Status publikasi"><select value={product.status} onChange={(event) => update("status", event.target.value)}><option value="draft">Draft</option><option value="published">Published</option></select></Field><div className="status-summary"><span className={`status-dot status-dot--${product.status}`} /><div><strong>{product.status === "published" ? (publishReady ? "Siap dipublikasikan" : "Belum siap dipublikasikan") : "Belum dipublikasikan"}</strong><small>{product.status === "published" ? (publishReady ? "Jalankan validasi sebelum menerapkan ke source." : "Lengkapi checklist di tab Publikasi.") : "Aman untuk dilanjutkan nanti."}</small></div></div></Section>
             <Section title="Detail produk"><Field label="Kategori" required><select value={product.categorySlug} onChange={(event) => update("categorySlug", event.target.value)}>{catalog.categories.map((item) => <option key={item.id} value={item.slug}>{item.name}</option>)}</select></Field><FieldGroup label="Koleksi"><div className="checkbox-list">{catalog.collections.map((item) => <label key={item.id}><input type="checkbox" checked={product.collectionSlugs.includes(item.slug)} onChange={(event) => update("collectionSlugs", event.target.checked ? [...product.collectionSlugs, item.slug] : product.collectionSlugs.filter((slug) => slug !== item.slug))} /><span>{item.name}</span></label>)}</div></FieldGroup></Section>
           </aside>
 
@@ -557,6 +552,7 @@ export default function App() {
                   errorCount={errorCount}
                   validate={validate}
                   busy={busy}
+                  publishReady={publishReady}
                 />
               )}
             </div>

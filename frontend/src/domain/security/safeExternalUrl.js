@@ -13,3 +13,9 @@ export const parseSafeExternalUrl = (value) => {
     return null;
   }
 };
+
+export const parseSecureExternalUrl = (value) => {
+  const result = parseSafeExternalUrl(value);
+  if (!result || result.parsed.protocol !== "https:") return null;
+  return result;
+};
