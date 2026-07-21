@@ -168,6 +168,7 @@ Perubahan berikut membutuhkan audit dan approval tersendiri:
 
 - product schema, ID, slug, route, dan status publikasi;
 - affiliate URL, attribution, redirect, tracking, dan analytics;
+- TikTok Affiliate memakai content-first melalui `contentReferences`, bukan direct `affiliateLinks`;
 - SEO, canonical, robots, sitemap, structured data;
 - backup/draft version dan restore behavior;
 - hard delete dan media lifecycle;

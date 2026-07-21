@@ -1,25 +1,5 @@
 # QA Checklist DicekOut
 
-## Arsitektur dan source hygiene
-
-- [ ] `npm run validate:source` lulus.
-- [ ] Tidak ada `node_modules`, `dist`, `.catalog-manager`, coverage, report, cache, `.env`, atau secret yang tracked.
-- [ ] `frontend/src/styles/site.css` dan `tools/catalog-manager/src/styles.css` tidak dibuat kembali.
-- [ ] Selector hero generasi lama (`hero-copy`, `hero-showcase`, `showcase-window`, `floating-shape`) tidak kembali.
-- [ ] Catalog Manager hanya mengimpor domain/config/security frontend melalui `frontend/src/shared/`.
-- [ ] `createCatalogRepository()` tetap menjadi façade dan public method-nya tidak berubah.
-- [ ] Draft version tetap `1`; backup version tetap `2`; minimum restore version tetap `1`.
-- [ ] `App.jsx` tidak kembali menampung markup header/sidebar/editor/preview atau logic delete race secara langsung.
-- [ ] Seluruh file source baru menggunakan LF sesuai `.gitattributes`.
-
-## Clean release archive
-
-- [ ] Seluruh perubahan sudah di-commit dan working tree bersih.
-- [ ] `npm run check` dan `npm run test:e2e` lulus sebelum archive.
-- [ ] `npm run package:source` menghasilkan satu root `dicekout/`.
-- [ ] ZIP dapat diekstrak ke folder baru, `npm install` berhasil, lalu `npm run check` lulus.
-- [ ] ZIP tidak membawa generated files atau state lokal.
-
 ## Otomatis
 
 - [ ] `npm run lint`
@@ -101,10 +81,10 @@
 - [ ] `catalogMode` tetap `demo` sampai seluruh placeholder diganti.
 - [ ] Produk live tidak memakai ilustrasi SVG demo.
 - [ ] Setiap produk live memiliki minimal satu affiliate link aktif.
-- [ ] Affiliate URL memakai HTTPS dan host sesuai marketplace registry.
-- [ ] Shopee hanya menerima exact host `s.shopee.co.id`, `shope.ee`, `shopee.co.id`, atau `www.shopee.co.id` sesuai formatnya.
-- [ ] URL produk Shopee biasa, fake `affiliate_id`, `seller.shopee.co.id`, HTTP, dan lookalike domain ditolak.
-- [ ] Wrapper Shopee memiliki satu `origin_link` HTTPS ke Shopee dan satu `affiliate_id`; duplicate critical parameter ditolak.
+- [ ] Untuk Shopee: host exact `s.shopee.co.id`, `shope.ee`, `shopee.co.id`, atau `www.shopee.co.id` — subdomain lain (`seller.`, `help.`, dst) ditolak.
+- [ ] Untuk Shopee: plain product URL (tanpa short link/wrapper `an_redir`) ditolak sebagai affiliate link, walau ditambahi `affiliate_id` manual.
+- [ ] Untuk Shopee: wrapper `an_redir` diperiksa — `origin_link` HTTPS dan menuju `shopee.co.id`/`www.shopee.co.id`, bukan domain lain.
+- [ ] Affiliate URL production HTTPS-only; `http://` ditolak.
 - [ ] Tidak ada affiliate URL identik pada produk berbeda.
 - [ ] Referral code, sub-ID, campaign, UTM, dan query parameter tetap utuh.
 - [ ] `reviewedAt`, sumber gambar, izin gambar, dan dimensi gambar terisi.
@@ -115,6 +95,15 @@
 - [ ] OG image produk tersedia sebelum link produk dibagikan secara luas.
 - [ ] Sitemap memuat `lastmod` hanya dari tanggal yang valid.
 - [ ] `npm run test`, `npm run lint`, validasi katalog, dan build berhasil.
+
+## Verifikasi manual affiliate Shopee (sebelum publikasi produk nyata)
+
+- [ ] Klik CTA pada halaman hasil build — browser langsung meminta `s.shopee.co.id`/`shope.ee`/`shopee.co.id`, tanpa hop lewat `/go`, `/out`, atau redirect DicekOut.
+- [ ] Link dibuat dari akun Shopee Affiliate milik pengelola DicekOut, bukan disalin dari sumber lain.
+- [ ] `dicekout.id` sudah terdaftar sebagai media promosi dan disetujui Shopee.
+- [ ] Klik uji dari halaman DicekOut muncul di Laporan Performa Shopee Affiliate.
+- [ ] Produk yang dituju eligible untuk komisi (bukan produk digital, dari seller/kategori yang eligible).
+
 
 ## Theme token dan feedback state
 
@@ -273,11 +262,6 @@
 - [ ] Microcopy menjelaskan bahwa harga, stok, variasi, dan promo mengikuti marketplace.
 - [ ] Tidak ada copy `beli sekarang`, countdown, stok terbatas, atau promo palsu.
 - [ ] Catalog Manager menawarkan preset label aman dan memperingatkan label promosi/urgency yang belum terverifikasi.
-- [ ] Tombol `Periksa link` hanya tampil bila affiliate validator lulus, bukan hanya karena hostname cocok.
-- [ ] Short link Shopee tetap identik setelah input, simpan draft, apply, build, dan render.
-- [ ] CTA meminta URL Shopee secara langsung tanpa hop `/go`, `/out`, redirect JavaScript, iframe, atau shortener pihak ketiga.
-- [ ] Klik uji dari DicekOut tercatat pada Laporan Performa akun Shopee Affiliate yang benar.
-- [ ] `dicekout.id` sudah didaftarkan/disetujui sebagai media promosi bila diwajibkan program affiliate.
 - [ ] Layout diuji pada lebar 320px, 360px, 390px, tablet, dan desktop dalam light/dark mode.
 
 ## Security regression — Catalog Manager
@@ -317,5 +301,5 @@
 - [ ] Produk nyata berstatus published tidak dapat diterapkan sebelum publish-readiness lengkap.
 - [ ] Production preview tidak memiliki horizontal overflow pada desktop dan mobile.
 - [ ] `VITE_BASE_PATH` dan pathname `VITE_SITE_URL` sinkron untuk GitHub Pages maupun custom domain.
-- [ ] Catalog Manager tidak menawarkan platform konten di luar registry dan tombol `Periksa link` hanya muncul bila URL lolos validasi affiliate marketplace.
+- [ ] Catalog Manager tidak menawarkan platform konten di luar registry dan tombol `Periksa link` hanya muncul bila format affiliate marketplace lulus verifikasi (untuk Shopee: short link/wrapper resmi, bukan sekadar hostname cocok).
 - [ ] Structured data kategori, koleksi, dan katalog tetap tersedia setelah React aktif dan tidak tertinggal dari halaman sebelumnya saat navigasi SPA.

@@ -182,7 +182,8 @@ test("catalog manager lint and shared utilities are wired into quality checks", 
   assert.match(apiHook, /useEffect/);
   assert.match(apiHook, /history\.replaceState/);
   assert.match(productIdentity, /slugifyProductName/);
-  assert.match(catalogValidator, /security\/safeExternalUrl/);
+  assert.match(catalogValidator, /utils\/urls/);
+  assert.match(catalogValidator, /validateContentUrl/);
   assert.match(urlUtils, /domain\/security\/safeExternalUrl/);
 });
 

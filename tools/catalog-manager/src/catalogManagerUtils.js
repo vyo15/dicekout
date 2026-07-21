@@ -1,5 +1,5 @@
-import { getSafeContentUrl, validateAffiliateUrl } from "../../../frontend/src/shared/catalogSecurity.js";
-import { hasUnverifiedCtaClaim } from "../../../frontend/src/shared/catalogConfig.js";
+import { getSafeContentUrl, getSafeExternalUrl } from "../../../frontend/src/utils/urls.js";
+import { hasUnverifiedCtaClaim } from "../../../frontend/src/config/marketplaces.js";
 
 export const lines = (value) => String(value || "").split("\n").map((item) => item.trim()).filter(Boolean);
 export const today = (value = new Date()) => {
@@ -73,7 +73,7 @@ export const getProductReadinessChecks = ({ product, catalog, drafts = [] }) => 
   const activeLinks = orderActiveAffiliateLinks(product.affiliateLinks);
   const primaryLinks = (product.affiliateLinks || []).filter((link) => link?.isPrimary);
   const affiliateLinksValid = activeLinks.length > 0 && activeLinks.every((link) => (
-    validateAffiliateUrl(link.url, link.marketplace).valid && !hasUnverifiedCtaClaim(link.label)
+    Boolean(getSafeExternalUrl(link.url, link.marketplace)) && !hasUnverifiedCtaClaim(link.label)
   ));
   const contentReferencesValid = (product.contentReferences || []).every((reference) => (
     hasText(reference.label) && Boolean(getSafeContentUrl(reference.url, reference.platform))
@@ -91,7 +91,7 @@ export const getProductReadinessChecks = ({ product, catalog, drafts = [] }) => 
     ["Kelebihan dan perhatian", hasItems(product.pros) && hasItems(product.considerations)],
     ["Kesesuaian pengguna", hasItems(product.suitableFor) && (product.demo || hasItems(product.notSuitableFor))],
     ["Satu link utama yang aktif", product.demo || (primaryLinks.length === 1 && primaryLinks[0]?.status !== "inactive")],
-    ["URL HTTPS dan format affiliate marketplace", product.demo || affiliateLinksValid],
+    ["Format affiliate link valid tanpa klaim palsu", product.demo || affiliateLinksValid],
     ["Link konten sesuai platform", contentReferencesValid],
     ["Tanggal ditinjau", !publishedReal || hasText(product.reviewedAt)],
     ["Sumber dan lisensi gambar", !liveProduct || (hasText(product.imageSource) && hasText(product.imageLicense))],

@@ -1,9 +1,9 @@
 import {
   getMarketplace,
   hasUnverifiedCtaClaim,
+  verifyAffiliateLinkFormat,
 } from "../../config/marketplaces.js";
-import { parseSafeExternalUrl } from "../security/safeExternalUrl.js";
-import { validateAffiliateUrl } from "../../utils/urls.js";
+import { parseSafeExternalUrl, parseSafeAffiliateUrl } from "../security/safeExternalUrl.js";
 import {
   getContentPlatform,
   hostnameMatchesContentPlatform,
@@ -140,11 +140,17 @@ export const validateCatalogData = ({ site, categories, collections, products })
       if (!marketplace) { errors.push(`${linkPrefix}.marketplace tidak terdaftar: ${link.marketplace}`); continue; }
       if (marketplaceIds.has(link.marketplace)) errors.push(`${prefix} memiliki marketplace duplikat: ${link.marketplace}`);
       marketplaceIds.add(link.marketplace);
-      const affiliateValidation = validateAffiliateUrl(link.url, link.marketplace);
-      if (!affiliateValidation.valid) {
-        errors.push(`${linkPrefix}.url tidak valid: ${affiliateValidation.message}`);
-      } else if (affiliateValidation.warning) {
-        warnings.push(`${linkPrefix}.url: ${affiliateValidation.warning}`);
+      const safeParsed = parseSafeExternalUrl(link.url);
+      if (!safeParsed) {
+        errors.push(`${prefix} memiliki affiliate URL tidak aman: ${link.url}`);
+      } else {
+        const affiliateParsed = parseSafeAffiliateUrl(link.url);
+        if (!affiliateParsed) {
+          errors.push(`${linkPrefix}.url wajib HTTPS untuk affiliate link production: ${link.url}`);
+        } else {
+          const verification = verifyAffiliateLinkFormat(affiliateParsed.parsed, marketplace);
+          if (!verification.valid) errors.push(`${linkPrefix}.url ${verification.reason}`);
+        }
       }
       if (link.status && !["active", "inactive"].includes(link.status)) errors.push(`${linkPrefix}.status tidak valid.`);
       if (link.label !== undefined && typeof link.label !== "string") errors.push(`${linkPrefix}.label harus teks.`);

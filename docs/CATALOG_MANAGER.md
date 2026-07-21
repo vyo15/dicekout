@@ -25,15 +25,6 @@ npm run management
 
 Root memakai npm workspaces sehingga satu `npm install` memasang dependency website dan Catalog Manager, termasuk `sharp` untuk optimasi gambar lokal. Gunakan URL bertoken yang dicetak terminal. Jangan membuka URL lama dari riwayat browser karena session token berubah setiap kali manager dijalankan.
 
-
-## Struktur source manager
-
-Client dan server dipisah agar UI tidak menampung business logic file-system. `src/App.jsx` hanya mengorkestrasi view utama; header, sidebar, editor, preview, backup, operation lock, unsaved guard, dan destructive flow berada pada komponen/hook masing-masing.
-
-`server/catalogRepository.mjs` adalah façade yang mempertahankan API repository. Implementasi internal berada di `catalogStore.mjs`, `draftRepository.mjs`, `tempMediaRepository.mjs`, `backupRepository.mjs`, dan `productMutationService.mjs`. Pemisahan ini tidak mengubah draft version, backup version, path local state, atau behavior rollback.
-
-Boundary lintas aplikasi hanya melalui `frontend/src/shared/`; jangan kembali membuat deep import ke implementation file frontend.
-
 ## Workflow produk
 
 ```text
@@ -71,17 +62,21 @@ Duplikasi membuat ID dan slug baru yang unik terhadap produk source dan draft lo
 
 Setiap link memiliki marketplace, label, URL, status aktif/nonaktif, dan satu link utama. Catalog Manager:
 
-- mewajibkan affiliate URL memakai HTTPS;
-- mempertahankan referral code, affiliate ID, sub-ID, campaign, UTM, deep link, urutan query, dan parameter attribution;
-- membedakan URL eksternal yang aman dari format affiliate yang dikenali;
-- memakai exact-host allowlist untuk Shopee dan menolak `seller.shopee.co.id` serta subdomain/lookalike lain;
-- menerima short link resmi `s.shopee.co.id/<token>`/`shope.ee/<token>`, wrapper resmi `an_redir`, dan URL tujuan yang masih membawa parameter attribution resmi Shopee;
-- menolak URL produk Shopee biasa, fake `affiliate_id`, HTTP, wrapper tanpa `affiliate_id`, atau `origin_link` ke domain luar;
-- tidak membuat cloaking, redirect tersembunyi, tracking hop, shortener, atau URL baru;
-- hanya menampilkan tombol **Periksa link** saat format lolos validator;
-- membuka pemeriksaan di tab baru dengan `noopener sponsored nofollow`.
+- mempertahankan referral code, sub-ID, campaign, UTM, deep link, urutan query, dan parameter attribution — URL disimpan persis seperti yang ditempel, tidak pernah direkonstruksi;
+- menolak protokol berbahaya, credential tertanam, dan HTTP untuk affiliate link production (HTTPS-only);
+- untuk Shopee, memvalidasi **format affiliate resmi** (short link `s.shopee.co.id`/`shope.ee`, atau wrapper `an_redir`) — bukan sekadar hostname. Marketplace lain masih memvalidasi hostname registry umum sampai formatnya diaudit satu per satu;
+- tidak membuat cloaking, redirect tersembunyi, atau URL baru;
+- membuka pemeriksaan link di tab baru dengan `noopener sponsored nofollow`.
 
-Status **format valid** tidak berarti komisi dijamin. Panel tidak dapat membuktikan token/affiliate ID milik akun Anda, eligibility produk, atau hasil transaksi. Untuk Shopee, buat link dari akun Shopee Affiliate Anda lalu cek kliknya di Laporan Performa. Untuk marketplace lain, panel tetap memvalidasi HTTPS/hostname tetapi menampilkan warning sampai standar resminya diaudit khusus.
+### Cara mengisi link Shopee
+
+1. Buka dashboard/fitur Shopee Affiliate dengan akun resmi Anda, buat link untuk produk yang dituju.
+2. **Salin (copy)** hasilnya apa adanya — jangan mengetik ulang atau menambahkan parameter seperti `affiliate_id` sendiri ke URL produk biasa.
+3. Tempel ke field **URL affiliate asli** di tab **Link & konten**. Status muncul otomatis di bawah field:
+   - *"Format link valid..."* — bentuk URL cocok pola resmi Shopee dan aman disimpan. Ini **bukan** bukti kepemilikan; tetap cek manual di Laporan Performa Shopee Affiliate bahwa klik dari DicekOut benar-benar tercatat.
+   - *"Format affiliate belum terverifikasi: ..."* — URL ditolak dengan alasan spesifik (misalnya bukan short link/wrapper, host bukan domain Shopee resmi, atau HTTP). Jangan dipublikasikan sampai diperbaiki dengan link asli dari Shopee.
+4. Tombol **Periksa link** hanya muncul ketika format lulus validasi. Klik untuk membuka di tab baru dan pastikan mengarah ke produk yang benar — kemunculannya bukan jaminan komisi akan tercatat.
+5. Jangan mengedit token, `origin_link`, `affiliate_id`, atau `sub_id` secara manual setelah link ditempel. Butuh link baru, buat ulang dari Shopee, jangan mengedit yang sudah ada.
 
 ## Optimasi gambar otomatis
 
@@ -248,17 +243,6 @@ Catalog Manager memperlakukan browser sebagai klien yang tidak dipercaya penuh w
 
 ## Publish readiness
 
-Tab **Publish** menampilkan checklist kesiapan sebelum produk nyata berstatus `published` diterapkan. Tombol apply dinonaktifkan sampai seluruh pemeriksaan awal terpenuhi; validasi server tetap menjadi sumber keputusan terakhir. Checklist mencakup ID/slug unik terhadap produk dan draft, konten rekomendasi, gambar, relasi kategori, affiliate URL HTTPS dan format marketplace, kecocokan platform konten, tanggal review, dan metadata live.
+Tab **Publish** menampilkan checklist kesiapan sebelum produk nyata berstatus `published` diterapkan. Tombol apply dinonaktifkan sampai seluruh pemeriksaan awal terpenuhi; validasi server tetap menjadi sumber keputusan terakhir. Checklist mencakup ID/slug unik terhadap produk dan draft, konten rekomendasi, gambar, relasi kategori, affiliate URL, kecocokan platform konten, tanggal review, dan metadata live.
 
 Checklist tidak mengubah referral code, sub-ID, campaign, UTM, slug existing, atau schema produk secara otomatis. Temuan harus diperbaiki pada field yang relevan lalu divalidasi ulang.
-
-## Clean source ZIP
-
-Dependency, build, draft, backup, dan temporary media tidak boleh ikut source ZIP. Setelah perubahan di-commit dan working tree bersih:
-
-```bash
-npm run validate:source
-npm run package:source
-```
-
-Archive dibuat dari file tracked dengan satu root `dicekout/`. Ketika dipindah ke komputer lain, ekstrak ZIP lalu jalankan `npm install`; jangan memakai `node_modules` dari komputer lama.

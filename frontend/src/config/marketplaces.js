@@ -2,9 +2,7 @@ const MARKETPLACE_DEFINITIONS = [
   {
     id: "shopee",
     label: "Shopee",
-    hostnames: ["shopee.co.id", "www.shopee.co.id", "shope.ee", "s.shopee.co.id"],
-    allowSubdomains: false,
-    affiliateValidation: "shopee-strict",
+    hostnames: ["shopee.co.id", "shope.ee", "s.shopee.co.id"],
     defaultCta: "Lihat harga di Shopee",
   },
   {
@@ -81,16 +79,125 @@ export const getAffiliateCtaLabel = (link, context = "detail") => {
 
 export const hasUnverifiedCtaClaim = (value) => RISKY_CTA_LABEL_PATTERN.test(String(value || "").trim());
 
-const normalizeHostname = (value) => String(value || "").trim().toLowerCase().replace(/\.$/, "");
-
 export const hostnameMatchesMarketplace = (hostname, marketplace) => {
   if (!marketplace || marketplace.id === "other") return true;
-  const normalized = normalizeHostname(hostname);
-  const allowSubdomains = marketplace.allowSubdomains !== false;
-
+  const normalized = String(hostname || "").toLowerCase().replace(/^www\./, "");
   return marketplace.hostnames.some((allowed) => {
-    const allowedNormalized = normalizeHostname(allowed);
-    return normalized === allowedNormalized
-      || (allowSubdomains && normalized.endsWith(`.${allowedNormalized}`));
+    const allowedNormalized = allowed.toLowerCase().replace(/^www\./, "");
+    return normalized === allowedNormalized || normalized.endsWith(`.${allowedNormalized}`);
   });
+};
+
+// --- Affiliate link format policy -------------------------------------
+//
+// `hostnameMatchesMarketplace` above answers "does this hostname belong to
+// this marketplace's domain family" and deliberately accepts subdomains
+// (seller.shopee.co.id, help.shopee.co.id, ...). That is fine for general
+// display/safety purposes, but it must never be the test used to decide
+// whether a URL is *storable as an affiliate link*: a plain product page,
+// a seller-portal URL, or a manually appended `?affiliate_id=` string would
+// all pass it and look like real affiliate revenue when they are not.
+//
+// `verifyAffiliateLinkFormat` is the stricter, marketplace-aware check used
+// for that decision. Only marketplaces whose official affiliate formats have
+// been audited get an exact-host verifier here (Shopee, for now). Every
+// other marketplace falls back to the general hostname check above until its
+// own documentation is audited (see docs/CATALOG_GUIDE.md, "Scope
+// marketplace lain") -- current behavior is preserved for them.
+
+const SHOPEE_SHORT_LINK_HOSTS = new Set(["s.shopee.co.id", "shope.ee"]);
+const SHOPEE_CANONICAL_HOSTS = new Set(["shopee.co.id", "www.shopee.co.id"]);
+const SHOPEE_AFFILIATE_HOSTS = new Set([...SHOPEE_SHORT_LINK_HOSTS, ...SHOPEE_CANONICAL_HOSTS]);
+
+const verifyShopeeAffiliateFormat = (parsedUrl) => {
+  const host = parsedUrl.hostname.toLowerCase();
+
+  if (!SHOPEE_AFFILIATE_HOSTS.has(host)) {
+    return {
+      valid: false,
+      reason: "Host bukan salah satu domain resmi Shopee affiliate (s.shopee.co.id, shope.ee, shopee.co.id, www.shopee.co.id).",
+    };
+  }
+
+  const path = parsedUrl.pathname;
+
+  // Wrapper format: https://s.shopee.co.id/an_redir?origin_link=...&affiliate_id=...
+  if (SHOPEE_SHORT_LINK_HOSTS.has(host) && path === "/an_redir") {
+    const originLinkRaw = parsedUrl.searchParams.get("origin_link");
+    const affiliateId = parsedUrl.searchParams.get("affiliate_id");
+    if (!originLinkRaw) {
+      return { valid: false, reason: "Wrapper an_redir wajib memiliki parameter origin_link." };
+    }
+    if (!affiliateId) {
+      return { valid: false, reason: "Wrapper an_redir wajib memiliki parameter affiliate_id." };
+    }
+    let destination;
+    try {
+      destination = new URL(originLinkRaw);
+    } catch {
+      return { valid: false, reason: "origin_link pada wrapper an_redir bukan URL yang valid." };
+    }
+    if (destination.protocol !== "https:") {
+      return { valid: false, reason: "origin_link pada wrapper an_redir harus HTTPS." };
+    }
+    if (!SHOPEE_CANONICAL_HOSTS.has(destination.hostname.toLowerCase())) {
+      return { valid: false, reason: "origin_link pada wrapper an_redir harus menuju shopee.co.id atau www.shopee.co.id, bukan domain lain." };
+    }
+    return { valid: true, reason: "" };
+  }
+
+  // Short link format: https://s.shopee.co.id/<token> or https://shope.ee/<token>.
+  // Real Shopee short tokens are a single alphanumeric segment (e.g.
+  // "9fJO0rHK9y") -- no hyphens, slashes, or readable words. This is what
+  // keeps a human-typed guess like "/not-clearly-affiliate" from being
+  // accepted just because it sits on the right host.
+  if (SHOPEE_SHORT_LINK_HOSTS.has(host)) {
+    const token = path.replace(/^\/+/, "");
+    if (!token) {
+      return { valid: false, reason: "Short link Shopee wajib memiliki token setelah domain." };
+    }
+    if (!/^[A-Za-z0-9]+$/.test(token)) {
+      return {
+        valid: false,
+        reason: "Token short link Shopee harus satu segmen alfanumerik tanpa tanda hubung, spasi, atau path tambahan -- URL ini terlihat diketik manual, bukan disalin dari Shopee.",
+      };
+    }
+    return { valid: true, reason: "" };
+  }
+
+  // shopee.co.id / www.shopee.co.id without the wrapper structure is a plain
+  // product/browse/seller URL. It may be perfectly safe to open, but nothing
+  // proves Shopee generated it as an affiliate link -- reject it here even if
+  // it carries a manually added `affiliate_id`-looking parameter.
+  return {
+    valid: false,
+    reason: "URL Shopee ini belum terbukti sebagai link affiliate resmi (bukan short link atau wrapper an_redir). Salin link dari Shopee Affiliate, jangan menambahkan affiliate_id secara manual ke URL produk biasa.",
+  };
+};
+
+const AFFILIATE_FORMAT_VERIFIERS = {
+  shopee: verifyShopeeAffiliateFormat,
+};
+
+/**
+ * Verifies a *parsed, HTTPS-enforced* URL against the marketplace's audited
+ * affiliate link format. `parsedUrl` must already have passed
+ * `parseSafeAffiliateUrl` (domain/security/safeExternalUrl.js) -- this
+ * function only checks host/path/query shape, never protocol or credentials.
+ *
+ * Returns { valid, reason }. `valid: true` means the format matches a known
+ * official pattern and is safe to store/publish -- it never proves account
+ * ownership, which can only be confirmed manually via the marketplace's own
+ * affiliate dashboard.
+ */
+export const verifyAffiliateLinkFormat = (parsedUrl, marketplace) => {
+  if (!marketplace) return { valid: false, reason: "Marketplace tidak dikenali." };
+  if (marketplace.id === "other") return { valid: true, reason: "" };
+
+  const verifier = AFFILIATE_FORMAT_VERIFIERS[marketplace.id];
+  if (verifier) return verifier(parsedUrl);
+
+  return hostnameMatchesMarketplace(parsedUrl.hostname, marketplace)
+    ? { valid: true, reason: "" }
+    : { valid: false, reason: `Host tidak cocok dengan domain ${marketplace.label}.` };
 };

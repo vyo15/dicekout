@@ -35,62 +35,64 @@ Field utama:
 
 ## Affiliate link
 
-Contoh Shopee yang direkomendasikan:
+Contoh struktur link (short link resmi Shopee):
 
 ```json
 {
   "marketplace": "shopee",
-  "label": "",
+  "label": "Cek di Shopee",
   "url": "https://s.shopee.co.id/9fJO0rHK9y",
   "isPrimary": true,
   "status": "active"
 }
 ```
 
-Aturan global:
+Atau format wrapper resmi:
 
-- Affiliate URL production wajib memakai `https://`.
-- Link harus dibuat melalui akun/program affiliate resmi marketplace, bukan URL produk biasa yang ditempeli parameter buatan sendiri.
-- Simpan URL asli secara utuh. Sistem hanya memangkas whitespace di awal/akhir dan tidak mengurutkan ulang query.
-- Jangan menghapus atau mengubah referral code, affiliate ID, sub-ID, campaign, UTM, deep link, token short link, atau parameter attribution.
-- Jangan memakai `javascript:`, `data:`, `file:`, credential tertanam, Bitly/shortener pihak ketiga, iframe, auto-click, meta refresh, atau redirect `/go`/`/out` milik DicekOut.
-- UI membuka link langsung dengan `target="_blank"` dan `rel="noopener sponsored nofollow"`; `noreferrer` tidak ditambahkan.
-- Pastikan link menuju produk yang dijelaskan dan disclosure tampil dekat CTA.
-
-### Format Shopee yang diterima
-
-Validator Shopee memakai exact-host allowlist dan tidak menerima subdomain sembarang.
-
-1. Short link resmi:
-
-   ```text
-   https://s.shopee.co.id/<token-resmi>
-   https://shope.ee/<token-resmi>
-   ```
-
-2. Wrapper resmi `an_redir` pada `s.shopee.co.id` atau `shope.ee`, dengan:
-
-   - tepat satu `origin_link` HTTPS menuju `shopee.co.id`/`www.shopee.co.id`;
-   - tepat satu `affiliate_id` yang tidak kosong;
-   - maksimal satu `sub_id`;
-   - seluruh nilai disimpan tanpa rekonstruksi.
-
-3. URL tujuan hasil redirect Shopee hanya dikenali bila memiliki kombinasi attribution resmi: `utm_medium=affiliates`, `utm_source=an_*`, `uls_trackid`, dan `utm_term`. Short link atau wrapper asli tetap lebih disarankan.
-
-Contoh yang ditolak sebagai affiliate Shopee:
-
-```text
-http://s.shopee.co.id/9fJO0rHK9y
-https://shopee.co.id/product/123/456
-https://shopee.co.id/product/123/456?affiliate_id=buatan-sendiri
-https://seller.shopee.co.id/portal/product/list/all
-https://s.shopee.co.id.example.com/token
-https://dicekout.id/go/produk
+```json
+{
+  "marketplace": "shopee",
+  "label": "Cek di Shopee",
+  "url": "https://s.shopee.co.id/an_redir?origin_link=https%3A%2F%2Fshopee.co.id%2Fproduct%2F123%2F456&affiliate_id=ID_AFFILIATE_ANDA&sub_id=blog",
+  "isPrimary": true,
+  "status": "active"
+}
 ```
 
-Validasi format tidak dapat membuktikan bahwa token atau `affiliate_id` benar-benar milik akun Anda, produk masih eligible, atau komisi pasti dibayar. Setelah membuat link dari akun Shopee Affiliate, buka melalui halaman DicekOut dan cek kliknya pada Laporan Performa. Jangan melakukan pembelian melalui link sendiri.
+### Aturan umum (semua marketplace)
 
-Marketplace selain Shopee saat ini tetap menjalani pemeriksaan HTTPS dan hostname registry, tetapi panel menampilkan warning bahwa format affiliate spesifik marketplace tersebut belum diaudit.
+- Affiliate URL production **hanya HTTPS**. `http://` ditolak oleh validator.
+- Jangan hapus referral code, sub-ID, campaign, UTM, deep link, atau query parameter. Salin persis dari dashboard affiliate resmi, jangan diketik ulang.
+- Jangan gunakan `javascript:`, `data:`, URL berisi username/password, atau redirect internal DicekOut (`/go/...`, `/out/...`) dari input pengguna.
+- UI membuka link langsung dengan `noopener sponsored nofollow` dan tidak memakai `noreferrer`.
+- Jangan menambahkan parameter seperti `affiliate_id` atau `sub_id` secara manual ke URL produk biasa — itu tidak membuatnya menjadi link affiliate asli, dan `validateCatalogData.js` akan menolaknya.
+
+### Format Shopee yang diterima (audited, exact-host)
+
+Host yang diterima **persis** (subdomain lain seperti `seller.shopee.co.id`, `help.shopee.co.id`, `affiliate.shopee.co.id` **ditolak**, meskipun sama-sama domain Shopee):
+
+- `s.shopee.co.id` — short link, contoh: `https://s.shopee.co.id/9fJO0rHK9y`. Token wajib satu segmen alfanumerik (tanpa tanda hubung/spasi/segmen tambahan) — token yang terlihat diketik manual akan ditolak.
+- `shope.ee` — short link legacy, format token sama.
+- `s.shopee.co.id/an_redir` atau `shope.ee/an_redir` — wrapper resmi, wajib punya `origin_link` (HTTPS, menuju `shopee.co.id`/`www.shopee.co.id`) dan `affiliate_id`.
+- `shopee.co.id` / `www.shopee.co.id` **tanpa** struktur wrapper di atas dianggap URL produk biasa dan **ditolak** sebagai affiliate link, walau URL-nya sendiri valid dan aman dibuka.
+
+Marketplace selain Shopee (Tokopedia, TikTok Shop, Lazada, Blibli, Amazon) masih memakai pemeriksaan hostname umum sampai format affiliate resminya diaudit satu per satu — lihat `frontend/src/config/marketplaces.js`.
+
+### Kode tidak menjamin komisi
+
+Validator hanya membuktikan **format** URL sesuai pola resmi Shopee. Validator tidak dan tidak bisa membuktikan:
+
+- link tersebut dibuat dari akun Shopee Affiliate milik Anda (bukan akun orang lain);
+- token masih aktif;
+- produk yang dituju eligible untuk komisi;
+- transaksi pembeli akan diselesaikan dan tidak dibatalkan/diretur.
+
+Sebelum produk nyata dipublikasikan, pastikan manual:
+
+1. Akun Shopee Affiliate aktif dan data pembayaran disetujui.
+2. `dicekout.id` sudah didaftarkan sebagai media promosi dan disetujui Shopee.
+3. Link disalin langsung dari dashboard/fitur affiliate resmi, bukan ditambahkan manual.
+4. Klik uji dari halaman DicekOut muncul di Laporan Performa Shopee Affiliate.
 
 ## Relasi koleksi
 
@@ -207,7 +209,7 @@ Perilaku UI:
 
 ID marketplace yang didukung tersimpan di `frontend/src/config/marketplaces.js`. Gunakan ID tersebut pada `affiliateLinks[].marketplace`, misalnya `shopee`, `tokopedia`, `lazada`, `tiktok-shop`, `blibli`, `amazon`, atau `other`.
 
-Gunakan `other` hanya setelah domain tujuan dan sumber program affiliate diperiksa manual. Validator mewajibkan HTTPS, tidak mengubah URL/query attribution, dan menampilkan warning karena format affiliate khusus marketplace selain Shopee belum diaudit.
+Gunakan `other` hanya setelah domain tujuan diperiksa manual. Validator tidak mengubah URL, query string, sub-ID, UTM, atau parameter attribution.
 
 ## Aturan gambar produk melalui Catalog Manager
 
@@ -283,6 +285,6 @@ Alur CTA publik:
 
 ## Publish readiness wajib
 
-Produk `published` dengan `demo: false` harus lolos gate meskipun website secara keseluruhan masih berada dalam mode demo. Catalog Manager memeriksa identitas unik terhadap source dan draft, konten rekomendasi, gambar dan alt text, kategori, affiliate URL HTTPS beserta format Shopee yang dikenali, kecocokan platform konten, tanggal review, disclosure, serta metadata gambar untuk mode live.
+Produk `published` dengan `demo: false` harus lolos gate meskipun website secara keseluruhan masih berada dalam mode demo. Catalog Manager memeriksa identitas unik terhadap source dan draft, konten rekomendasi, gambar dan alt text, kategori, link marketplace aman, kecocokan platform konten, tanggal review, disclosure, serta metadata gambar untuk mode live.
 
 Label CTA yang mengandung klaim harga, diskon, promo, stok, atau urgensi yang belum diverifikasi akan memblokir produk nyata yang hendak dipublikasikan. Parameter attribution pada URL tidak diubah oleh validator atau renderer.

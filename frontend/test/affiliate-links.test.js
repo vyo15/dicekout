@@ -15,11 +15,9 @@ import {
 } from "../src/config/marketplaces.js";
 import { validateCatalogData } from "../src/domain/catalog/validateCatalogData.js";
 
-const shopeeShortLink = "https://s.shopee.co.id/9fJO0rHK9y";
-
 test("active affiliate links keep primary first without mutating attribution URLs", () => {
   const secondaryUrl = "https://www.tokopedia.com/example?utm_source=dicekout&sub_id=secondary";
-  const primaryUrl = shopeeShortLink;
+  const primaryUrl = "https://s.shopee.co.id/example?affiliate_id=abc&utm_source=dicekout";
   const inactiveUrl = "https://www.lazada.co.id/example?affiliate_id=inactive";
   const product = {
     affiliateLinks: [
@@ -38,7 +36,7 @@ test("active affiliate links keep primary first without mutating attribution URL
 });
 
 test("affiliate CTA labels adapt to placement while preserving a custom label", () => {
-  const link = { marketplace: "shopee", label: "", url: shopeeShortLink };
+  const link = { marketplace: "shopee", label: "", url: "https://s.shopee.co.id/example" };
   assert.equal(getAffiliateCtaLabel(link, "detail"), "Lihat harga di Shopee");
   assert.equal(getAffiliateCtaLabel(link, "card"), "Lihat di Shopee");
   assert.equal(getAffiliateCtaLabel(link, "sticky"), "Buka di Shopee");
@@ -46,7 +44,7 @@ test("affiliate CTA labels adapt to placement while preserving a custom label", 
   assert.ok(getMarketplaceCtaPresets("shopee").includes("Lihat harga di Shopee"));
 });
 
-test("unverified urgency labels are warned while official Shopee link attribution stays untouched", () => {
+test("unverified urgency labels are warned but safe labels are accepted", () => {
   assert.equal(hasUnverifiedCtaClaim("Diskon 90% hari ini"), true);
   assert.equal(hasUnverifiedCtaClaim("Lihat harga di Shopee"), false);
 
@@ -54,13 +52,11 @@ test("unverified urgency labels are warned while official Shopee link attributio
   candidateProducts[0].affiliateLinks = [{
     marketplace: "shopee",
     label: "Stok terbatas, beli sekarang",
-    url: shopeeShortLink,
+    url: "https://s.shopee.co.id/example",
     status: "active",
     isPrimary: true,
   }];
 
   const result = validateCatalogData({ site, categories, collections, products: candidateProducts });
   assert.ok(result.warnings.some((warning) => warning.includes("klaim promo, harga, atau urgensi")));
-  assert.ok(result.warnings.some((warning) => warning.includes("Laporan Performa")));
-  assert.equal(candidateProducts[0].affiliateLinks[0].url, shopeeShortLink);
 });

@@ -111,6 +111,7 @@ const SocialPostLinks = ({ productName, productImage, references = [] }) => {
   const imageSrc = withBasePath(productImage);
   const fallbackImage = withBasePath("images/products/fallback.svg");
   const optionLayout = safeReferences.length > 4 ? " social-post-links__options--scroll" : "";
+  const hasTikTokReference = safeReferences.some((reference) => reference.platform === "tiktok");
 
   return (
     <div className="social-post-links">
@@ -180,7 +181,7 @@ const SocialPostLinks = ({ productName, productImage, references = [] }) => {
                 key={reference.id}
                 href={reference.safeUrl}
                 target="_blank"
-                rel="noopener"
+                rel={reference.platform === "tiktok" ? "noopener sponsored nofollow" : "noopener"}
                 onClick={() => setOpen(false)}
                 aria-label={`Buka ${reference.label || `konten ${productName}`} di ${reference.platformLabel}`}
                 title={reference.label || `Buka di ${reference.platformLabel}`}
@@ -195,6 +196,7 @@ const SocialPostLinks = ({ productName, productImage, references = [] }) => {
 
           <p className="social-post-links__note">
             Video tidak dimuat di DicekOut agar halaman tetap ringan. Setiap pilihan membuka postingan pada platform asal.
+            {hasTikTokReference ? " Konten TikTok dapat memakai product anchor/keranjang kuning affiliate; transaksi dan komisi mengikuti ketentuan TikTok." : ""}
           </p>
         </div>
       </BottomSheet>

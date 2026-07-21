@@ -10,6 +10,7 @@ const CONTENT_PLATFORM_DEFINITIONS = [
     label: "TikTok",
     aliases: ["tik-tok", "tik tok"],
     hostnames: ["tiktok.com", "www.tiktok.com", "vt.tiktok.com"],
+    allowSubdomains: false,
   },
   {
     id: "youtube",
@@ -50,9 +51,11 @@ export const getContentPlatform = (value) => platformByAlias.get(
 
 export const hostnameMatchesContentPlatform = (hostname, platform) => {
   if (!platform) return false;
-  const normalized = String(hostname || "").trim().toLowerCase().replace(/^www\./, "");
+  const normalized = String(hostname || "").trim().toLowerCase().replace(/\.$/, "");
+  const allowSubdomains = platform.allowSubdomains !== false;
   return platform.hostnames.some((allowed) => {
-    const allowedNormalized = allowed.toLowerCase().replace(/^www\./, "");
-    return normalized === allowedNormalized || normalized.endsWith(`.${allowedNormalized}`);
+    const allowedNormalized = String(allowed || "").trim().toLowerCase().replace(/\.$/, "");
+    return normalized === allowedNormalized
+      || (allowSubdomains && normalized.endsWith(`.${allowedNormalized}`));
   });
 };

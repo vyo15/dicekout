@@ -35,6 +35,11 @@ const DisclosurePage = () => (
             Saat pengunjung membuka tautan tertentu lalu melakukan transaksi yang memenuhi ketentuan marketplace,
             DicekOut dapat menerima komisi dari program affiliate terkait.
           </p>
+          <p>
+            Untuk TikTok, DicekOut menggunakan alur content-first: tautan membuka video atau posting TikTok milik DicekOut,
+            lalu pengunjung dapat menuju TikTok Shop melalui product anchor atau keranjang kuning pada konten tersebut.
+            DicekOut tidak menganggap URL produk TikTok Shop biasa sebagai direct affiliate link.
+          </p>
 
           <h2>Harga dan keputusan pembelian</h2>
           <p>
@@ -55,8 +60,8 @@ const DisclosurePage = () => (
 
           <h2>Penandaan tautan</h2>
           <p>
-            Tautan marketplace dibuka di tab baru dan ditandai sebagai sponsored/nofollow pada kode halaman.
-            Parameter referral atau campaign pada tautan tidak dipotong oleh tampilan DicekOut.
+            Tautan marketplace dan jalur konten TikTok affiliate dibuka di tab baru serta ditandai sponsored/nofollow bila bersifat komersial.
+            Parameter referral atau campaign pada tautan direct affiliate tidak dipotong oleh tampilan DicekOut.
           </p>
 
           <p className="legal-footnote"><FiExternalLink aria-hidden="true" /> Halaman ini perlu ditinjau kembali sebelum katalog beralih dari mode demo ke mode publik.</p>

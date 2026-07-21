@@ -1,1 +1,1 @@
-export { getSafeContentUrl, validateAffiliateUrl } from "../utils/urls.js";
+export { getSafeContentUrl, validateAffiliateUrl, validateContentUrl } from "../utils/urls.js";

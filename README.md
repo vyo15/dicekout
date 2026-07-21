@@ -1,96 +1,76 @@
 # DicekOut
 
-DicekOut adalah website katalog rekomendasi produk affiliate berbasis React/Vite. Pengunjung menemukan produk, membuka detail, lalu menuju marketplace melalui link affiliate asli. Website tidak menyediakan checkout atau pembayaran internal.
+DicekOut adalah website katalog rekomendasi produk affiliate yang dibuat sebagai aplikasi statis React/Vite dan disiapkan untuk GitHub Pages.
 
 ## Status source
 
-- Brand: **DicekOut**
-- Domain target: **dicekout.id**
-- Katalog awal: **demo**
-- Indexing: **nonaktif** sampai seluruh data contoh diganti
-- Website publik: **statis**
-- Catalog Manager: **lokal di `127.0.0.1`**
-- Analytics/click tracker: **belum dipasang**
+- Brand kerja: **DicekOut**
+- Domain rencana: **dicekout.id**
+- Mode katalog awal: **demo**
+- Indexing mesin pencari: **nonaktif** sampai data contoh diganti
+- Database/backend: **tidak digunakan pada MVP**
+- Checkout/pembayaran internal: **tidak tersedia**
 
 ## Struktur utama
 
 ```text
-frontend/                    website publik, data katalog, route, SEO, dan static build
-tools/catalog-manager/       panel lokal authoring, media, backup, rollback, dan hard delete
-scripts/                     validasi source dan clean archive
-docs/                        arsitektur, kontrak katalog, operasi, QA, dan deployment
+frontend/
+├── public/                  aset publik dan ilustrasi produk lokal
+├── scripts/                 validasi katalog dan generator route statis
+└── src/
+    ├── components/          komponen layout, katalog, SEO, dan feedback
+    ├── config/              konfigurasi URL/base path
+    ├── data/                produk, kategori, koleksi, dan site config
+    ├── pages/               halaman publik
+    ├── styles/              style responsif
+    └── utils/               selector katalog dan validasi URL runtime
 ```
-
-Detail module dan data flow: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ## Instalasi pertama
 
-Gunakan Node.js `20.19+` atau `22.12+` dan npm `10+`. Dari root project:
+Dari folder utama project, jalankan satu perintah:
 
 ```bash
 npm install
 ```
 
-Satu perintah tersebut memasang dependency frontend dan Catalog Manager melalui npm workspaces.
-
-Menjalankan website:
+Project memakai npm workspaces, sehingga perintah tersebut memasang dependency website dan Local Catalog Manager sekaligus tanpa script setup tambahan. Setelah selesai:
 
 ```bash
 npm run dev
 ```
 
-Menjalankan panel lokal:
+Panel lokal hanya dijalankan dengan:
 
 ```bash
 npm run management
 ```
 
-## Quality gate
+Build dan seluruh pemeriksaan unit/static:
 
 ```bash
 npm run check
 ```
 
-Perintah tersebut menjalankan source hygiene, lint, unit/integration test, theme token validation, validasi katalog/deployment/static output, serta build frontend dan Catalog Manager.
-
-User journey production:
+Setelah Chromium Playwright terpasang, jalankan user journey production:
 
 ```bash
 npx playwright install chromium
 npm run test:e2e
 ```
 
-## Clean source ZIP
-
-Jangan memasukkan `node_modules`, `dist`, `.catalog-manager`, coverage, hasil Playwright, cache, atau secret ke ZIP.
-
-Setelah seluruh perubahan di-commit dan working tree bersih:
-
-```bash
-npm run validate:source
-npm run package:source
-```
-
-Archive dibuat melalui `git archive`, memiliki satu root `dicekout/`, dan hanya membawa file tracked.
+Hasil build berada di `frontend/dist/`. Artifact `playwright-report/` dan `test-results/` bersifat lokal dan tidak boleh masuk source.
 
 ## Data yang harus diganti sebelum publikasi
 
 1. Ganti produk contoh di `frontend/src/data/products.json`.
 2. Masukkan gambar produk berizin ke `frontend/public/images/products/`.
-3. Buat link melalui akun/program affiliate resmi; jangan menambahkan parameter affiliate sendiri.
-4. Untuk Shopee, gunakan link HTTPS resmi dan pastikan klik tercatat pada Laporan Performa akun Anda.
-5. Daftarkan `dicekout.id` sebagai media promosi bila diwajibkan program affiliate.
-6. Sesuaikan kategori dan koleksi.
-7. Ubah `catalogMode` menjadi `live` dan `allowIndexing` menjadi `true` hanya setelah seluruh data demo dihapus.
-8. Tinjau disclosure dan privacy sebelum indexing diaktifkan.
+3. Isi link affiliate dengan link resmi dari dashboard affiliate marketplace Anda sendiri — jangan menyalin URL produk biasa lalu menambahkan `affiliate_id` sendiri. Tempel utuh tanpa menghapus referral code atau query parameter. Pastikan domain sudah didaftarkan dan disetujui sebagai media promosi di program affiliate terkait (lihat [`docs/CATALOG_GUIDE.md`](docs/CATALOG_GUIDE.md)).
+4. Ubah koleksi dan kategori agar sesuai dengan produk nyata.
+5. Ubah `catalogMode` menjadi `live` dan `allowIndexing` menjadi `true` pada `frontend/src/data/site.json` hanya setelah seluruh data demo dihapus.
+6. Tinjau kembali disclosure dan privacy sebelum website diindeks.
 
-Build menolak indexing ketika produk atau koleksi demo masih tersedia.
+Validator akan menolak build bila indexing diaktifkan sementara masih ada produk atau koleksi dengan `demo: true`.
 
-## Dokumentasi aktif
-
-- [Arsitektur current-state](docs/ARCHITECTURE.md)
-- [Kontrak dan authoring katalog](docs/CATALOG_GUIDE.md)
-- [Operasional Catalog Manager](docs/CATALOG_MANAGER.md)
-- [QA checklist](docs/QA_CHECKLIST.md)
-- [Deployment GitHub Pages](docs/GITHUB_PAGES.md)
-- [Histori implementasi](docs/history/README.md)
+Dokumentasi pengelolaan katalog: [`docs/CATALOG_GUIDE.md`](docs/CATALOG_GUIDE.md)  
+Panduan GitHub Pages: [`docs/GITHUB_PAGES.md`](docs/GITHUB_PAGES.md)

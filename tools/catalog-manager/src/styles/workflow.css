@@ -749,3 +749,22 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
   background:var(--success-soft);
   color:var(--success)
 }
+
+.workflow-note {
+  margin:0 0 16px;
+  padding:12px 14px;
+  border:1px solid var(--border-strong);
+  border-radius:13px;
+  background:var(--surface-soft);
+  color:var(--text-soft);
+  font-size:11px;
+  line-height:1.6
+}
+.workflow-note strong {
+  color:var(--text)
+}
+.inline-actions {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px
+}

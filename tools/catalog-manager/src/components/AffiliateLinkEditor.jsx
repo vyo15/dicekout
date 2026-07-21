@@ -2,8 +2,8 @@ import { FiExternalLink } from "react-icons/fi";
 import {
   getMarketplaceCtaPresets,
   hasUnverifiedCtaClaim,
-} from "../../../../frontend/src/shared/catalogConfig.js";
-import { validateAffiliateUrl } from "../../../../frontend/src/shared/catalogSecurity.js";
+} from "../../../../frontend/src/config/marketplaces.js";
+import { getAffiliateLinkVerification, getSafeExternalUrl } from "../../../../frontend/src/utils/urls.js";
 import { Field, Section } from "./ManagerPrimitives.jsx";
 
 export function AffiliateLinkEditor({
@@ -17,17 +17,14 @@ export function AffiliateLinkEditor({
   return (
     <Section
       title="Link affiliate"
-      description="Tempel URL asli dari program affiliate resmi. Sistem tidak mengubah referral code, sub-ID, campaign, UTM, atau query attribution."
+      description="URL disimpan tanpa mengubah referral code, sub-ID, campaign, UTM, atau query attribution."
     >
       {links.map((link, index) => {
         const ctaPresets = getMarketplaceCtaPresets(link.marketplace);
         const riskyLabel = hasUnverifiedCtaClaim(link.label);
-        const hasUrl = Boolean(String(link.url || "").trim());
-        const affiliateValidation = hasUrl
-          ? validateAffiliateUrl(link.url, link.marketplace)
-          : null;
-        const affiliateStatusId = `affiliate-url-status-${index}`;
-        const urlDescribedBy = affiliateValidation ? affiliateStatusId : undefined;
+        const safeMarketplaceUrl = getSafeExternalUrl(link.url, link.marketplace);
+        const hasUrlText = Boolean(String(link.url || "").trim());
+        const linkVerification = hasUrlText ? getAffiliateLinkVerification(link.url, link.marketplace) : null;
 
         return (
           <div className="repeat-card" key={`${link.marketplace}-${index}`}>
@@ -79,25 +76,21 @@ export function AffiliateLinkEditor({
               <Field
                 label="URL affiliate asli"
                 className="span-2"
-                hint={!hasUrl ? "Untuk Shopee, gunakan short link atau wrapper resmi yang dibuat dari akun Shopee Affiliate Anda." : undefined}
+                hint="Salin persis dari dashboard affiliate marketplace. Jangan menambahkan atau mengedit query parameter secara manual."
               >
                 <input
-                  type="url"
-                  inputMode="url"
-                  placeholder="https://s.shopee.co.id/token-resmi"
                   value={link.url}
                   onChange={(event) => onLinkChange(index, { url: event.target.value })}
-                  aria-describedby={urlDescribedBy}
-                  aria-invalid={affiliateValidation ? !affiliateValidation.valid : undefined}
+                  aria-describedby={linkVerification ? `affiliate-url-status-${index}` : undefined}
                 />
-                {affiliateValidation ? (
-                  <small
-                    className={affiliateValidation.valid ? undefined : "field-warning"}
-                    id={affiliateStatusId}
-                    role={affiliateValidation.valid ? "status" : "alert"}
-                  >
-                    {affiliateValidation.message}
-                    {affiliateValidation.warning ? ` ${affiliateValidation.warning}` : ""}
+                {linkVerification && !linkVerification.valid ? (
+                  <small className="field-warning" id={`affiliate-url-status-${index}`}>
+                    Format affiliate belum terverifikasi: {linkVerification.reason}
+                  </small>
+                ) : null}
+                {linkVerification && linkVerification.valid ? (
+                  <small id={`affiliate-url-status-${index}`}>
+                    Format link valid. Kepemilikan link ini tetap harus dicek manual lewat akun affiliate resmi kamu — aplikasi tidak dapat memverifikasinya secara otomatis.
                   </small>
                 ) : null}
               </Field>
@@ -123,9 +116,9 @@ export function AffiliateLinkEditor({
                   />
                   <span>Link utama</span>
                 </label>
-                {affiliateValidation?.valid ? (
+                {safeMarketplaceUrl ? (
                   <a
-                    href={affiliateValidation.original}
+                    href={safeMarketplaceUrl}
                     target="_blank"
                     rel="noopener sponsored nofollow"
                   >

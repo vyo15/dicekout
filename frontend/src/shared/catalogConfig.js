@@ -2,6 +2,7 @@ export {
   getMarketplaceCtaPresets,
   hasUnverifiedCtaClaim,
   marketplaces,
+  supportsDirectAffiliateLink,
 } from "../config/marketplaces.js";
 export {
   productPalettes,
