@@ -1,6 +1,9 @@
 import { FiBookmark } from "react-icons/fi";
 import { useProductPreferences } from "../../hooks/useProductPreferences";
-import { toggleSavedProduct } from "../../utils/productPreferences";
+import {
+  announceProductPreference,
+  toggleSavedProduct,
+} from "../../utils/productPreferences";
 
 const SaveProductButton = ({ product, compact = false }) => {
   const { savedIds } = useProductPreferences();
@@ -9,7 +12,20 @@ const SaveProductButton = ({ product, compact = false }) => {
   const handleClick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    toggleSavedProduct(product.id);
+
+    const result = toggleSavedProduct(product.id);
+    if (!result.success) {
+      announceProductPreference({
+        message: "Koleksi tidak dapat disimpan di browser ini.",
+        tone: "error",
+      });
+      return;
+    }
+
+    announceProductPreference({
+      message: result.saved ? "Produk disimpan ke Koleksi." : "Produk dihapus dari Koleksi.",
+      undoIds: result.previousIds,
+    });
   };
 
   return (
@@ -18,8 +34,8 @@ const SaveProductButton = ({ product, compact = false }) => {
       type="button"
       onClick={handleClick}
       aria-pressed={saved}
-      aria-label={saved ? `Hapus ${product.name} dari produk tersimpan` : `Simpan ${product.name}`}
-      title={saved ? "Hapus dari tersimpan" : "Simpan produk"}
+      aria-label={saved ? `Hapus ${product.name} dari Koleksi` : `Simpan ${product.name} ke Koleksi`}
+      title={saved ? "Hapus dari Koleksi" : "Simpan ke Koleksi"}
     >
       <FiBookmark aria-hidden="true" />
       {compact ? null : <span>{saved ? "Tersimpan" : "Simpan"}</span>}

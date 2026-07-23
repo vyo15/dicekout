@@ -27,6 +27,8 @@ export const normalizeProduct = (input = {}) => {
   product.affiliateLinks = Array.isArray(product.affiliateLinks) ? product.affiliateLinks.map((link) => ({
     ...link,
     marketplace: String(link?.marketplace || "").trim(),
+    network: String(link?.network || "direct").trim() || "direct",
+    campaignName: String(link?.campaignName || "").trim(),
     label: String(link?.label || "").trim(),
     url: String(link?.url || "").trim(),
     status: link?.status === "inactive" ? "inactive" : "active",

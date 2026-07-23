@@ -65,7 +65,7 @@ Hasil build berada di `frontend/dist/`. Artifact `playwright-report/` dan `test-
 
 1. Ganti produk contoh di `frontend/src/data/products.json`.
 2. Masukkan gambar produk berizin ke `frontend/public/images/products/`.
-3. Isi link affiliate dengan link resmi dari dashboard affiliate marketplace Anda sendiri — jangan menyalin URL produk biasa lalu menambahkan `affiliate_id` sendiri. Tempel utuh tanpa menghapus referral code atau query parameter. Pastikan domain sudah didaftarkan dan disetujui sebagai media promosi di program affiliate terkait (lihat [`docs/CATALOG_GUIDE.md`](docs/CATALOG_GUIDE.md)).
+3. Isi link affiliate dari dashboard program/jaringan resmi. Shopee memakai link resmi program langsung; Tokopedia melalui ACCESSTRADE memakai marketplace `tokopedia` + network `accesstrade`; TikTok Affiliate memakai URL posting pada `contentReferences`, bukan direct TikTok Shop link. Tempel URL utuh tanpa mengubah token, referral code, atau query parameter (lihat [`docs/CATALOG_GUIDE.md`](docs/CATALOG_GUIDE.md)).
 4. Ubah koleksi dan kategori agar sesuai dengan produk nyata.
 5. Ubah `catalogMode` menjadi `live` dan `allowIndexing` menjadi `true` pada `frontend/src/data/site.json` hanya setelah seluruh data demo dihapus.
 6. Tinjau kembali disclosure dan privacy sebelum website diindeks.

@@ -21,7 +21,7 @@ const AffiliateLinkButton = ({
   disclosureId,
 }) => {
   const marketplace = getMarketplace(link?.marketplace);
-  const safeUrl = getSafeExternalUrl(link?.url, link?.marketplace);
+  const safeUrl = getSafeExternalUrl(link?.url, link?.marketplace, link?.network || "direct");
   if (!safeUrl || !marketplace) return null;
 
   const label = getAffiliateCtaLabel(link, context);

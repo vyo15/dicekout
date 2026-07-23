@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import {
-  FiArrowUpRight,
+  FiArrowRight,
   FiHome,
   FiMonitor,
   FiPackage,
@@ -16,23 +16,33 @@ const iconByName = {
   sparkles: FiStar,
 };
 
-const CategoryCard = ({ category, variant = "default" }) => {
-  const Icon = iconByName[category.icon] || FiPackage;
-  const count = getProductsByCategory(category.slug).length;
+export const CategoryIcon = ({ icon, className = "" }) => {
+  const Icon = iconByName[icon] || FiPackage;
+  const classes = ["category-card__icon", className].filter(Boolean).join(" ");
 
-  const variantClass = variant === "compact" ? " category-card--compact" : "";
+  return (
+    <span className={classes} aria-hidden="true">
+      <Icon />
+    </span>
+  );
+};
+
+const CategoryCard = ({ category, variant = "default" }) => {
+  const count = getProductsByCategory(category.slug).length;
+  const isCompact = variant === "compact";
 
   return (
     <Link
-      className={`category-card category-card--${category.accent}${variantClass}`}
+      className={`category-card category-card--${category.accent} category-card--${isCompact ? "compact" : "directory"}`}
       to={`/kategori/${category.slug}`}
     >
-      <span className="category-card__icon" aria-hidden="true"><Icon /></span>
+      <CategoryIcon icon={category.icon} />
       <span className="category-card__content">
+        {!isCompact ? <small>{count} produk pilihan</small> : null}
         <strong>{category.name}</strong>
-        <small>{count} produk</small>
+        {isCompact ? <small>{count} produk</small> : <span className="category-card__description">{category.description}</span>}
       </span>
-      <FiArrowUpRight className="category-card__arrow" aria-hidden="true" />
+      <span className="category-card__arrow" aria-hidden="true"><FiArrowRight /></span>
     </Link>
   );
 };

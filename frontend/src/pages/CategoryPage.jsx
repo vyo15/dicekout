@@ -3,6 +3,7 @@ import { FiArrowLeft } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import ProductGrid from "../components/catalog/ProductGrid";
+import { CategoryIcon } from "../components/catalog/CategoryCard";
 import NotFoundPage from "./NotFoundPage";
 import { getCategory, getProductsByCategory } from "../utils/catalog";
 import { useCatalogScrollRestoration } from "../hooks/useCatalogScrollRestoration";
@@ -34,28 +35,39 @@ const CategoryPage = () => {
         })}
       />
 
-      <section className={`page-hero page-hero--category page-hero--${category.accent}`}>
+      <section className={`discovery-detail-hero discovery-detail-hero--${category.accent}`}>
         <div className="container">
           <Breadcrumbs items={[
             { label: "Beranda", to: "/" },
-            { label: "Semua Produk", to: "/produk" },
+            { label: "Kategori", to: "/kategori" },
             { label: category.name },
           ]} />
-          <span className="eyebrow">Kategori</span>
-          <h1>{category.name}</h1>
-          <p>{category.description}</p>
-          <span className="page-hero__count">{categoryProducts.length} produk tersedia</span>
+
+          <div className="discovery-detail-hero__layout">
+            <div className="discovery-detail-hero__content">
+              <span className="eyebrow">Kategori produk</span>
+              <h1>{category.name}</h1>
+              <p>{category.description}</p>
+            </div>
+
+            <div className="discovery-detail-hero__summary">
+              <CategoryIcon icon={category.icon} className="discovery-detail-hero__icon" />
+              <strong>{categoryProducts.length}</strong>
+              <span>produk pilihan</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="section section--surface">
+      <section className="section section--surface discovery-results">
         <div className="container">
-          <div className="inline-heading">
+          <div className="inline-heading discovery-results__header">
             <div>
-              <h2>Produk dalam kategori ini</h2>
-              <p>Pilih produk untuk membaca detail dan alasan rekomendasinya.</p>
+              <span className="eyebrow">Pilihan dalam kategori</span>
+              <h2>Produk {category.name}</h2>
+              <p>Baca ringkasan, alasan rekomendasi, dan detail produknya sebelum menentukan pilihan.</p>
             </div>
-            <Link className="text-link" to="/produk"><FiArrowLeft aria-hidden="true" /> Semua produk</Link>
+            <Link className="text-link" to="/kategori"><FiArrowLeft aria-hidden="true" /> Kategori lainnya</Link>
           </div>
           <ProductGrid products={categoryProducts} priorityCount={4} />
         </div>

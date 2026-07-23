@@ -60,11 +60,13 @@ Duplikasi membuat ID dan slug baru yang unik terhadap produk source dan draft lo
 
 ## Affiliate link
 
-Setiap link memiliki marketplace, label, URL, status aktif/nonaktif, dan satu link utama. Catalog Manager:
+Setiap link memiliki marketplace tujuan, jaringan affiliate, nama campaign opsional, label, URL, status aktif/nonaktif, dan satu link utama. Catalog Manager:
 
 - mempertahankan referral code, sub-ID, campaign, UTM, deep link, urutan query, dan parameter attribution — URL disimpan persis seperti yang ditempel, tidak pernah direkonstruksi;
 - menolak protokol berbahaya, credential tertanam, dan HTTP untuk affiliate link production (HTTPS-only);
-- untuk Shopee, memvalidasi **format affiliate resmi** (short link `s.shopee.co.id`/`shope.ee`, atau wrapper `an_redir`) — bukan sekadar hostname. Marketplace lain masih memvalidasi hostname registry umum sampai formatnya diaudit satu per satu;
+- untuk Shopee, memvalidasi **format affiliate resmi** (short link `s.shopee.co.id`/`shope.ee`, atau wrapper `an_redir`) — bukan sekadar hostname;
+- untuk Tokopedia melalui ACCESSTRADE, memisahkan marketplace tujuan dari jaringan tracking dan hanya menerima bentuk tracking ACCESSTRADE yang didukung; URL Tokopedia biasa ditolak sebagai affiliate;
+- tidak menawarkan TikTok Shop pada editor direct affiliate; alur TikTok ditempatkan di **Konten terkait** sebagai video/posting content-first;
 - tidak membuat cloaking, redirect tersembunyi, atau URL baru;
 - membuka pemeriksaan link di tab baru dengan `noopener sponsored nofollow`.
 
@@ -77,6 +79,19 @@ Setiap link memiliki marketplace, label, URL, status aktif/nonaktif, dan satu li
    - *"Format affiliate belum terverifikasi: ..."* — URL ditolak dengan alasan spesifik (misalnya bukan short link/wrapper, host bukan domain Shopee resmi, atau HTTP). Jangan dipublikasikan sampai diperbaiki dengan link asli dari Shopee.
 4. Tombol **Periksa link** hanya muncul ketika format lulus validasi. Klik untuk membuka di tab baru dan pastikan mengarah ke produk yang benar — kemunculannya bukan jaminan komisi akan tercatat.
 5. Jangan mengedit token, `origin_link`, `affiliate_id`, atau `sub_id` secara manual setelah link ditempel. Butuh link baru, buat ulang dari Shopee, jangan mengedit yang sudah ada.
+
+
+### Cara mengisi Tokopedia melalui ACCESSTRADE
+
+1. Daftar dan tunggu campaign Tokopedia CPS berstatus disetujui.
+2. Pada editor, pilih **Marketplace tujuan: Tokopedia** dan **Jaringan affiliate: ACCESSTRADE**.
+3. Isi nama campaign agar mudah diaudit.
+4. Tempel tracking link hasil **Get Link/Custom Link**, bukan URL produk Tokopedia biasa.
+5. Pastikan tombol **Periksa link** muncul dan tujuan akhirnya benar; tetap cek klik/konversi di dashboard ACCESSTRADE.
+
+### Cara mengisi TikTok Affiliate
+
+Gunakan bagian **Konten terkait**, pilih platform TikTok, lalu tempel URL video/posting milik Anda yang sudah memiliki product anchor/keranjang kuning dan disclosure komersial. Jangan memasukkan URL produk TikTok Shop sebagai link affiliate langsung.
 
 ## Optimasi gambar otomatis
 

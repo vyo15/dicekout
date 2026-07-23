@@ -84,6 +84,9 @@
 - [ ] Untuk Shopee: host exact `s.shopee.co.id`, `shope.ee`, `shopee.co.id`, atau `www.shopee.co.id` — subdomain lain (`seller.`, `help.`, dst) ditolak.
 - [ ] Untuk Shopee: plain product URL (tanpa short link/wrapper `an_redir`) ditolak sebagai affiliate link, walau ditambahi `affiliate_id` manual.
 - [ ] Untuk Shopee: wrapper `an_redir` diperiksa — `origin_link` HTTPS dan menuju `shopee.co.id`/`www.shopee.co.id`, bukan domain lain.
+- [ ] Untuk Tokopedia: URL produk biasa ditolak; link memakai `network: accesstrade` dan tracking link hasil campaign yang disetujui.
+- [ ] Tracking ACCESSTRADE mempertahankan host, token, dan query hasil Get Link/Custom Link tanpa perubahan manual.
+- [ ] TikTok Shop tidak berada di `affiliateLinks`; URL video/posting TikTok disimpan sebagai `contentReferences` dan sudah memiliki product anchor/keranjang kuning.
 - [ ] Affiliate URL production HTTPS-only; `http://` ditolak.
 - [ ] Tidak ada affiliate URL identik pada produk berbeda.
 - [ ] Referral code, sub-ID, campaign, UTM, dan query parameter tetap utuh.
@@ -96,13 +99,13 @@
 - [ ] Sitemap memuat `lastmod` hanya dari tanggal yang valid.
 - [ ] `npm run test`, `npm run lint`, validasi katalog, dan build berhasil.
 
-## Verifikasi manual affiliate Shopee (sebelum publikasi produk nyata)
+## Verifikasi manual affiliate (sebelum publikasi produk nyata)
 
-- [ ] Klik CTA pada halaman hasil build — browser langsung meminta `s.shopee.co.id`/`shope.ee`/`shopee.co.id`, tanpa hop lewat `/go`, `/out`, atau redirect DicekOut.
-- [ ] Link dibuat dari akun Shopee Affiliate milik pengelola DicekOut, bukan disalin dari sumber lain.
-- [ ] `dicekout.id` sudah terdaftar sebagai media promosi dan disetujui Shopee.
-- [ ] Klik uji dari halaman DicekOut muncul di Laporan Performa Shopee Affiliate.
-- [ ] Produk yang dituju eligible untuk komisi (bukan produk digital, dari seller/kategori yang eligible).
+- [ ] Klik CTA pada halaman hasil build membuka URL affiliate asli tanpa hop lewat `/go`, `/out`, masking, atau redirect DicekOut.
+- [ ] Link dibuat dari akun affiliate milik pengelola DicekOut, bukan disalin dari sumber lain.
+- [ ] Properti website sudah didaftarkan dan disetujui bila program/campaign mewajibkannya.
+- [ ] Klik uji dari DicekOut muncul di laporan program atau jaringan affiliate terkait.
+- [ ] Produk, kategori, seller, dan jenis transaksi memenuhi ketentuan komisi campaign.
 
 
 ## Theme token dan feedback state

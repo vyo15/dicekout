@@ -1,8 +1,9 @@
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
 import { productById } from "../utils/catalog";
 import {
   getRecentProductIds,
   getSavedProductIds,
+  replaceSavedProductIds,
   subscribeProductPreferences,
 } from "../utils/productPreferences";
 
@@ -32,14 +33,24 @@ export const useProductPreferences = () => {
 
   const savedIds = useMemo(() => parseSnapshot(savedSnapshot), [savedSnapshot]);
   const recentIds = useMemo(() => parseSnapshot(recentSnapshot), [recentSnapshot]);
+  const validSavedIds = useMemo(() => savedIds.filter((id) => productById.has(id)), [savedIds]);
   const savedProducts = useMemo(
-    () => savedIds.map((id) => productById.get(id)).filter(Boolean),
-    [savedIds],
+    () => validSavedIds.map((id) => productById.get(id)).filter(Boolean),
+    [validSavedIds],
   );
   const recentProducts = useMemo(
     () => recentIds.map((id) => productById.get(id)).filter(Boolean),
     [recentIds],
   );
 
-  return { savedIds, recentIds, savedProducts, recentProducts };
+  useEffect(() => {
+    if (validSavedIds.length !== savedIds.length) replaceSavedProductIds(validSavedIds);
+  }, [savedIds, validSavedIds]);
+
+  return {
+    savedIds: validSavedIds,
+    recentIds,
+    savedProducts,
+    recentProducts,
+  };
 };

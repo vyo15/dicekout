@@ -10,3 +10,5 @@ export {
   PRODUCT_IMAGE_SCALES,
 } from "../config/productPalettes.js";
 export { contentPlatforms } from "../config/contentPlatforms.js";
+
+export { affiliateNetworks, getAffiliateNetwork } from "../config/affiliateNetworks.js";

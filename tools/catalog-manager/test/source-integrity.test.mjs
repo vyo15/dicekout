@@ -162,7 +162,7 @@ test("catalog manager uses React Icons and clean solid color navigation", async 
 });
 
 test("catalog manager lint and shared utilities are wired into quality checks", async () => {
-  const [rootPackage, managerPackage, managerEslint, app, apiHook, productIdentity, catalogValidator, urlUtils] = await Promise.all([
+  const [rootPackage, managerPackage, managerEslint, app, apiHook, productIdentity, catalogValidator, urlUtils, affiliateActions, affiliateEditor] = await Promise.all([
     readFile(new URL("../../../package.json", import.meta.url), "utf8").then(JSON.parse),
     readFile(new URL("../package.json", import.meta.url), "utf8").then(JSON.parse),
     readFile(new URL("../eslint.config.js", import.meta.url), "utf8"),
@@ -171,6 +171,8 @@ test("catalog manager lint and shared utilities are wired into quality checks", 
     readFile(new URL("../src/productIdentity.js", import.meta.url), "utf8"),
     readFile(new URL("../../../frontend/src/domain/catalog/validateCatalogData.js", import.meta.url), "utf8"),
     readFile(new URL("../../../frontend/src/utils/urls.js", import.meta.url), "utf8"),
+    readFile(new URL("../src/hooks/useAffiliateLinkActions.js", import.meta.url), "utf8"),
+    readFile(new URL("../src/components/AffiliateLinkEditor.jsx", import.meta.url), "utf8"),
   ]);
 
   assert.equal(managerPackage.scripts.lint, "eslint .");
@@ -182,9 +184,11 @@ test("catalog manager lint and shared utilities are wired into quality checks", 
   assert.match(apiHook, /useEffect/);
   assert.match(apiHook, /history\.replaceState/);
   assert.match(productIdentity, /slugifyProductName/);
-  assert.match(catalogValidator, /utils\/urls/);
-  assert.match(catalogValidator, /validateContentUrl/);
-  assert.match(urlUtils, /domain\/security\/safeExternalUrl/);
+  assert.match(catalogValidator, /security\/safeExternalUrl/);
+  assert.match(catalogValidator, /verifyAffiliateLinkFormat/);
+  assert.match(urlUtils, /security\/safeExternalUrl/);
+  assert.match(affiliateActions, /marketplace === "tokopedia" \? "accesstrade"/);
+  assert.match(affiliateEditor, /disabled=\{link\.marketplace === "tokopedia" && network\.id === "direct"\}/);
 });
 
 

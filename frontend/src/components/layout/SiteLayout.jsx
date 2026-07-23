@@ -4,6 +4,7 @@ import MobileBottomNavigation from "./MobileBottomNavigation";
 import MobileMoreMenu from "./MobileMoreMenu";
 import SiteFooter from "./SiteFooter.jsx";
 import SiteHeader from "./SiteHeader.jsx";
+import PreferenceToast from "../feedback/PreferenceToast.jsx";
 import { applyTheme, getInitialTheme, toggleThemeValue } from "../../utils/theme";
 import { useProductPreferences } from "../../hooks/useProductPreferences";
 
@@ -107,10 +108,12 @@ const SiteLayout = () => {
       <SiteFooter />
 
       <MobileBottomNavigation
+        savedCount={savedProducts.length}
         onSearch={openCatalogSearch}
         onMore={openMoreMenu}
         moreOpen={moreMenuOpen}
       />
+      <PreferenceToast />
       <MobileMoreMenu
         open={moreMenuOpen}
         onClose={closeMoreMenu}

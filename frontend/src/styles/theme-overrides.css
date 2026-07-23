@@ -9,7 +9,6 @@ html[data-theme="light"] :where(
   .page-hero:not(.page-hero--catalog),
   .page-hero--category,
   .page-hero--collection,
-  .page-hero--about,
   .product-detail__image-wrap,
   .transparency-card,
   .collection-card__visual,

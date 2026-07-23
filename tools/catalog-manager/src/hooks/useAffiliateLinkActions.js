@@ -18,6 +18,7 @@ export const useAffiliateLinkActions = ({ product, update }) => {
     const keepCustomLabel = Boolean(link?.label?.trim()) && !currentPresets.includes(link.label.trim());
     updateAffiliateLink(index, {
       marketplace,
+      network: marketplace === "tokopedia" ? "accesstrade" : (link?.network || "direct"),
       label: keepCustomLabel ? link.label : "",
     });
   };

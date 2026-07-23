@@ -6,7 +6,7 @@ const SITE_NAVIGATION = [
   { to: "/", label: "Beranda", end: true },
   { to: "/produk", label: "Semua Produk" },
   { to: "/kategori", label: "Kategori" },
-  { to: "/koleksi", label: "Koleksi" },
+  { to: "/koleksi", label: "Tema" },
   { to: "/tentang", label: "Tentang" },
 ];
 
@@ -30,8 +30,8 @@ const SiteHeader = ({ theme, savedCount, menuOpen, onToggleMenu, onToggleTheme }
         <NavLink
           className="icon-button saved-products-link"
           to="/tersimpan"
-          aria-label={`Produk tersimpan${savedCount ? `, ${savedCount} produk` : ""}`}
-          title="Produk tersimpan"
+          aria-label={`Koleksi${savedCount ? `, ${savedCount} produk` : ""}`}
+          title="Koleksi"
         >
           <FiBookmark aria-hidden="true" />
           {savedCount ? <span>{savedCount}</span> : null}

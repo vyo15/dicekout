@@ -40,6 +40,8 @@ Contoh struktur link (short link resmi Shopee):
 ```json
 {
   "marketplace": "shopee",
+  "network": "direct",
+  "campaignName": "Shopee Affiliate",
   "label": "Cek di Shopee",
   "url": "https://s.shopee.co.id/9fJO0rHK9y",
   "isPrimary": true,
@@ -52,6 +54,8 @@ Atau format wrapper resmi:
 ```json
 {
   "marketplace": "shopee",
+  "network": "direct",
+  "campaignName": "Shopee Affiliate",
   "label": "Cek di Shopee",
   "url": "https://s.shopee.co.id/an_redir?origin_link=https%3A%2F%2Fshopee.co.id%2Fproduct%2F123%2F456&affiliate_id=ID_AFFILIATE_ANDA&sub_id=blog",
   "isPrimary": true,
@@ -76,23 +80,51 @@ Host yang diterima **persis** (subdomain lain seperti `seller.shopee.co.id`, `he
 - `s.shopee.co.id/an_redir` atau `shope.ee/an_redir` — wrapper resmi, wajib punya `origin_link` (HTTPS, menuju `shopee.co.id`/`www.shopee.co.id`) dan `affiliate_id`.
 - `shopee.co.id` / `www.shopee.co.id` **tanpa** struktur wrapper di atas dianggap URL produk biasa dan **ditolak** sebagai affiliate link, walau URL-nya sendiri valid dan aman dibuka.
 
-Marketplace selain Shopee (Tokopedia, TikTok Shop, Lazada, Blibli, Amazon) masih memakai pemeriksaan hostname umum sampai format affiliate resminya diaudit satu per satu — lihat `frontend/src/config/marketplaces.js`.
+### Tokopedia melalui ACCESSTRADE
+
+Tokopedia pada DicekOut dipisahkan menjadi **marketplace tujuan** dan **jaringan affiliate**. URL produk Tokopedia biasa tidak dianggap sebagai affiliate link.
+
+```json
+{
+  "marketplace": "tokopedia",
+  "network": "accesstrade",
+  "campaignName": "[New] Tokopedia CPS",
+  "label": "Lihat di Tokopedia",
+  "url": "https://click.accesstra.de/go/TOKEN_HASIL_DASHBOARD",
+  "isPrimary": true,
+  "status": "active"
+}
+```
+
+Aturan:
+
+- campaign Tokopedia harus sudah disetujui pada akun ACCESSTRADE;
+- pilih `network: "accesstrade"` dan tempel link hasil **Get Link/Custom Link** tanpa mengubah token atau query;
+- format tracking yang dikenali memakai host `click.accesstrade.co.id`, `click.accesstra.de`, `cl.accesstrade.co.id`, atau `accesstra.de`;
+- URL `tokopedia.com` biasa dengan `network: "direct"` ditolak karena tidak membuktikan atribusi komisi;
+- field `campaignName` membantu audit dan sangat disarankan untuk link jaringan, walaupun tidak mengubah tracking.
+
+### TikTok Shop: content-first saja
+
+TikTok Shop tidak tersedia sebagai direct affiliate link di `affiliateLinks`. Gunakan `contentReferences` dengan platform `tiktok` untuk menyimpan URL video/posting milik pengelola yang sudah memiliki product anchor/keranjang kuning. URL produk `shop.tiktok.com` akan ditolak oleh validator affiliate.
+
+Marketplace lain seperti Lazada, Blibli, Amazon, dan `other` masih memakai pemeriksaan hostname umum sampai format affiliate resminya diaudit satu per satu — lihat `frontend/src/config/marketplaces.js`.
 
 ### Kode tidak menjamin komisi
 
-Validator hanya membuktikan **format** URL sesuai pola resmi Shopee. Validator tidak dan tidak bisa membuktikan:
+Validator hanya membuktikan **bentuk teknis URL** sesuai pola yang didukung. Validator tidak dan tidak bisa membuktikan:
 
-- link tersebut dibuat dari akun Shopee Affiliate milik Anda (bukan akun orang lain);
+- link tersebut dibuat dari akun affiliate milik Anda (bukan akun orang lain);
 - token masih aktif;
 - produk yang dituju eligible untuk komisi;
 - transaksi pembeli akan diselesaikan dan tidak dibatalkan/diretur.
 
 Sebelum produk nyata dipublikasikan, pastikan manual:
 
-1. Akun Shopee Affiliate aktif dan data pembayaran disetujui.
-2. `dicekout.id` sudah didaftarkan sebagai media promosi dan disetujui Shopee.
+1. Akun dan campaign affiliate terkait aktif serta data pembayaran disetujui.
+2. Properti website DicekOut sudah didaftarkan sebagai media promosi bila program mewajibkannya.
 3. Link disalin langsung dari dashboard/fitur affiliate resmi, bukan ditambahkan manual.
-4. Klik uji dari halaman DicekOut muncul di Laporan Performa Shopee Affiliate.
+4. Klik uji dari halaman DicekOut muncul di laporan jaringan/program yang digunakan.
 
 ## Relasi koleksi
 
@@ -207,9 +239,9 @@ Perilaku UI:
 
 ## Marketplace registry
 
-ID marketplace yang didukung tersimpan di `frontend/src/config/marketplaces.js`. Gunakan ID tersebut pada `affiliateLinks[].marketplace`, misalnya `shopee`, `tokopedia`, `lazada`, `tiktok-shop`, `blibli`, `amazon`, atau `other`.
+ID marketplace yang didukung tersimpan di `frontend/src/config/marketplaces.js`. Gunakan ID tersebut pada `affiliateLinks[].marketplace`, misalnya `shopee`, `tokopedia`, `lazada`, `blibli`, `amazon`, atau `other`. `tiktok-shop` tetap terdaftar untuk identitas platform, tetapi tidak dapat dipilih sebagai direct affiliate link.
 
-Gunakan `other` hanya setelah domain tujuan diperiksa manual. Validator tidak mengubah URL, query string, sub-ID, UTM, atau parameter attribution.
+Jaringan tracking tersimpan di `frontend/src/config/affiliateNetworks.js` dan diisi melalui `affiliateLinks[].network`: `direct` untuk link program marketplace langsung, atau `accesstrade` untuk link tracking ACCESSTRADE. Untuk jaringan yang belum terdaftar, jangan memaksa nilai baru pada data; audit dahulu lalu tambahkan definisinya secara terkontrol. Validator tidak mengubah URL, query string, sub-ID, UTM, atau parameter attribution.
 
 ## Aturan gambar produk melalui Catalog Manager
 

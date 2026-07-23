@@ -169,7 +169,7 @@ test("field markup labels controls without nesting interactive labels", () => {
     onAdd: () => {},
   }));
 
-  assert.ok(screen.getByLabelText("Marketplace"));
+  assert.ok(screen.getByLabelText("Marketplace tujuan"));
   assert.ok(screen.getByLabelText("Label tombol"));
   assert.ok(screen.getByRole("link", { name: "Periksa link" }));
   assert.equal(globalThis.document.querySelector("label label"), null);
@@ -202,7 +202,7 @@ test("affiliate preview link is shown together with an ownership disclaimer for 
 
   const previewLink = screen.getByRole("link", { name: "Periksa link" });
   assert.equal(previewLink.getAttribute("href"), "https://s.shopee.co.id/9fJO0rHK9y");
-  assert.ok(screen.getByText(/tetap harus dicek manual lewat akun affiliate resmi/));
+  assert.ok(screen.getByText(/tetap harus dicek manual melalui akun affiliate resmi/));
 });
 
 test("affiliate preview link is hidden when the URL host does not match its marketplace", () => {
@@ -216,4 +216,33 @@ test("affiliate preview link is hidden when the URL host does not match its mark
   }));
 
   assert.equal(screen.queryByRole("link", { name: "Periksa link" }), null);
+});
+
+
+test("affiliate editor separates marketplace destination from ACCESSTRADE tracking", () => {
+  render(React.createElement(AffiliateLinkEditor, {
+    links: [{
+      marketplace: "tokopedia",
+      network: "accesstrade",
+      campaignName: "[New] Tokopedia CPS",
+      label: "",
+      url: "https://click.accesstra.de/go/AbC_123-xYz",
+      status: "active",
+      isPrimary: true,
+    }],
+    marketplaces: [
+      { id: "tokopedia", label: "Tokopedia" },
+      { id: "tiktok-shop", label: "TikTok Shop", affiliateMode: "content-only" },
+    ],
+    onMarketplaceChange: () => {},
+    onLinkChange: () => {},
+    onRemove: () => {},
+    onAdd: () => {},
+  }));
+
+  assert.equal(screen.getByLabelText("Marketplace tujuan").value, "tokopedia");
+  assert.equal(screen.getByLabelText("Jaringan affiliate").value, "accesstrade");
+  assert.equal(screen.getByLabelText("Nama campaign").value, "[New] Tokopedia CPS");
+  assert.equal(screen.queryByRole("option", { name: "TikTok Shop" }), null);
+  assert.equal(screen.getByRole("link", { name: "Periksa link" }).getAttribute("href"), "https://click.accesstra.de/go/AbC_123-xYz");
 });

@@ -4,6 +4,7 @@ import {
   FiChevronRight,
   FiFileText,
   FiInfo,
+  FiLayers,
   FiMoon,
   FiShield,
   FiSun,
@@ -47,26 +48,26 @@ const MobileMoreMenu = ({ open, onClose, theme, onToggleTheme }) => {
             <NavLink to="/tersimpan" onClick={onClose}>
               <span className="mobile-more-menu__link-icon"><FiBookmark aria-hidden="true" /></span>
               <span>
-                <strong>Produk Tersimpan</strong>
+                <strong>Koleksi kamu</strong>
                 <small>Lihat kembali produk yang kamu simpan.</small>
               </span>
               <FiChevronRight aria-hidden="true" />
             </NavLink>
 
             <NavLink to="/koleksi" onClick={onClose}>
-              <span className="mobile-more-menu__link-icon"><FiBookmark aria-hidden="true" /></span>
+              <span className="mobile-more-menu__link-icon"><FiLayers aria-hidden="true" /></span>
               <span>
-                <strong>Semua Koleksi</strong>
-                <small>Jelajahi rekomendasi berdasarkan kebutuhan.</small>
+                <strong>Tema rekomendasi</strong>
+                <small>Jelajahi pilihan berdasarkan kebutuhan.</small>
               </span>
               <FiChevronRight aria-hidden="true" />
             </NavLink>
 
             {primaryCollection ? (
               <NavLink to={`/koleksi/${primaryCollection.slug}`} onClick={onClose}>
-                <span className="mobile-more-menu__link-icon"><FiBookmark aria-hidden="true" /></span>
+                <span className="mobile-more-menu__link-icon"><FiLayers aria-hidden="true" /></span>
                 <span>
-                  <strong>Produk dari Konten</strong>
+                  <strong>Tema dari konten</strong>
                   <small>Jelajahi rekomendasi dari video terbaru.</small>
                 </span>
                 <FiChevronRight aria-hidden="true" />

@@ -28,7 +28,15 @@ export const useCatalogQueryState = ({ categorySlugs, collectionSlugs }) => {
       if (!searchInput) return;
 
       const reduceMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-      searchInput.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+      const mobileViewport = window.matchMedia?.("(max-width: 640px)").matches;
+      const scrollTarget = mobileViewport
+        ? searchInput.closest(".products-catalog-toolbar") || searchInput
+        : searchInput;
+
+      scrollTarget.scrollIntoView({
+        behavior: reduceMotion ? "auto" : "smooth",
+        block: mobileViewport ? "start" : "center",
+      });
       searchInput.focus({ preventScroll: true });
       navigate(`${location.pathname}${location.search}`, { replace: true, state: null });
     });

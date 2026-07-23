@@ -4,6 +4,7 @@ import {
   verifyAffiliateLinkFormat,
 } from "../../config/marketplaces.js";
 import { parseSafeExternalUrl, parseSafeAffiliateUrl } from "../security/safeExternalUrl.js";
+import { getAffiliateNetwork } from "../../config/affiliateNetworks.js";
 import {
   getContentPlatform,
   hostnameMatchesContentPlatform,
@@ -138,8 +139,12 @@ export const validateCatalogData = ({ site, categories, collections, products })
       requiredString(link.marketplace, `${linkPrefix}.marketplace`); requiredString(link.url, `${linkPrefix}.url`);
       const marketplace = getMarketplace(link.marketplace);
       if (!marketplace) { errors.push(`${linkPrefix}.marketplace tidak terdaftar: ${link.marketplace}`); continue; }
-      if (marketplaceIds.has(link.marketplace)) errors.push(`${prefix} memiliki marketplace duplikat: ${link.marketplace}`);
-      marketplaceIds.add(link.marketplace);
+      const networkId = String(link.network || "direct").trim() || "direct";
+      const network = getAffiliateNetwork(networkId);
+      if (!network) errors.push(`${linkPrefix}.network tidak terdaftar: ${networkId}`);
+      const marketplaceKey = `${networkId}:${link.marketplace}`;
+      if (marketplaceIds.has(marketplaceKey)) errors.push(`${prefix} memiliki kombinasi marketplace dan jaringan duplikat: ${link.marketplace} / ${networkId}`);
+      marketplaceIds.add(marketplaceKey);
       const safeParsed = parseSafeExternalUrl(link.url);
       if (!safeParsed) {
         errors.push(`${prefix} memiliki affiliate URL tidak aman: ${link.url}`);
@@ -147,13 +152,14 @@ export const validateCatalogData = ({ site, categories, collections, products })
         const affiliateParsed = parseSafeAffiliateUrl(link.url);
         if (!affiliateParsed) {
           errors.push(`${linkPrefix}.url wajib HTTPS untuk affiliate link production: ${link.url}`);
-        } else {
-          const verification = verifyAffiliateLinkFormat(affiliateParsed.parsed, marketplace);
+        } else if (network) {
+          const verification = verifyAffiliateLinkFormat(affiliateParsed.parsed, marketplace, networkId);
           if (!verification.valid) errors.push(`${linkPrefix}.url ${verification.reason}`);
         }
       }
       if (link.status && !["active", "inactive"].includes(link.status)) errors.push(`${linkPrefix}.status tidak valid.`);
       if (link.label !== undefined && typeof link.label !== "string") errors.push(`${linkPrefix}.label harus teks.`);
+      if (link.campaignName !== undefined && typeof link.campaignName !== "string") errors.push(`${linkPrefix}.campaignName harus teks.`);
       if (hasUnverifiedCtaClaim(link.label)) {
         const message = `${linkPrefix}.label mengandung klaim promo, harga, atau urgensi yang perlu diverifikasi.`;
         if (publishedReal) errors.push(message);

@@ -205,32 +205,6 @@ html[data-theme="dark"] .hero-benefits svg {
     text-align: center;
   }
 
-  .hero-benefits {
-    justify-content: center;
-    gap: 10px 16px;
-    margin-inline: auto;
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .hero-categories {
-    padding: 18px;
-    border-radius: 24px;
-  }
-
-  .hero-categories__heading {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .hero-category-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .hero-category-grid .category-card {
-    min-height: 92px;
-  }
 }
 
 /* Compact brand-led hero refinement */
@@ -315,26 +289,6 @@ html[data-theme="dark"] .hero-benefits svg {
     font-size: 12.5px;
   }
 
-  .hero-benefits {
-    gap: 8px 13px;
-    margin-top: 13px;
-    font-size: 11px;
-    line-height: 1.35;
-  }
-
-  .hero-benefits li {
-    gap: 5px;
-  }
-
-  .hero-benefits svg {
-    width: 16px;
-    height: 16px;
-    padding: 2.5px;
-  }
-
-  .hero-categories {
-    margin-top: 34px;
-  }
 }
 
 @media (max-width: 360px) {
@@ -360,10 +314,6 @@ html[data-theme="dark"] .hero-benefits svg {
     padding-inline: 10px;
   }
 
-  .hero-benefits {
-    gap: 7px 10px;
-    font-size: 10.5px;
-  }
 }
 
 .home-latest-section {
@@ -374,5 +324,123 @@ html[data-theme="dark"] .hero-benefits svg {
 @media (max-width: 640px) {
   .home-latest-products .product-grid > :nth-child(n + 7) {
     display: none;
+  }
+}
+
+/* Mobile homepage alignment: one gutter, balanced benefits, clean category rail. */
+.hero-category-scroll {
+  min-width: 0;
+}
+
+.category-card--compact {
+  min-width: 0;
+}
+
+@media (max-width: 720px) {
+  .hero-search.container {
+    width: min(calc(100% - 32px), var(--container));
+  }
+
+  .hero-benefits {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: start;
+    gap: 8px;
+    margin-top: 16px;
+  }
+
+  .hero-benefits li {
+    min-width: 0;
+    display: grid;
+    justify-items: center;
+    align-content: start;
+    gap: 6px;
+    white-space: normal;
+    text-align: center;
+  }
+
+  .hero-benefits li span {
+    max-width: 92px;
+    line-height: 1.35;
+  }
+
+  .hero-categories {
+    margin-top: 34px;
+    margin-inline: calc(50% - 50vw);
+    padding: 24px 0 0;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+
+  .hero-categories__heading {
+    width: min(calc(100% - 32px), var(--container));
+    margin-inline: auto;
+    margin-bottom: 16px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+  }
+
+  .hero-categories__heading h2 {
+    font-size: 21px;
+  }
+
+  .hero-categories__heading > a {
+    font-size: 12px;
+  }
+
+  .hero-category-scroll {
+    width: min(calc(100% - 32px), var(--container));
+    margin-inline: auto;
+    overflow: visible;
+  }
+
+  .hero-category-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0;
+  }
+
+  .hero-category-grid .category-card--compact {
+    min-height: 88px;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 10px;
+    padding: 12px;
+    border-radius: 17px;
+  }
+
+  .hero-category-grid .category-card--compact .category-card__icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+
+  .hero-category-grid .category-card--compact .category-card__arrow {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero-benefits {
+    gap: 5px;
+    font-size: 10px;
+  }
+
+  .hero-benefits li span {
+    max-width: 86px;
+  }
+
+  .hero-category-grid {
+    gap: 8px;
+  }
+
+  .hero-category-grid .category-card--compact {
+    padding: 10px;
   }
 }

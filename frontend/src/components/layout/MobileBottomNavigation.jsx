@@ -11,10 +11,11 @@ const navItemClassName = ({ isActive }) => (
   `mobile-bottom-nav__item${isActive ? " mobile-bottom-nav__item--active" : ""}`
 );
 
-const MobileBottomNavigation = ({ onSearch, onMore, moreOpen }) => {
+const MobileBottomNavigation = ({ savedCount = 0, onSearch, onMore, moreOpen }) => {
   const location = useLocation();
-  const moreRouteActive = ["/kategori", "/tentang", "/disclosure", "/privacy"]
+  const moreRouteActive = ["/kategori", "/koleksi", "/tentang", "/disclosure", "/privacy"]
     .some((path) => location.pathname === path || location.pathname.startsWith(`${path}/`));
+  const badgeLabel = savedCount > 9 ? "9+" : String(savedCount);
 
   return (
     <nav className="mobile-bottom-nav" aria-label="Navigasi utama mobile">
@@ -39,8 +40,15 @@ const MobileBottomNavigation = ({ onSearch, onMore, moreOpen }) => {
           <span>Cari</span>
         </button>
 
-        <NavLink className={navItemClassName} to="/koleksi/produk-dari-video-terbaru">
-          <span className="mobile-bottom-nav__icon"><FiBookmark aria-hidden="true" /></span>
+        <NavLink
+          className={navItemClassName}
+          to="/tersimpan"
+          aria-label={savedCount ? `Koleksi, ${savedCount} produk tersimpan` : "Koleksi"}
+        >
+          <span className="mobile-bottom-nav__icon mobile-bottom-nav__icon--saved">
+            <FiBookmark aria-hidden="true" />
+            {savedCount ? <span className="mobile-bottom-nav__badge" aria-hidden="true">{badgeLabel}</span> : null}
+          </span>
           <span>Koleksi</span>
         </NavLink>
 

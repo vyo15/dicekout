@@ -1,5 +1,5 @@
 import { Link, useParams } from "react-router-dom";
-import { FiArrowLeft, FiPlayCircle } from "react-icons/fi";
+import { FiArrowLeft, FiLayers } from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
 import ProductGrid from "../components/catalog/ProductGrid";
@@ -19,7 +19,7 @@ const CollectionPage = () => {
   return (
     <>
       <Seo
-        title={`${collection.name} | Koleksi DicekOut`}
+        title={`${collection.name} | Tema DicekOut`}
         description={collection.description}
         path={`koleksi/${collection.slug}`}
         noindex={Boolean(collection.demo)}
@@ -29,34 +29,46 @@ const CollectionPage = () => {
           path: `koleksi/${collection.slug}`,
           breadcrumbs: [
             { name: "Beranda", path: "" },
-            { name: "Koleksi", path: "koleksi" },
+            { name: "Tema", path: "koleksi" },
             { name: collection.name, path: `koleksi/${collection.slug}` },
           ],
         })}
       />
 
-      <section className="page-hero page-hero--collection">
+      <section className="discovery-detail-hero discovery-detail-hero--theme">
         <div className="container">
           <Breadcrumbs items={[
             { label: "Beranda", to: "/" },
-            { label: "Koleksi", to: "/produk" },
+            { label: "Tema", to: "/koleksi" },
             { label: collection.name },
           ]} />
-          <span className="eyebrow"><FiPlayCircle aria-hidden="true" /> {collection.eyebrow}</span>
-          <h1>{collection.name}</h1>
-          <p>{collection.description}</p>
-          {collection.demo ? <span className="page-hero__count">Koleksi contoh untuk pratinjau desain</span> : null}
+
+          <div className="discovery-detail-hero__layout">
+            <div className="discovery-detail-hero__content">
+              <span className="eyebrow"><FiLayers aria-hidden="true" /> {collection.eyebrow}</span>
+              <h1>{collection.name}</h1>
+              <p>{collection.description}</p>
+              {collection.demo ? <span className="discovery-detail-hero__note">Tema contoh untuk pratinjau desain</span> : null}
+            </div>
+
+            <div className="discovery-detail-hero__summary">
+              <span className="category-card__icon discovery-detail-hero__icon" aria-hidden="true"><FiLayers /></span>
+              <strong>{collectionProducts.length}</strong>
+              <span>produk dalam tema</span>
+            </div>
+          </div>
         </div>
       </section>
 
-      <section className="section section--surface">
+      <section className="section section--surface discovery-results">
         <div className="container">
-          <div className="inline-heading">
+          <div className="inline-heading discovery-results__header">
             <div>
-              <h2>Produk dalam koleksi</h2>
-              <p>Satu halaman dapat dipakai sebagai link langsung dari caption atau bio media sosial.</p>
+              <span className="eyebrow">Pilihan dalam tema</span>
+              <h2>Produk yang saling melengkapi</h2>
+              <p>Jelajahi setiap produk dan tentukan sendiri mana yang paling sesuai dengan kebutuhanmu.</p>
             </div>
-            <Link className="text-link" to="/produk"><FiArrowLeft aria-hidden="true" /> Semua produk</Link>
+            <Link className="text-link" to="/koleksi"><FiArrowLeft aria-hidden="true" /> Tema lainnya</Link>
           </div>
           <ProductGrid products={collectionProducts} priorityCount={4} />
         </div>

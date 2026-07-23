@@ -1,65 +1,178 @@
 import { Link } from "react-router-dom";
-import { FiCheckCircle, FiCompass, FiHeart, FiShield } from "react-icons/fi";
+import {
+  FiArrowRight,
+  FiCheck,
+  FiCompass,
+  FiSearch,
+  FiShield,
+} from "react-icons/fi";
 import Seo from "../components/common/Seo";
 import Breadcrumbs from "../components/common/Breadcrumbs";
+
+const principles = [
+  {
+    icon: FiCompass,
+    title: "Dipilih dengan alasan",
+    description: "Kami mengutamakan produk yang berguna, relevan, dan layak dipertimbangkan.",
+  },
+  {
+    icon: FiSearch,
+    title: "Diriset dengan fokus",
+    description: "Informasi penting dirangkum agar kamu tidak perlu membuka terlalu banyak halaman.",
+  },
+  {
+    icon: FiShield,
+    title: "Disampaikan dengan jujur",
+    description: "Tidak ada rating, stok, diskon, atau klaim berlebihan yang dibuat-buat.",
+  },
+];
+
+const processSteps = [
+  {
+    number: "01",
+    title: "Kurasi",
+    description: "Memilih produk yang sesuai dengan arah katalog DicekOut.",
+  },
+  {
+    number: "02",
+    title: "Riset",
+    description: "Memeriksa fungsi, detail, konteks penggunaan, dan tujuan tautannya.",
+  },
+  {
+    number: "03",
+    title: "Sajikan",
+    description: "Menampilkan rekomendasi secara ringkas agar mudah dibandingkan.",
+  },
+];
 
 const AboutPage = () => (
   <>
     <Seo
-      title="Tentang DicekOut | Cara Kami Memilih Produk"
-      description="Pelajari tujuan DicekOut dan prinsip yang digunakan dalam menyusun rekomendasi produk."
+      title="Tentang DicekOut | Rekomendasi Produk Terkurasi"
+      description="Kenali cara DicekOut memilih, meriset, dan menyajikan rekomendasi produk secara sederhana dan transparan."
       path="tentang"
     />
 
-    <section className="page-hero page-hero--about">
+    <section className="about-hero">
       <div className="container">
         <Breadcrumbs items={[{ label: "Beranda", to: "/" }, { label: "Tentang" }]} />
-        <span className="eyebrow">Tentang DicekOut</span>
-        <h1>Pusat rekomendasi produk dari konten yang kamu lihat.</h1>
-        <p>
-          DicekOut membantu pengunjung menemukan produk dari konten media sosial, memahami konteksnya,
-          lalu membuka marketplace melalui tautan yang jelas.
-        </p>
-      </div>
-    </section>
 
-    <section className="section section--surface">
-      <div className="container story-grid">
-        <article className="story-copy">
-          <span className="eyebrow">Tujuan kami</span>
-          <h2>Membuat pencarian produk terasa lebih sederhana.</h2>
-          <p>
-            Link di caption sering tenggelam, sedangkan daftar produk di marketplace dapat berubah.
-            DicekOut menjadi halaman rujukan yang rapi untuk produk dari video, postingan, dan koleksi pilihan.
-          </p>
-          <p>
-            Website ini bukan marketplace. DicekOut tidak menyediakan checkout internal, tidak memproses pembayaran,
-            dan tidak mengklaim harga atau stok sebagai data realtime.
-          </p>
-        </article>
+        <div className="about-hero__layout">
+          <div className="about-hero__copy">
+            <span className="eyebrow">Tentang DicekOut</span>
+            <h1>Rekomendasi yang membantu kamu memilih, bukan memaksa membeli.</h1>
+            <p>
+              DicekOut menyaring produk yang menarik, merangkum informasi penting, lalu menyajikannya
+              dengan cara yang lebih sederhana. Keputusan akhirnya tetap milikmu.
+            </p>
 
-        <div className="principle-grid">
-          <article><FiCompass aria-hidden="true" /><h3>Mudah ditemukan</h3><p>Produk dapat dicari melalui nama, kategori, dan koleksi konten.</p></article>
-          <article><FiHeart aria-hidden="true" /><h3>Personal</h3><p>Setiap produk memiliki alasan rekomendasi, bukan sekadar link.</p></article>
-          <article><FiShield aria-hidden="true" /><h3>Transparan</h3><p>Link affiliate dan batasan informasi dijelaskan dengan jelas.</p></article>
-          <article><FiCheckCircle aria-hidden="true" /><h3>Tidak berlebihan</h3><p>Tidak ada countdown, stok, rating, atau diskon palsu.</p></article>
+            <div className="about-hero__actions">
+              <Link className="button button--primary" to="/produk">
+                Jelajahi produk <FiArrowRight aria-hidden="true" />
+              </Link>
+              <a className="about-text-link" href="#cara-kami-memilih">
+                Cara kami memilih
+              </a>
+            </div>
+          </div>
+
+          <aside className="about-brand-card" aria-label="Prinsip utama DicekOut">
+            <span className="about-brand-card__label">DICEKOUT.ID</span>
+            <p>
+              Pilih yang kamu mau.
+              <strong>DicekOut.id dulu.</strong>
+            </p>
+            <ul>
+              <li><FiCheck aria-hidden="true" /> Produk terpilih</li>
+              <li><FiCheck aria-hidden="true" /> Sudah kami riset</li>
+              <li><FiCheck aria-hidden="true" /> Tentukan pilihanmu</li>
+            </ul>
+          </aside>
         </div>
       </div>
     </section>
 
-    <section className="section section--soft">
-      <div className="container editorial-process">
-        <div>
-          <span className="eyebrow">Sebelum produk ditampilkan</span>
-          <h2>Prinsip penyusunan rekomendasi</h2>
+    <section className="about-section about-section--surface" id="cara-kami-memilih">
+      <div className="container about-principles">
+        <header className="about-section__heading">
+          <span className="eyebrow">Prinsip kami</span>
+          <h2>Lebih sedikit kebisingan, lebih banyak informasi yang berguna.</h2>
+          <p>
+            Kami tidak berusaha menampilkan semuanya. Fokusnya adalah membantu produk yang tepat lebih mudah ditemukan.
+          </p>
+        </header>
+
+        <div className="about-principles__list">
+          {principles.map(({ icon: Icon, title, description }, index) => (
+            <article className="about-principle" key={title}>
+              <span className="about-principle__number">0{index + 1}</span>
+              <Icon aria-hidden="true" />
+              <div>
+                <h3>{title}</h3>
+                <p>{description}</p>
+              </div>
+            </article>
+          ))}
         </div>
-        <ol>
-          <li><span>01</span><div><h3>Pastikan produk yang benar</h3><p>Nama, gambar, deskripsi, dan link harus merujuk pada barang yang sama.</p></div></li>
-          <li><span>02</span><div><h3>Tulis konteks yang berguna</h3><p>Jelaskan manfaat, target pengguna, dan hal yang perlu diperhatikan.</p></div></li>
-          <li><span>03</span><div><h3>Jaga attribution affiliate</h3><p>Referral code dan parameter link tidak dihapus atau diubah.</p></div></li>
-          <li><span>04</span><div><h3>Perbarui saat diperlukan</h3><p>Produk yang tidak tersedia dapat disembunyikan tanpa mengubah slug produk lain.</p></div></li>
+      </div>
+    </section>
+
+    <section className="about-section about-section--soft">
+      <div className="container">
+        <header className="about-section__heading about-section__heading--compact">
+          <span className="eyebrow">Cara kami bekerja</span>
+          <h2>Dari produk ditemukan sampai siap dilihat.</h2>
+        </header>
+
+        <ol className="about-process">
+          {processSteps.map((step) => (
+            <li key={step.number}>
+              <span>{step.number}</span>
+              <h3>{step.title}</h3>
+              <p>{step.description}</p>
+            </li>
+          ))}
         </ol>
-        <Link className="button button--primary" to="/produk">Jelajahi katalog</Link>
+      </div>
+    </section>
+
+    <section className="about-section about-section--surface">
+      <div className="container about-transparency">
+        <div className="about-transparency__intro">
+          <FiShield aria-hidden="true" />
+          <span className="eyebrow">Transparansi</span>
+          <h2>Jelas sejak awal.</h2>
+          <p>DicekOut adalah katalog rekomendasi, bukan marketplace.</p>
+        </div>
+
+        <div className="about-transparency__items">
+          <article>
+            <h3>Tidak ada checkout internal</h3>
+            <p>Pembayaran, stok, pengiriman, dan transaksi tetap dilakukan di platform tujuan.</p>
+          </article>
+          <article>
+            <h3>Tautan affiliate diberi konteks</h3>
+            <p>DicekOut dapat memperoleh komisi dari tautan tertentu tanpa biaya tambahan untukmu.</p>
+          </article>
+          <article>
+            <h3>Informasi dapat berubah</h3>
+            <p>Harga dan ketersediaan final selalu mengikuti informasi terbaru di marketplace.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section className="about-cta-section">
+      <div className="container">
+        <div className="about-cta">
+          <div>
+            <span className="eyebrow">Mulai menjelajah</span>
+            <h2>Temukan produk yang memang cocok untukmu.</h2>
+          </div>
+          <Link className="button button--primary" to="/produk">
+            Lihat katalog <FiArrowRight aria-hidden="true" />
+          </Link>
+        </div>
       </div>
     </section>
   </>

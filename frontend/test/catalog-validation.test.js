@@ -110,3 +110,56 @@ test("an official Shopee short link and a well-formed an_redir wrapper both pass
   const result = validateCatalogData({ site, categories, collections, products: copy });
   assert.ok(!result.errors.some((error) => error.includes(".affiliateLinks[0].url")));
 });
+
+
+const makePublishedRealProduct = () => {
+  const copy = structuredClone(products);
+  copy[0].demo = false;
+  copy[0].notSuitableFor = copy[0].notSuitableFor?.length
+    ? copy[0].notSuitableFor
+    : ["Pengguna yang membutuhkan alternatif lain"];
+  copy[0].reviewedAt = "2026-07-01";
+  return copy;
+};
+
+test("Tokopedia via an ACCESSTRADE generated link passes the publish gate", () => {
+  const copy = makePublishedRealProduct();
+  copy[0].affiliateLinks = [{
+    marketplace: "tokopedia",
+    network: "accesstrade",
+    campaignName: "[New] Tokopedia CPS",
+    url: "https://click.accesstra.de/go/AbC_123-xYz",
+    label: "",
+    status: "active",
+    isPrimary: true,
+  }];
+
+  const result = validateCatalogData({ site, categories, collections, products: copy });
+  assert.ok(!result.errors.some((error) => error.includes("affiliateLinks[0].url")), result.errors.join("\n"));
+});
+
+test("plain Tokopedia and direct TikTok Shop links are blocked from publication", () => {
+  const tokopediaCopy = makePublishedRealProduct();
+  tokopediaCopy[0].affiliateLinks = [{
+    marketplace: "tokopedia",
+    network: "direct",
+    url: "https://www.tokopedia.com/toko/produk",
+    label: "",
+    status: "active",
+    isPrimary: true,
+  }];
+  const tokopediaResult = validateCatalogData({ site, categories, collections, products: tokopediaCopy });
+  assert.ok(tokopediaResult.errors.some((error) => error.includes("pilih jaringan ACCESSTRADE")));
+
+  const tiktokCopy = makePublishedRealProduct();
+  tiktokCopy[0].affiliateLinks = [{
+    marketplace: "tiktok-shop",
+    network: "direct",
+    url: "https://shop.tiktok.com/view/product/123",
+    label: "",
+    status: "active",
+    isPrimary: true,
+  }];
+  const tiktokResult = validateCatalogData({ site, categories, collections, products: tiktokCopy });
+  assert.ok(tiktokResult.errors.some((error) => error.includes("content-first")));
+});

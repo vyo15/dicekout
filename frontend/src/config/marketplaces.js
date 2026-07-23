@@ -1,3 +1,5 @@
+import { verifyAffiliateNetworkFormat } from "./affiliateNetworks.js";
+
 const MARKETPLACE_DEFINITIONS = [
   {
     id: "shopee",
@@ -21,7 +23,8 @@ const MARKETPLACE_DEFINITIONS = [
     id: "tiktok-shop",
     label: "TikTok Shop",
     hostnames: ["shop.tiktok.com", "vt.tiktok.com"],
-    defaultCta: "Lihat harga di TikTok Shop",
+    defaultCta: "Lihat konten TikTok",
+    affiliateMode: "content-only",
   },
   {
     id: "blibli",
@@ -50,6 +53,11 @@ export const marketplaces = Object.freeze(MARKETPLACE_DEFINITIONS.map((item) => 
 export const marketplaceById = new Map(marketplaces.map((item) => [item.id, item]));
 
 export const getMarketplace = (id) => marketplaceById.get(String(id || "").trim()) || null;
+
+export const supportsDirectAffiliateLink = (id) => {
+  const marketplace = getMarketplace(id);
+  return Boolean(marketplace) && marketplace.affiliateMode !== "content-only";
+};
 
 export const getMarketplaceCtaPresets = (id) => {
   const marketplace = getMarketplace(id);
@@ -175,8 +183,14 @@ const verifyShopeeAffiliateFormat = (parsedUrl) => {
   };
 };
 
+const verifyTokopediaDirectFormat = () => ({
+  valid: false,
+  reason: "URL Tokopedia biasa belum membuktikan atribusi affiliate. Untuk DicekOut, pilih jaringan ACCESSTRADE dan gunakan tracking link hasil Custom Link campaign Tokopedia CPS.",
+});
+
 const AFFILIATE_FORMAT_VERIFIERS = {
   shopee: verifyShopeeAffiliateFormat,
+  tokopedia: verifyTokopediaDirectFormat,
 };
 
 /**
@@ -190,8 +204,18 @@ const AFFILIATE_FORMAT_VERIFIERS = {
  * ownership, which can only be confirmed manually via the marketplace's own
  * affiliate dashboard.
  */
-export const verifyAffiliateLinkFormat = (parsedUrl, marketplace) => {
+export const verifyAffiliateLinkFormat = (parsedUrl, marketplace, networkId = "direct") => {
   if (!marketplace) return { valid: false, reason: "Marketplace tidak dikenali." };
+  if (marketplace.affiliateMode === "content-only") {
+    return {
+      valid: false,
+      reason: "TikTok Shop memakai alur content-first. Simpan URL video/posting TikTok pada Konten terkait, bukan sebagai direct affiliate link.",
+    };
+  }
+
+  const networkVerification = verifyAffiliateNetworkFormat(parsedUrl, networkId);
+  if (!networkVerification.valid) return networkVerification;
+  if (networkId !== "direct") return { valid: true, reason: "" };
   if (marketplace.id === "other") return { valid: true, reason: "" };
 
   const verifier = AFFILIATE_FORMAT_VERIFIERS[marketplace.id];

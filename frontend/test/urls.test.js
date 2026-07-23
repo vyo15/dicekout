@@ -79,3 +79,41 @@ test("content URL keeps the original post URL only when it matches the selected 
   assert.equal(getSafeContentUrl("https://youtube.com/watch?v=123", "instagram"), null);
   assert.equal(getSafeContentUrl("https://facebook.com/watch/123", "fb"), "https://facebook.com/watch/123");
 });
+
+
+test("Tokopedia through ACCESSTRADE accepts generated tracking shapes and preserves the original URL", () => {
+  const generatedLinks = [
+    "https://click.accesstrade.co.id/go/AbC_123-xYz",
+    "https://click.accesstra.de/go/mdIbibVo",
+    "https://click.accesstrade.co.id/adv.php?rk=abc123&url=https%3A%2F%2Fwww.tokopedia.com%2Fproduk",
+    "https://cl.accesstrade.co.id/AbC_123-xYz",
+    "https://accesstra.de/AbC_123-xYz",
+  ];
+
+  for (const url of generatedLinks) {
+    assert.equal(getAffiliateLinkVerification(url, "tokopedia", "accesstrade").valid, true, `expected ${url} to be accepted`);
+    assert.equal(getSafeExternalUrl(url, "tokopedia", "accesstrade"), url);
+  }
+});
+
+test("Tokopedia direct links, fake ACCESSTRADE hosts, and hand-written tracking paths are rejected", () => {
+  const rejected = [
+    ["https://www.tokopedia.com/toko/produk", "tokopedia", "direct"],
+    ["https://click.accesstrade.co.id.example.com/go/abc", "tokopedia", "accesstrade"],
+    ["https://sub.click.accesstrade.co.id/go/abc", "tokopedia", "accesstrade"],
+    ["https://click.accesstrade.co.id/manual/path/product", "tokopedia", "accesstrade"],
+    ["https://cl.accesstrade.co.id/token/path", "tokopedia", "accesstrade"],
+  ];
+
+  for (const [url, marketplace, network] of rejected) {
+    assert.equal(getAffiliateLinkVerification(url, marketplace, network).valid, false, `expected ${url} to be rejected`);
+  }
+});
+
+test("TikTok Shop cannot be stored as a direct affiliate destination", () => {
+  const url = "https://shop.tiktok.com/view/product/123";
+  const result = getAffiliateLinkVerification(url, "tiktok-shop", "direct");
+  assert.equal(result.valid, false);
+  assert.match(result.reason, /content-first/);
+  assert.equal(getSafeExternalUrl(url, "tiktok-shop", "direct"), null);
+});

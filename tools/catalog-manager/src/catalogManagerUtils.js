@@ -1,5 +1,5 @@
-import { getSafeContentUrl, getSafeExternalUrl } from "../../../frontend/src/utils/urls.js";
-import { hasUnverifiedCtaClaim } from "../../../frontend/src/config/marketplaces.js";
+import { getSafeContentUrl, getSafeExternalUrl } from "../../../frontend/src/shared/catalogSecurity.js";
+import { hasUnverifiedCtaClaim } from "../../../frontend/src/shared/catalogConfig.js";
 
 export const lines = (value) => String(value || "").split("\n").map((item) => item.trim()).filter(Boolean);
 export const today = (value = new Date()) => {
@@ -73,7 +73,7 @@ export const getProductReadinessChecks = ({ product, catalog, drafts = [] }) => 
   const activeLinks = orderActiveAffiliateLinks(product.affiliateLinks);
   const primaryLinks = (product.affiliateLinks || []).filter((link) => link?.isPrimary);
   const affiliateLinksValid = activeLinks.length > 0 && activeLinks.every((link) => (
-    Boolean(getSafeExternalUrl(link.url, link.marketplace)) && !hasUnverifiedCtaClaim(link.label)
+    Boolean(getSafeExternalUrl(link.url, link.marketplace, link.network || "direct")) && !hasUnverifiedCtaClaim(link.label)
   ));
   const contentReferencesValid = (product.contentReferences || []).every((reference) => (
     hasText(reference.label) && Boolean(getSafeContentUrl(reference.url, reference.platform))

@@ -66,3 +66,17 @@ test("catalog hero uses responsive kitchen artwork and a blended catalog shell",
     assert.equal(fs.existsSync(path.join(frontendRoot, obsoleteFile)), false, `${obsoleteFile} harus dibersihkan`);
   }
 });
+
+test("mobile catalog search is compact and scrolls directly to the search controls", () => {
+  const catalogCss = readSource("src/styles/catalog.css");
+  const queryStateHook = readSource("src/hooks/useCatalogQueryState.js");
+
+  assert.match(catalogCss, /@media \(max-width: 720px\)[\s\S]*?\.page-hero--catalog\s*\{[^}]*min-height:\s*410px/s);
+  assert.match(catalogCss, /\.products-catalog-toolbar\s*\{[^}]*scroll-margin-top:\s*calc\(var\(--header-height\) \+ 8px\)/s);
+  assert.match(catalogCss, /@media \(max-width: 720px\)[\s\S]*?\.products-catalog-toolbar\s*\{[^}]*grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\)/s);
+  assert.match(catalogCss, /@media \(max-width: 720px\)[\s\S]*?\.products-catalog-toolbar > \.search-autocomplete\s*\{[^}]*grid-column:\s*1 \/ -1/s);
+  assert.match(catalogCss, /@media \(max-width: 720px\)[\s\S]*?\.products-catalog-search\s*\{[^}]*min-height:\s*54px/s);
+  assert.match(catalogCss, /@media \(max-width: 720px\)[\s\S]*?\.products-catalog-sort,[\s\S]*?min-height:\s*46px/s);
+  assert.match(queryStateHook, /searchInput\.closest\("\.products-catalog-toolbar"\)/);
+  assert.match(queryStateHook, /block:\s*mobileViewport \? "start" : "center"/);
+});

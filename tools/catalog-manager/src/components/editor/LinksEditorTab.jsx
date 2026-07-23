@@ -26,7 +26,7 @@ export function LinksEditorTab({
         onRemove={removeAffiliateLink}
         onAdd={() => update("affiliateLinks", [
           ...product.affiliateLinks,
-          { marketplace: "shopee", label: "", url: "", status: "active", isPrimary: product.affiliateLinks.length === 0 },
+          { marketplace: "shopee", network: "direct", campaignName: "", label: "", url: "", status: "active", isPrimary: product.affiliateLinks.length === 0 },
         ])}
       />
       <Section title="Konten terkait" description="Hubungkan produk dengan video atau posting publik yang benar-benar membahas produk yang sama.">

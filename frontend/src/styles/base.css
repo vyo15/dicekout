@@ -285,9 +285,7 @@ html[data-theme="dark"] .brand-logo__mark-image{
 
 .section-header h2,
 .inline-heading h2,
-.product-description-grid h2,
-.story-copy h2,
-.editorial-process h2 {
+.product-description-grid h2 {
   margin: 12px 0 0;
   color: var(--color-text);
   font-size: clamp(28px, 4vw, 43px);
